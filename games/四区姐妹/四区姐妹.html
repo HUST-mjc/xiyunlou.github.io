@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>四区姐妹只爱米 - 舰长争霸赛</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            border: 4px solid #333;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F7FA 100%);
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .player {
+            position: absolute;
+            bottom: 20px;
+            width: 60px;
+            height: 60px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px black;
+            transition: transform 0.1s;
+            border-radius: 50%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            image-rendering: pixelated;
+        }
+
+        #player1 { 
+            left: 100px; 
+            background-image: url('bekki.png');
+            border: 3px solid #A7C9D3;
+            box-shadow: 0 0 10px #A7C9D3, 0 4px 6px rgba(0,0,0,0.2);
+        }
+        #player2 { 
+            left: 300px; 
+            background-image: url('lian.jpg');
+            border: 3px solid #E38691;
+            box-shadow: 0 0 10px #E38691, 0 4px 6px rgba(0,0,0,0.2);
+        }
+        #player3 { 
+            left: 500px; 
+            background-image: url('mumu.jpg');
+            border: 3px solid #A1D29A;
+            box-shadow: 0 0 10px #A1D29A, 0 4px 6px rgba(0,0,0,0.2);
+        }
+        #player4 { 
+            left: 700px; 
+            background-image: url('yoyi.png');
+            border: 3px solid #E3BA09;
+            box-shadow: 0 0 10px #E3BA09, 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .player.shielded { 
+            animation: pulse 1s infinite;
+            filter: brightness(1.3) drop-shadow(0 0 10px gold);
+        }
+        .player.speed-boost { 
+            animation: shake 0.5s infinite;
+            filter: brightness(1.4) contrast(1.2);
+        }
+        .player.magnet-active { 
+            filter: drop-shadow(0 0 15px #FF69B4);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+
+        .item {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+            font-size: 24px;
+            user-select: none;
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.2));
+        }
+        
+        .special-gift { 
+            font-size: 20px; 
+            animation: pulse 0.5s infinite alternate; 
+            filter: drop-shadow(0 0 10px gold);
+        }
+        
+        .buff-item {
+            animation: rotate 2s linear infinite;
+            filter: drop-shadow(0 0 8px #FF69B4);
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        #score-board {
+            width: 800px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+        }
+
+        .score-panel {
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 180px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 3px solid;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .score-panel:hover { transform: translateY(-2px); }
+
+        .score-panel:nth-child(1) { border-color: #A7C9D3; }
+        .score-panel:nth-child(2) { border-color: #E38691; }
+        .score-panel:nth-child(3) { border-color: #A1D29A; }
+        .score-panel:nth-child(4) { border-color: #E3BA09; }
+
+        /* 舰长称号样式 */
+        .title-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 5px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 5px currentColor; }
+            to { box-shadow: 0 0 20px currentColor, 0 0 30px currentColor; }
+        }
+
+        .title-bai { background: linear-gradient(135deg, #C0C0C0, #E8E8E8); color: #666; }
+        .title-qian { 
+            background: linear-gradient(135deg, #FFD700, #FFA500); 
+            color: #8B4513;
+            animation: shine 1s infinite;
+        }
+        .title-wan { 
+            background: linear-gradient(135deg, #FF0000, #FF6B6B, #FFD700); 
+            color: #fff;
+            animation: rainbow 2s infinite, pulse 1s infinite;
+            font-size: 14px;
+            padding: 4px 12px;
+        }
+
+        @keyframes shine {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.5); }
+        }
+
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .player-avatar {
+            width: 40px;
+            height: 40px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin: 0 auto 5px;
+            border-radius: 50%;
+            border: 2px solid;
+        }
+
+        .score-panel:nth-child(1) .player-avatar { 
+            background-image: url('bekki.png'); 
+            border-color: #A7C9D3;
+            box-shadow: 0 0 5px #A7C9D3;
+        }
+        .score-panel:nth-child(2) .player-avatar { 
+            background-image: url('lian.jpg'); 
+            border-color: #E38691;
+            box-shadow: 0 0 5px #E38691;
+        }
+        .score-panel:nth-child(3) .player-avatar { 
+            background-image: url('mumu.jpg'); 
+            border-color: #A1D29A;
+            box-shadow: 0 0 5px #A1D29A;
+        }
+        .score-panel:nth-child(4) .player-avatar { 
+            background-image: url('yoyi.png'); 
+            border-color: #E3BA09;
+            box-shadow: 0 0 5px #E3BA09;
+        }
+
+        .player-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .buff-icons {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 5px;
+            height: 24px;
+        }
+
+        .buff-icon {
+            font-size: 18px;
+            animation: bounce 0.5s infinite alternate;
+        }
+
+        @keyframes bounce {
+            to { transform: translateY(-3px); }
+        }
+
+        .controls {
+            margin-top: 15px;
+            text-align: center;
+            color: #fff;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .control-group {
+            display: inline-block;
+            margin: 0 15px;
+            padding: 5px 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+        }
+
+        .control-group:nth-child(1) { border-left: 3px solid #A7C9D3; }
+        .control-group:nth-child(2) { border-left: 3px solid #E38691; }
+        .control-group:nth-child(3) { border-left: 3px solid #A1D29A; }
+        .control-group:nth-child(4) { border-left: 3px solid #E3BA09; }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .gift-value {
+            position: absolute;
+            color: gold;
+            font-weight: bold;
+            font-size: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        #shop-modal, #victory-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .shop-content, .victory-content {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            width: 700px;
+            max-height: 80vh;
+            border-radius: 15px;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .victory-content {
+            text-align: center;
+            background: linear-gradient(135deg, #FFD700 0%, #FF6B6B 50%, #FF0000 100%);
+            color: white;
+            animation: victoryPulse 2s infinite;
+        }
+
+        @keyframes victoryPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .victory-title {
+            font-size: 48px;
+            font-weight: bold;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+        }
+
+        .victory-player {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .victory-stats {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .shop-header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .shop-item {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shop-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            border-color: #667eea;
+        }
+
+        .shop-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(100%);
+        }
+
+        .shop-item.purchased {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+        }
+
+        .item-icon {
+            font-size: 36px;
+            margin-bottom: 5px;
+        }
+
+        .item-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .item-desc {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .item-price {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #333;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .item-level {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #667eea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: #ff4757;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .stats-display {
+            background: rgba(255,255,255,0.9);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        #buff-bar {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 50;
+        }
+
+        .buff-badge {
+            background: rgba(255,255,255,0.9);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .combo-display {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 32px;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            display: none;
+            z-index: 50;
+        }
+
+        /* 倒计时显示 */
+        #round-timer {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 100;
+            border: 2px solid #FFD700;
+        }
+
+        #round-timer.warning {
+            animation: timerWarning 0.5s infinite;
+            color: #FF4444;
+            border-color: #FF4444;
+        }
+
+        @keyframes timerWarning {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* 暂停遮罩 */
+        #pause-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .pause-text {
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+            animation: pausePulse 1.5s infinite;
+        }
+
+        @keyframes pausePulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        .pause-subtext {
+            color: #FFD700;
+            font-size: 20px;
+            margin-top: 20px;
+        }
+
+        .continue-btn {
+            margin-top: 30px;
+            background: linear-gradient(135deg, #00C853, #64DD17);
+            padding: 15px 40px;
+            font-size: 20px;
+        }
+
+        /* 舰长进度条 */
+        .ship-progress {
+            width: 100%;
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ship-progress-bar {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .ship-progress-bar.bai { background: linear-gradient(90deg, #C0C0C0, #E8E8E8); }
+        .ship-progress-bar.qian { background: linear-gradient(90deg, #FFD700, #FFA500); }
+        .ship-progress-bar.wan { background: linear-gradient(90deg, #FF0000, #FF6B6B, #FFD700); }
+    </style>
+</head>
+<body>
+
+    <h1>🎮 四区姐妹只爱米 - 舰长争霸赛</h1>
+    
+    <div id="game-container">
+        <div id="buff-bar"></div>
+        <div id="combo-display" class="combo-display">连击 x<span id="combo-count">0</span>!</div>
+        
+        <!-- 回合倒计时 -->
+        <div id="round-timer">60s</div>
+        
+        <!-- 暂停遮罩 -->
+        <div id="pause-overlay">
+            <div class="pause-text">⏸️ 回合结束</div>
+            <div class="pause-subtext">购物时间！点击角色打开商店强化</div>
+            <button class="continue-btn" onclick="continueGame()">继续游戏 (Enter)</button>
+        </div>
+        
+        <!-- 四位玩家 -->
+        <div id="player1" class="player"></div>
+        <div id="player2" class="player"></div>
+        <div id="player3" class="player"></div>
+        <div id="player4" class="player"></div>
+    </div>
+
+    <div id="score-board">
+        <div class="score-panel" onclick="openShop(0)">
+            <div class="player-avatar"></div>
+            <div class="player-name" style="color:#A7C9D3;">恬豆</div>
+            <div class="score-value" id="score1">0</div>
+            <div id="title1"></div>
+            <div class="ship-progress"><div class="ship-progress-bar" id="progress1" style="width:0%"></div></div>
+            <div class="buff-icons" id="buffs1"></div>
+            <div style="font-size:12px;color:#666;margin-top:5px;">点击打开商店</div>
+        </div>
+        <div class="score-panel" onclick="openShop(1)">
+            <div class="player-avatar"></div>
+            <div class="player-name" style="color:#E38691;">梨安</div>
+            <div class="score-value" id="score2">0</div>
+            <div id="title2"></div>
+            <div class="ship-progress"><div class="ship-progress-bar" id="progress2" style="width:0%"></div></div>
+            <div class="buff-icons" id="buffs2"></div>
+            <div style="font-size:12px;color:#666;margin-top:5px;">点击打开商店</div>
+        </div>
+        <div class="score-panel" onclick="openShop(2)">
+            <div class="player-avatar"></div>
+            <div class="player-name" style="color:#A1D29A;">沐霂</div>
+            <div class="score-value" id="score3">0</div>
+            <div id="title3"></div>
+            <div class="ship-progress"><div class="ship-progress-bar" id="progress3" style="width:0%"></div></div>
+            <div class="buff-icons" id="buffs3"></div>
+            <div style="font-size:12px;color:#666;margin-top:5px;">点击打开商店</div>
+        </div>
+        <div class="score-panel" onclick="openShop(3)">
+            <div class="player-avatar"></div>
+            <div class="player-name" style="color:#E3BA09;">又一</div>
+            <div class="score-value" id="score4">0</div>
+            <div id="title4"></div>
+            <div class="ship-progress"><div class="ship-progress-bar" id="progress4" style="width:0%"></div></div>
+            <div class="buff-icons" id="buffs4"></div>
+            <div style="font-size:12px;color:#666;margin-top:5px;">点击打开商店</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="control-group">
+            <strong style="color:#A7C9D3;">恬豆</strong>: A/D 移动
+        </div>
+        <div class="control-group">
+            <strong style="color:#E38691;">梨安</strong>: J/L 移动
+        </div>
+        <div class="control-group">
+            <strong style="color:#A1D29A;">沐霂</strong>: ←/→ 移动
+        </div>
+        <div class="control-group">
+            <strong style="color:#E3BA09;">又一</strong>: N/; 移动
+        </div>
+        <br><br>
+        <button onclick="startGame()">开始游戏</button>
+        <button onclick="togglePause()">暂停/继续</button>
+        <button onclick="resetGame()">重置游戏</button>
+    </div>
+
+    <!-- 商店模态框 -->
+    <div id="shop-modal">
+        <div class="shop-content">
+            <div class="shop-header">
+                <h2>🛍️ 角色强化商店</h2>
+                <p>为 <span id="shop-player-name" style="font-weight:bold;"></span> 购买强化</p>
+                <p>当前金币: <span id="shop-money" style="color:#FFD700;font-weight:bold;font-size:24px;">0</span> 💰</p>
+            </div>
+            
+            <div class="stats-display" id="player-stats"></div>
+            
+            <div class="shop-grid" id="shop-items"></div>
+            
+            <button class="close-btn" onclick="closeShop()">关闭商店 (ESC)</button>
+        </div>
+    </div>
+
+    <!-- 胜利界面 -->
+    <div id="victory-modal">
+        <div class="victory-content">
+            <div class="victory-title">🎉 万舰达成！ 🎉</div>
+            <div class="victory-player" id="victory-winner"></div>
+            <div class="victory-stats" id="victory-stats"></div>
+            <button onclick="resetGame()" style="font-size:20px;padding:15px 40px;">再来一局</button>
+        </div>
+    </div>
+
+    <script>
+        // 游戏配置
+        const ROUND_TIME = 60; // 每回合60秒
+        const TARGET_BAI = 138000;      // 百舰
+        const TARGET_QIAN = 1380000;    // 千舰  
+        const TARGET_WAN = 13800000;    // 万舰（胜利条件）
+
+        // 游戏状态
+        let gameRunning = false;
+        let gamePaused = false;
+        let roundActive = false;
+        let selectedPlayer = 0;
+        let roundTimer = ROUND_TIME;
+        let timerInterval = null;
+        let gameLoopId = null;
+        let victoryAchieved = false;
+
+        // 玩家数据
+        const players = [
+            {
+                id: 0,
+                name: '恬豆',
+                color: '#A7C9D3',
+                image: 'bekki.png',
+                x: 100,
+                score: 0,
+                baseSpeed: 20,
+                speed: 20,
+                magnetRadius: 0,
+                shieldTime: 0,
+                combo: 0,
+                comboTimer: null,
+                buffs: [],
+                title: '',
+                upgrades: { speed: 0, magnet: 0, shield: 0, luck: 0, combo: 0 },
+                skill: { name: '甜蜜转化', cooldown: 0, active: false, duration: 0 }
+            },
+            {
+                id: 1,
+                name: '梨安',
+                color: '#E38691',
+                image: 'lian.jpg',
+                x: 300,
+                score: 0,
+                baseSpeed: 20,
+                speed: 20,
+                magnetRadius: 0,
+                shieldTime: 0,
+                combo: 0,
+                buffs: [],
+                title: '',
+                upgrades: { speed: 0, magnet: 0, shield: 0, heal: 0, strength: 0 },
+                skill: { name: '强制投喂', cooldown: 0, active: false, duration: 0 }
+            },
+            {
+                id: 2,
+                name: '沐霂',
+                color: '#A1D29A',
+                image: 'mumu.jpg',
+                x: 500,
+                score: 0,
+                baseSpeed: 20,
+                speed: 20,
+                magnetRadius: 0,
+                shieldTime: 0,
+                combo: 0,
+                buffs: [],
+                title: '',
+                upgrades: { speed: 0, magnet: 0, shield: 0, blast: 0, clear: 0 },
+                skill: { name: '跟TA爆了', cooldown: 0, active: false, duration: 0 }
+            },
+            {
+                id: 3,
+                name: '又一',
+                color: '#E3BA09',
+                image: 'yoyi.png',
+                x: 700,
+                score: 0,
+                baseSpeed: 20,
+                speed: 20,
+                magnetRadius: 0,
+                shieldTime: 0,
+                combo: 0,
+                buffs: [],
+                title: '',
+                upgrades: { speed: 0, magnet: 0, shield: 0, time: 0, bonus: 0 },
+                skill: { name: '再来一首', cooldown: 0, active: false, duration: 0 }
+            }
+        ];
+
+        const shopItems = [
+            { id: 'speed', name: '偶像运动鞋', icon: '👟', desc: '移动速度 +15%', basePrice: 100, maxLevel: 5, effect: (p) => { p.baseSpeed *= 1.15; p.speed = p.baseSpeed; } },
+            { id: 'magnet', name: '偶像光环', icon: '✨', desc: '吸附范围 +60px', basePrice: 150, maxLevel: 3, effect: (p) => { p.magnetRadius += 60; } },
+            { id: 'shield', name: '黄金话筒', icon: '🎤', desc: '护盾持续时间 +2秒', basePrice: 200, maxLevel: 3, effect: () => {} },
+            { id: 'luck', name: '幸运四叶草', icon: '🍀', desc: '特殊礼物出现率 +5%', basePrice: 250, maxLevel: 5, effect: () => {} },
+            { id: 'combo', name: '连击手套', icon: '🧤', desc: '连击倍率 +0.5x', basePrice: 300, maxLevel: 4, effect: () => {} },
+            { id: 'special', name: '角色专属', icon: '⭐', desc: '解锁特殊技能强化', basePrice: 500, maxLevel: 1, effect: () => {} }
+        ];
+
+        const buffTypes = {
+            SPEED: { icon: '⚡', name: '极速', duration: 5, effect: 'speed', multiplier: 1.5 },
+            SHIELD: { icon: '🛡️', name: '护盾', duration: 5, effect: 'shield', multiplier: 1 },
+            MAGNET: { icon: '🧲', name: '磁力', duration: 8, effect: 'magnet', multiplier: 2 },
+            LUCK: { icon: '🍀', name: '幸运', duration: 10, effect: 'luck', multiplier: 1 },
+            SLOW: { icon: '🐌', name: '减速', duration: 3, effect: 'slow', multiplier: 0.5 },
+            DOUBLE: { icon: '2️⃣', name: '双倍', duration: 5, effect: 'double', multiplier: 2 }
+        };
+
+        const specialGifts = [30, 50, 100, 200, 500, 1000, 2000];
+        const giftIcons = ['🎁', '💎', '👑', '🏆', '⭐', '🔔', '🎯'];
+
+        const container = document.getElementById('game-container');
+        const playerElements = [document.getElementById('player1'), document.getElementById('player2'), document.getElementById('player3'), document.getElementById('player4')];
+        const scoreElements = [document.getElementById('score1'), document.getElementById('score2'), document.getElementById('score3'), document.getElementById('score4')];
+        const titleElements = [document.getElementById('title1'), document.getElementById('title2'), document.getElementById('title3'), document.getElementById('title4')];
+        const progressElements = [document.getElementById('progress1'), document.getElementById('progress2'), document.getElementById('progress3'), document.getElementById('progress4')];
+
+        const keys = {};
+        document.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+            if (e.key === 'Enter' && gamePaused && !document.getElementById('shop-modal').style.display.includes('flex')) {
+                continueGame();
+            }
+            if (e.key === 'Escape') {
+                closeShop();
+            }
+            handleKeyPress(e.key.toLowerCase());
+        });
+        document.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
+
+        function handleKeyPress(key) {
+            if (!gameRunning || gamePaused || !roundActive) return;
+            const moves = [
+                { left: 'a', right: 'd', player: 0 },
+                { left: 'j', right: 'l', player: 1 },
+                { left: 'arrowleft', right: 'arrowright', player: 2 },
+                { left: 'n', right: ';', player: 3 }
+            ];
+            moves.forEach(move => {
+                if (key === move.left || key === move.right) {
+                    const p = players[move.player];
+                    const dir = key === move.left ? -1 : 1;
+                    let moveAmount = p.speed * dir;
+                    if (p.buffs.includes('SLOW')) moveAmount *= 0.5;
+                    if (p.buffs.includes('SPEED')) moveAmount *= 1.5;
+                    p.x += moveAmount;
+                    p.x = Math.max(0, Math.min(container.offsetWidth - 60, p.x));
+                    playerElements[move.player].style.left = p.x + 'px';
+                    checkMagnetEffect(move.player);
+                }
+            });
+        }
+
+        function checkMagnetEffect(playerIndex) {
+            const p = players[playerIndex];
+            const effectiveRadius = p.magnetRadius * (p.buffs.includes('MAGNET') ? 2 : 1);
+            if (effectiveRadius > 0) {
+                document.querySelectorAll('.item').forEach(item => {
+                    const itemRect = item.getBoundingClientRect();
+                    const playerRect = playerElements[playerIndex].getBoundingClientRect();
+                    const dist = Math.hypot(itemRect.left - playerRect.left, itemRect.top - playerRect.top);
+                    if (dist < effectiveRadius) {
+                        const currentLeft = parseFloat(item.style.left);
+                        const currentTop = parseFloat(item.style.top);
+                        const dx = (playerRect.left - itemRect.left) * 0.1;
+                        const dy = (playerRect.top - itemRect.top) * 0.1;
+                        item.style.left = (currentLeft + dx) + 'px';
+                        item.style.top = (currentTop + dy) + 'px';
+                    }
+                });
+            }
+        }
+
+        function createItem() {
+            if (!gameRunning || gamePaused || !roundActive || victoryAchieved) return;
+            const item = document.createElement('div');
+            const rand = Math.random();
+            let type = 'normal', value = 1, icon = '💰', className = 'item';
+            
+            if (rand < 0.15) {
+                type = 'special';
+                const idx = Math.floor(Math.random() * specialGifts.length);
+                value = specialGifts[idx];
+                icon = giftIcons[idx];
+                className += ' special-gift';
+            } else if (rand < 0.25) {
+                type = 'buff';
+                const buffKeys = Object.keys(buffTypes);
+                const buffType = buffKeys[Math.floor(Math.random() * buffKeys.length)];
+                value = buffType;
+                icon = buffTypes[buffType].icon;
+                className += ' buff-item';
+                item.dataset.buff = buffType;
+            }
+            
+            item.className = className;
+            item.dataset.value = value;
+            item.dataset.type = type;
+            item.textContent = icon;
+            item.style.left = Math.random() * (container.offsetWidth - 40) + 'px';
+            item.style.top = '-40px';
+            container.appendChild(item);
+
+            let itemY = -40;
+            const fallSpeed = 2 + Math.random() * 3;
+            const fallInterval = setInterval(() => {
+                if (!gameRunning || victoryAchieved) { clearInterval(fallInterval); item.remove(); return; }
+                if (!gamePaused && roundActive) {
+                    itemY += fallSpeed;
+                    item.style.top = itemY + 'px';
+                    for (let i = 0; i < 4; i++) {
+                        const playerRect = playerElements[i].getBoundingClientRect();
+                        const itemRect = item.getBoundingClientRect();
+                        if (itemRect.bottom >= playerRect.top && itemRect.right >= playerRect.left && 
+                            itemRect.left <= playerRect.right && itemRect.top <= playerRect.bottom) {
+                            handleItemCatch(i, item);
+                            clearInterval(fallInterval);
+                            return;
+                        }
+                    }
+                    if (itemY > container.offsetHeight) {
+                        clearInterval(fallInterval);
+                        item.remove();
+                        players.forEach(p => p.combo = 0);
+                        updateComboDisplay();
+                    }
+                }
+            }, 20);
+            setTimeout(createItem, 600 + Math.random() * 400);
+        }
+
+        function handleItemCatch(playerIndex, item) {
+            if (victoryAchieved) return;
+            const p = players[playerIndex];
+            const type = item.dataset.type;
+            const value = parseInt(item.dataset.value) || item.dataset.value;
+            
+            if (type === 'buff') {
+                applyBuff(playerIndex, value);
+                showFloatingText(item, 'BUFF!', '#FF69B4');
+            } else {
+                let points = type === 'special' ? value : 1;
+                p.combo++;
+                const comboBonus = Math.min(p.combo * 0.1, 2);
+                points = Math.floor(points * (1 + comboBonus));
+                if (p.buffs.includes('DOUBLE')) points *= 2;
+                p.score += points;
+                
+                // 检查称号和胜利条件
+                checkTitleAndVictory(playerIndex);
+                
+                scoreElements[playerIndex].textContent = formatNumber(p.score);
+                showFloatingText(item, `+${points}`, '#FFD700');
+                updateComboDisplay();
+                if (p.comboTimer) clearTimeout(p.comboTimer);
+                p.comboTimer = setTimeout(() => { p.combo = 0; updateComboDisplay(); }, 3000);
+            }
+            item.remove();
+            updateBuffDisplay(playerIndex);
+        }
+
+        function formatNumber(num) {
+            if (num >= 100000000) return (num / 100000000).toFixed(1) + '亿';
+            if (num >= 10000) return (num / 10000).toFixed(1) + '万';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+            return num.toString();
+        }
+
+        function checkTitleAndVictory(playerIndex) {
+            const p = players[playerIndex];
+            const score = p.score;
+            
+            // 检查万舰胜利
+            if (score >= TARGET_WAN && !victoryAchieved) {
+                victoryAchieved = true;
+                p.title = 'wan';
+                showVictory(p);
+                return;
+            }
+            
+            // 检查称号升级
+            let newTitle = '';
+            let titleName = '';
+            if (score >= TARGET_WAN) {
+                newTitle = 'wan';
+                titleName = '🚢 万舰';
+            } else if (score >= TARGET_QIAN) {
+                newTitle = 'qian';
+                titleName = '⚓ 千舰';
+            } else if (score >= TARGET_BAI) {
+                newTitle = 'bai';
+                titleName = '🛥️ 百舰';
+            }
+            
+            if (newTitle && newTitle !== p.title) {
+                p.title = newTitle;
+                titleElements[playerIndex].innerHTML = `<span class="title-badge title-${newTitle}">${titleName}</span>`;
+                showBuffBar(`${p.name} 达成 ${titleName}!`, '系统');
+                
+                // 升级特效
+                playerElements[playerIndex].style.animation = 'none';
+                setTimeout(() => {
+                    playerElements[playerIndex].style.animation = '';
+                }, 10);
+            }
+            
+            // 更新进度条
+            updateProgressBar(playerIndex);
+        }
+
+        function updateProgressBar(playerIndex) {
+            const p = players[playerIndex];
+            const score = p.score;
+            let progress = 0;
+            let barClass = '';
+            
+            if (score >= TARGET_WAN) {
+                progress = 100;
+                barClass = 'wan';
+            } else if (score >= TARGET_QIAN) {
+                progress = ((score - TARGET_QIAN) / (TARGET_WAN - TARGET_QIAN)) * 100;
+                barClass = 'qian';
+            } else if (score >= TARGET_BAI) {
+                progress = ((score - TARGET_BAI) / (TARGET_QIAN - TARGET_BAI)) * 100;
+                barClass = 'qian';
+            } else {
+                progress = (score / TARGET_BAI) * 100;
+                barClass = 'bai';
+            }
+            
+            progressElements[playerIndex].style.width = Math.min(100, progress) + '%';
+            progressElements[playerIndex].className = 'ship-progress-bar ' + barClass;
+        }
+
+        function showVictory(winner) {
+            gamePaused = true;
+            roundActive = false;
+            clearInterval(timerInterval);
+            
+            document.getElementById('victory-winner').innerHTML = 
+                `<span style="color:${winner.color};text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">${winner.name}</span> 率先达成万舰！`;
+            
+            // 生成统计
+            let statsHtml = '<h3>最终排名</h3>';
+            const sorted = [...players].sort((a, b) => b.score - a.score);
+            sorted.forEach((p, idx) => {
+                const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '4️⃣';
+                const title = p.title === 'wan' ? '万舰' : p.title === 'qian' ? '千舰' : p.title === 'bai' ? '百舰' : '见习';
+                statsHtml += `<div style="margin:10px 0;font-size:20px;">${medal} ${p.name} - ${formatNumber(p.score)} (${title})</div>`;
+            });
+            document.getElementById('victory-stats').innerHTML = statsHtml;
+            
+            document.getElementById('victory-modal').style.display = 'flex';
+        }
+
+        function applyBuff(playerIndex, buffType) {
+            const p = players[playerIndex];
+            if (!p.buffs.includes(buffType)) {
+                p.buffs.push(buffType);
+                if (buffType === 'SHIELD') {
+                    playerElements[playerIndex].classList.add('shielded');
+                    p.shieldTime = buffTypes[buffType].duration;
+                } else if (buffType === 'SPEED') {
+                    playerElements[playerIndex].classList.add('speed-boost');
+                } else if (buffType === 'MAGNET') {
+                    playerElements[playerIndex].classList.add('magnet-active');
+                }
+                setTimeout(() => removeBuff(playerIndex, buffType), buffTypes[buffType].duration * 1000);
+                showBuffBar(buffTypes[buffType].name, p.name);
+            }
+        }
+
+        function removeBuff(playerIndex, buffType) {
+            const p = players[playerIndex];
+            const idx = p.buffs.indexOf(buffType);
+            if (idx > -1) {
+                p.buffs.splice(idx, 1);
+                if (buffType === 'SHIELD') playerElements[playerIndex].classList.remove('shielded');
+                else if (buffType === 'SPEED') playerElements[playerIndex].classList.remove('speed-boost');
+                else if (buffType === 'MAGNET') playerElements[playerIndex].classList.remove('magnet-active');
+                updateBuffDisplay(playerIndex);
+            }
+        }
+
+        function showFloatingText(item, text, color) {
+            const rect = item.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            const anim = document.createElement('div');
+            anim.className = 'gift-value';
+            anim.textContent = text;
+            anim.style.color = color;
+            anim.style.left = (rect.left - containerRect.left + 20) + 'px';
+            anim.style.top = (rect.top - containerRect.top) + 'px';
+            anim.style.opacity = '1';
+            container.appendChild(anim);
+            let opacity = 1, top = parseFloat(anim.style.top);
+            const timer = setInterval(() => {
+                opacity -= 0.02;
+                top -= 2;
+                anim.style.opacity = opacity;
+                anim.style.top = top + 'px';
+                if (opacity <= 0) { clearInterval(timer); anim.remove(); }
+            }, 30);
+        }
+
+        function showBuffBar(buffName, playerName) {
+            const bar = document.getElementById('buff-bar');
+            const badge = document.createElement('div');
+            badge.className = 'buff-badge';
+            const p = players.find(p => p.name === playerName) || { color: '#FFD700' };
+            badge.style.border = `2px solid ${p.color || '#FFD700'}`;
+            badge.style.color = p.color || '#333';
+            badge.textContent = playerName === '系统' ? buffName : `${playerName}: ${buffName}`;
+            bar.appendChild(badge);
+            setTimeout(() => badge.remove(), 3000);
+        }
+
+        function updateComboDisplay() {
+            const maxCombo = Math.max(...players.map(p => p.combo));
+            const display = document.getElementById('combo-display');
+            if (maxCombo > 1) { display.style.display = 'block'; document.getElementById('combo-count').textContent = maxCombo; }
+            else display.style.display = 'none';
+        }
+
+        function updateBuffDisplay(playerIndex) {
+            const container = document.getElementById(`buffs${playerIndex + 1}`);
+            const p = players[playerIndex];
+            container.innerHTML = p.buffs.map(buff => `<span class="buff-icon">${buffTypes[buff].icon}</span>`).join('');
+        }
+
+        function startRound() {
+            roundActive = true;
+            roundTimer = ROUND_TIME;
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                if (!gamePaused && !victoryAchieved) {
+                    roundTimer--;
+                    updateTimerDisplay();
+                    
+                    if (roundTimer <= 10) {
+                        document.getElementById('round-timer').classList.add('warning');
+                    }
+                    
+                    if (roundTimer <= 0) {
+                        endRound();
+                    }
+                }
+            }, 1000);
+            
+            createItem();
+        }
+
+        function updateTimerDisplay() {
+            const timerEl = document.getElementById('round-timer');
+            timerEl.textContent = roundTimer + 's';
+            if (roundTimer > 10) {
+                timerEl.classList.remove('warning');
+            }
+        }
+
+        function endRound() {
+            roundActive = false;
+            clearInterval(timerInterval);
+            gamePaused = true;
+            document.getElementById('pause-overlay').style.display = 'flex';
+            showBuffBar('回合结束！购物时间！', '系统');
+        }
+
+        function continueGame() {
+            document.getElementById('pause-overlay').style.display = 'none';
+            gamePaused = false;
+            startRound();
+        }
+
+        function openShop(playerIndex) {
+            if (roundActive && !gamePaused) return; // 只能在暂停时打开
+            
+            selectedPlayer = playerIndex;
+            const p = players[playerIndex];
+            const nameEl = document.getElementById('shop-player-name');
+            nameEl.textContent = p.name;
+            nameEl.style.color = p.color;
+            document.getElementById('shop-money').textContent = formatNumber(p.score);
+            updatePlayerStats(p);
+            renderShopItems(p);
+            document.getElementById('shop-modal').style.display = 'flex';
+        }
+
+        function updatePlayerStats(p) {
+            const title = p.title === 'wan' ? '万舰' : p.title === 'qian' ? '千舰' : p.title === 'bai' ? '百舰' : '无';
+            document.getElementById('player-stats').innerHTML = `
+                <div class="stat-item"><div class="stat-label">移动速度</div><div class="stat-value">${Math.round(p.speed)}</div></div>
+                <div class="stat-item"><div class="stat-label">吸附范围</div><div class="stat-value">${p.magnetRadius}px</div></div>
+                <div class="stat-item"><div class="stat-label">当前连击</div><div class="stat-value">${p.combo}</div></div>
+                <div class="stat-item"><div class="stat-label">拥有Buff</div><div class="stat-value">${p.buffs.length}</div></div>
+                <div class="stat-item"><div class="stat-label">当前称号</div><div class="stat-value">${title}</div></div>
+            `;
+        }
+
+        function renderShopItems(p) {
+            const grid = document.getElementById('shop-items');
+            grid.innerHTML = '';
+            shopItems.forEach(item => {
+                const currentLevel = p.upgrades[item.id] || 0;
+                const isMaxed = currentLevel >= item.maxLevel;
+                const price = Math.floor(item.basePrice * Math.pow(1.5, currentLevel));
+                const canAfford = p.score >= price;
+                const div = document.createElement('div');
+                div.className = `shop-item ${isMaxed ? 'purchased' : ''} ${!canAfford && !isMaxed ? 'disabled' : ''}`;
+                div.innerHTML = `<div class="item-level">${isMaxed ? 'MAX' : currentLevel}</div><div class="item-icon">${item.icon}</div><div class="item-name">${item.name}</div><div class="item-desc">${item.desc}</div><div class="item-price">${isMaxed ? '已满级' : formatNumber(price) + ' 💰'}</div>`;
+                if (!isMaxed && canAfford) div.onclick = () => buyItem(p, item, price);
+                grid.appendChild(div);
+            });
+        }
+
+        function buyItem(p, item, price) {
+            if (p.score >= price) {
+                p.score -= price;
+                p.upgrades[item.id] = (p.upgrades[item.id] || 0) + 1;
+                item.effect(p);
+                scoreElements[p.id].textContent = formatNumber(p.score);
+                updatePlayerStats(p);
+                renderShopItems(p);
+                
+                // 重新检查称号（防止买装备后降级的情况，虽然这里不应该发生）
+                checkTitleAndVictory(p.id);
+                
+                const badge = document.createElement('div');
+                badge.className = 'buff-badge';
+                badge.textContent = `购买成功: ${item.name}`;
+                badge.style.background = p.color;
+                badge.style.color = 'white';
+                document.getElementById('buff-bar').appendChild(badge);
+                setTimeout(() => badge.remove(), 2000);
+            }
+        }
+
+        function closeShop() {
+            document.getElementById('shop-modal').style.display = 'none';
+        }
+
+        function startGame() {
+            if (gameRunning) return;
+            
+            // 重置所有状态
+            victoryAchieved = false;
+            gameRunning = true;
+            gamePaused = false;
+            
+            players.forEach((p, i) => {
+                p.x = [100, 300, 500, 700][i];
+                p.score = 0;
+                p.speed = p.baseSpeed = 20;
+                p.magnetRadius = 0;
+                p.buffs = [];
+                p.combo = 0;
+                p.title = '';
+                p.upgrades = { speed: 0, magnet: 0, shield: 0, luck: 0, combo: 0 };
+                playerElements[i].style.left = p.x + 'px';
+                playerElements[i].className = 'player';
+                scoreElements[i].textContent = '0';
+                titleElements[i].innerHTML = '';
+                progressElements[i].style.width = '0%';
+                progressElements[i].className = 'ship-progress-bar';
+                updateBuffDisplay(i);
+            });
+            
+            document.querySelectorAll('.item, .gift-value, .buff-badge').forEach(el => el.remove());
+            document.getElementById('victory-modal').style.display = 'none';
+            document.getElementById('pause-overlay').style.display = 'none';
+            
+            startRound();
+        }
+
+        function togglePause() {
+            if (!gameRunning || victoryAchieved) return;
+            gamePaused = !gamePaused;
+            if (gamePaused) {
+                showBuffBar('游戏暂停', '系统');
+            }
+        }
+
+        function resetGame() {
+            gameRunning = false;
+            gamePaused = false;
+            roundActive = false;
+            victoryAchieved = false;
+            clearInterval(timerInterval);
+            
+            document.getElementById('victory-modal').style.display = 'none';
+            document.getElementById('pause-overlay').style.display = 'none';
+            document.getElementById('round-timer').textContent = '60s';
+            document.getElementById('round-timer').classList.remove('warning');
+            
+            players.forEach((p, i) => {
+                p.score = 0;
+                p.x = [100, 300, 500, 700][i];
+                p.speed = p.baseSpeed = 20;
+                p.magnetRadius = 0;
+                p.buffs = [];
+                p.combo = 0;
+                p.title = '';
+                p.upgrades = { speed: 0, magnet: 0, shield: 0, luck: 0, combo: 0 };
+                scoreElements[i].textContent = '0';
+                titleElements[i].innerHTML = '';
+                progressElements[i].style.width = '0%';
+                progressElements[i].className = 'ship-progress-bar';
+                playerElements[i].style.left = p.x + 'px';
+                playerElements[i].className = 'player';
+                updateBuffDisplay(i);
+            });
+            
+            document.querySelectorAll('.item, .gift-value').forEach(el => el.remove());
+        }
+
+        // 初始化
+        players.forEach((p, i) => { playerElements[i].style.left = p.x + 'px'; });
+    </script>
+
+</body>
+</html>
