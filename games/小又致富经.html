@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小又致富经V1.1</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: #f0e6d2;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+            overflow: hidden;
+            user-select: none;
+        }
+        #gameContainer {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            background-color: #FFF8DC;
+            border: 4px solid #E3BA09;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        canvas { display: block; }
+        
+        /* UI 层 */
+        #ui-layer {
+            position: absolute; top: 10px; left: 10px; right: 10px;
+            display: flex; justify-content: space-between;
+            font-weight: bold; font-size: 16px; pointer-events: none; z-index: 2;
+        }
+        .stat-box {
+            background: rgba(255,255,255,0.9);
+            padding: 5px 10px; border-radius: 5px;
+            border: 2px solid #E3BA09; box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        /* NPC 技能按钮 */
+        #skill-btn {
+            position: absolute; top: 220px; left: 15px;
+            width: 80px; height: 80px;
+            background: white; border: 3px solid #FF69B4;
+            border-radius: 50%; cursor: pointer;
+            display: none; flex-direction: column;
+            align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.1s; z-index: 5;
+            animation: pulse 2s infinite;
+        }
+        #skill-btn:hover { transform: scale(1.1); }
+        #skill-btn:active { transform: scale(0.95); }
+        #skill-btn.used { filter: grayscale(100%); cursor: default; animation: none; border-color: #ccc !important; opacity: 0.7; }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 105, 180, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 105, 180, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 105, 180, 0); }
+        }
+
+        .npc-icon { font-size: 28px; margin-bottom: 2px; }
+        .npc-name { font-size: 12px; font-weight: bold; color: #333; }
+        
+        .npc-desc { 
+            font-size: 12px; color: #333; text-align: left; 
+            display: none; position: absolute; left: 90px; top: 0;
+            background: rgba(255,255,255,0.98); padding: 10px; 
+            border: 2px solid #E3BA09; width: 160px; border-radius: 8px;
+            pointer-events: none; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+            z-index: 20;
+        }
+        #skill-btn:hover .npc-desc { display: block; }
+
+        /* 小屋等级 */
+        #house-level-badge {
+            position: absolute; top: 160px; left: 20px;
+            background: #FF69B4; color: white; padding: 4px 10px;
+            border-radius: 12px; font-size: 12px; font-weight: bold;
+            z-index: 4; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* 状态显示 (护盾/减速) */
+        #status-bar {
+            position: absolute; top: 50px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 10px; pointer-events: none; z-index: 3;
+        }
+        .status-icon {
+            padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        #event-banner {
+            position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
+            background-color: #FF6347; color: white; padding: 5px 20px;
+            border-radius: 20px; font-weight: bold; display: none; z-index: 2; font-size: 14px;
+        }
+        #dialogue-box {
+            position: absolute; top: 120px; left: 50%; transform: translateX(-50%);
+            min-width: 300px; background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #E3BA09; padding: 10px 20px; border-radius: 20px;
+            text-align: center; display: none; font-size: 16px; z-index: 5;
+            font-weight: bold; color: #555; pointer-events: none;
+        }
+
+        #overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; color: white; z-index: 10;
+        }
+        .menu-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 10px; margin-top: 10px; max-height: 400px; overflow-y: auto;
+            padding: 10px; width: 95%;
+        }
+        .section-title {
+            grid-column: span 3; text-align: center; color: #E3BA09;
+            border-bottom: 1px solid #555; padding-bottom: 5px; margin-top: 10px;
+            font-size: 18px; font-weight: bold;
+        }
+        button {
+            background-color: #E3BA09; border: none; padding: 0; color: white;
+            font-size: 16px; cursor: pointer; border-radius: 5px; font-weight: bold;
+            transition: all 0.1s;
+        }
+        button:hover { transform: scale(1.02); filter: brightness(1.1); }
+        button:active { transform: scale(0.98); }
+        button:disabled { background-color: #666; cursor: not-allowed; transform: none; filter: none; }
+        
+        .item-card {
+            background: #444; padding: 8px; border-radius: 8px; text-align: center;
+            border: 1px solid #555; display: flex; flex-direction: column; justify-content: space-between;
+            min-height: 100px; width: 100%; box-sizing: border-box;
+        }
+        .item-name { color: #E3BA09; font-weight: bold; font-size: 13px; margin-bottom: 4px; }
+        .item-desc { font-size: 11px; color: #ccc; margin: 2px 0; flex-grow: 1; line-height: 1.4; }
+        .item-info { font-size: 11px; color: #90EE90; margin-top: 4px; }
+        .item-price { margin-top: 4px; background: #222; border-radius: 4px; font-size: 12px; padding: 2px; }
+        
+        .zone-label {
+            position: absolute; bottom: 0; width: 110px; height: 140px;
+            display: flex; justify-content: center; align-items: center;
+            font-weight: bold; font-size: 16px; text-align: center; pointer-events: none;
+            flex-direction: column;
+        }
+        .zone-live { left: 0; background: rgba(255, 182, 193, 0.3); border-right: 3px dashed hotpink; color: hotpink; }
+        .zone-sell { right: 0; background: rgba(46, 139, 87, 0.2); border-left: 3px dashed #2E8B57; color: #2E8B57; width: 120px; }
+
+        .concert-progress {
+            width: 600px; height: 20px; background: #333;
+            border-radius: 10px; margin-top: 10px; overflow: hidden; border: 1px solid white;
+        }
+        .concert-bar {
+            height: 100%; background: linear-gradient(90deg, #E3BA09, #FF6347); width: 0%;
+            transition: width 0.5s;
+        }
+    </style>
+</head>
+<body>
+
+<div id="gameContainer">
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
+    <div class="zone-label zone-live">🏠 直播小屋<br><span style="font-size:12px" id="houseDesc">回复精力</span></div>
+    <div class="zone-label zone-sell">♻️ 回收站<br><span style="font-size:12px">在此卖出</span></div>
+    
+    <div id="house-level-badge">Lv.0 小屋</div>
+    
+    <div id="status-bar"></div> <!-- 状态栏 -->
+
+    <div id="skill-btn">
+        <div class="npc-icon" id="npcIcon">?</div>
+        <div class="npc-name" id="npcName"></div>
+        <div class="npc-desc" id="npcDesc"></div>
+    </div>
+
+    <div id="event-banner">今日事件：无</div>
+    <div id="dialogue-box"></div>
+
+    <div id="ui-layer">
+        <div class="stat-box">📅 第 <span id="dayDisplay">1</span> 天</div>
+        <div class="stat-box">💰 存款: <span id="moneyDisplay">0</span></div>
+        <div class="stat-box">📦 负重: <span id="boxDisplay">0</span>/<span id="capDisplay">3</span></div>
+        <div class="stat-box">⚡ 精力: <span id="staminaDisplay">100</span>%</div>
+        <div class="stat-box">⏰ <span id="timeDisplay">60</span>s</div>
+    </div>
+
+    <div id="overlay">
+        <h1 id="overlayTitle" style="color: #E3BA09; text-shadow: 2px 2px #000;">又一的纸壳子致富经</h1>
+        <p id="overlayDesc">目标：存够 8000 元，开个演唱会！</p>
+        
+        <div class="concert-progress"><div class="concert-bar" id="goalBar"></div></div>
+        <p style="font-size: 12px; color: #aaa;">当前进度: <span id="goalText">0/8000</span></p>
+
+        <div class="menu-grid" id="actionMenu"></div>
+        <button id="startBtn" style="margin-top: 15px; font-size: 18px; padding: 10px 30px;">开始第一天</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // === 游戏配置 ===
+    const GOAL_AMOUNT = 8000;
+    const SAFE_ZONE_LEFT = 110; 
+    const SAFE_ZONE_RIGHT = 120; 
+    const COLORS = {
+        youyi: '#E3BA09', cardboard: '#8B4513', gold: '#FFD700',
+        trash: '#555555', water: '#6495ED', ground: '#DEB887',
+        liveZone: 'rgba(255, 192, 203, 0.2)', candy: '#FF69B4',
+        beef: '#8B0000', mic: '#FFD700'
+    };
+
+    // === 游戏状态 ===
+    let gameState = {
+        day: 1, money: 0, isPlaying: false, timeLeft: 60, lastTime: 0, dropTimer: 0,
+        weather: 'sunny', dailyBuff: null, dailyGuest: null, skillUsed: false,
+        houseLevel: 0, unlockedNPCs: []
+    };
+
+    let liveHouse = { regenRate: 3, recycleTimer: 0 };
+
+    let player = {
+        x: 375, y: 500, width: 50, height: 50,
+        baseSpeed: 300, speed: 300,
+        cardboardCount: 0, trashCount: 0, maxCapacity: 3, // 初始容量减小
+        stamina: 100, waterResistance: 0,
+        magnetRadius: 0, strength: 0, sellBonus: 0,
+        // 状态效果
+        shieldTimer: 0, // 话筒护盾
+        slowTimer: 0    // 牛肉减速
+    };
+
+    let objects = [];
+    let particles = [];
+    let keys = {};
+
+    // === 数据容器 ===
+    let NPC_DB = {};
+    let HOUSE_LEVELS = [];
+    let SHOP_ITEMS = [];
+    let FOOD_MENU = [];
+    let WEATHER_EVENTS = [];
+
+    function init() {
+        window.addEventListener('keydown', e => keys[e.code] = true);
+        window.addEventListener('keyup', e => keys[e.code] = false);
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('skill-btn').onclick = useSkill;
+
+        // --- 数据定义 ---
+        NPC_DB = {
+            susuyou: { 
+                name: '酥酥又', icon: '🚤', color: '#FFD700',
+                desc: '<b>【舰长专列】</b><br>召唤舰长，瞬间传送到回收站。',
+                skill: () => {
+                    player.x = canvas.width - 100;
+                    showDialogue("酥酥又：坐稳了！小船起航~ 🚤");
+                    createParticles(player.x, player.y, '#FFF');
+                }
+            },
+            tiandou: { 
+                name: '恬豆', icon: '🍬', color: '#A7C9D3',
+                desc: '<b>【甜蜜诱惑】</b><br>将屏幕上所有雨水(蓝)变成糖果(粉)！',
+                skill: () => {
+                    let count = 0;
+                    objects.forEach(obj => {
+                        if(obj.type === 'water') {
+                            obj.type = 'candy'; obj.speed *= 0.6; 
+                            createParticles(obj.x, obj.y, '#FF69B4');
+                            count++;
+                        }
+                    });
+                    if(count > 0) showDialogue(`恬豆：变！${count} 滴雨水变成了糖果！`);
+                    else showDialogue("恬豆：哎呀，现在没有雨水可以变哦~");
+                }
+            },
+            mumu: { 
+                name: '沐霂', icon: '💣', color: '#A1D29A',
+                desc: '<b>【跟TA爆了】</b><br>炸掉屏幕上所有雨水和垃圾。',
+                skill: () => {
+                    let cleared = 0;
+                    for(let i = objects.length-1; i>=0; i--) {
+                        if(objects[i].type === 'water' || objects[i].type === 'trash' || objects[i].type === 'beef') {
+                            createParticles(objects[i].x, objects[i].y, '#FFF');
+                            objects.splice(i, 1);
+                            cleared++;
+                        }
+                    }
+                    showDialogue(`沐霂：Boom！清理了 ${cleared} 个障碍！`);
+                }
+            },
+            lian: { 
+                name: '梨安', icon: '🍳', color: '#E38691',
+                desc: '<b>【强制投喂】</b><br>不管饿不饿，体力回满 + 随机Buff。',
+                skill: () => {
+                    player.stamina = 100;
+                    const buffs = ['speed', 'shield', 'luck'];
+                    const randBuff = buffs[Math.floor(Math.random() * buffs.length)];
+                    gameState.dailyBuff = randBuff;
+                    showDialogue(`梨安：多吃点！(体力全满 + ${getBuffName(randBuff)})`);
+                }
+            },
+            anke: { 
+                name: '安可', icon: '🦜', color: '#FF3300',
+                desc: '<b>【再来一首】</b><br>时间倒流 15 秒。',
+                skill: () => {
+                    gameState.timeLeft += 15;
+                    showDialogue("安可：Encore！再多唱一会儿！(+15s)");
+                }
+            },
+            xingtong: { 
+                name: '星瞳', icon: '🐧', color: '#8B00FF',
+                desc: '<b>【大厂赞助】</b><br>独立出现！打钱 +500元。',
+                skill: () => {
+                    gameState.money += 500;
+                    showDialogue("星瞳：拿去花！(+500元)");
+                    createParticles(player.x, player.y, 'gold');
+                }
+            }
+        };
+
+        // 小屋升级路线
+        HOUSE_LEVELS = [
+            { price: 0,    desc: "无功能", npc: null, passive: "无" },
+            { price: 500,  desc: "粉丝打赏", npc: 'susuyou', passive: "挂机缓慢生钱", feature: 'moneyGen' },
+            { price: 800, desc: "垃圾转化", npc: 'tiandou', passive: "挂机垃圾变纸壳", feature: 'recycler' },
+            { price: 1200, desc: "精力充沛", npc: 'mumu', passive: "回血速度翻倍", feature: 'fastHeal' },
+            { price: 1800, desc: "空间折叠", npc: 'lian', passive: "背包容量+3", feature: 'capPlus' },
+            { price: 2500, desc: "商业帝国", npc: 'anke', passive: "生钱速度极大提升", feature: 'moneyGen2' }
+        ];
+
+        SHOP_ITEMS = [
+            { id: 'cap', name: "大蛇皮袋", price: 100, desc: "背包容量 +1", func: () => { player.maxCapacity += 1; } },
+            { id: 'shoes', name: "偶像运动鞋", price: 120, desc: "移速 +10%", func: () => { player.baseSpeed *= 1.1; } },
+            { id: 'coat', name: "防水涂层", price: 180, desc: "减少淋雨伤害", func: () => { player.waterResistance += 2; } },
+            { id: 'magnet', name: "偶像光环", price: 350, desc: "吸附周围纸壳", func: () => { player.magnetRadius += 60; } },
+            { id: 'glove', name: "大力手套", price: 300, desc: "无视负重减速", func: () => { player.strength += 1; } },
+            { id: 'mic', name: "黄金话筒", price: 450, desc: "回收单价+2元", func: () => { player.sellBonus += 2; } }
+        ];
+
+        FOOD_MENU = [
+            { name: "清汤手搓面", price: 10, energy: 10, buff: null, desc: "暖心面条。" },
+            { name: "正宗牛肉火锅", price: 20, energy: 25, buff: "poison", desc: "包正宗的。", buffName: "腹痛" },
+            { name: "奥利奥炒饭", price: 50, energy: 40, buff: "speed", desc: "糖分爆炸！", buffName: "极速" },
+            { name: "墨鱼汁炸鸡腿", price: 80, energy: 60, buff: "luck", desc: "运气提升。", buffName: "欧皇" },
+            { name: "酒酿黑蛋烧", price: 120, energy: 80, buff: "shield", desc: "防水护盾。", buffName: "护盾" },
+            { name: "海底捞", price: 150, energy: 100, buff: "all", desc: "全能状态！", buffName: "全能" }
+        ];
+
+        WEATHER_EVENTS = [
+            { id: 'sunny', name: "晴朗", desc: "一切正常。", prob: 0.40 },
+            { id: 'rain', name: "暴雨", desc: "雨水变多！", prob: 0.10 },
+            { id: 'wind', name: "小雪", desc: "地面很滑。", prob: 0.15 },
+            { id: 'boom', name: "多云", desc: "回收翻倍！", prob: 0.10 },
+            { id: 'tailwind', name: "大风", desc: "移动速度提升！", prob: 0.10 },
+            { id: 'overcast', name: "阴天", desc: "精力消耗减半。", prob: 0.15 }
+        ];
+
+        updateUI();
+    }
+
+    function startGame() {
+        document.getElementById('overlay').style.display = 'none';
+        gameState.isPlaying = true;
+        gameState.timeLeft = 60;
+        gameState.lastTime = performance.now();
+        objects = [];
+        particles = [];
+        
+        player.x = canvas.width / 2 - 25;
+        player.cardboardCount = 0;
+        player.trashCount = 0;
+        player.shieldTimer = 0;
+        player.slowTimer = 0;
+        
+        gameState.skillUsed = false;
+        
+        applyBuffs();
+        rollWeather();
+        rollGuest(); 
+
+        requestAnimationFrame(loop);
+    }
+
+    function loop(timestamp) {
+        if (!gameState.isPlaying) return;
+        let dt = (timestamp - gameState.lastTime) / 1000;
+        gameState.lastTime = timestamp;
+        update(dt);
+        draw();
+        if (gameState.timeLeft > 0 && player.stamina > 0) requestAnimationFrame(loop);
+        else endDay();
+    }
+
+    // === 逻辑更新 ===
+    function update(dt) {
+        gameState.timeLeft -= dt;
+        
+        // 状态倒计时
+        if(player.shieldTimer > 0) player.shieldTimer -= dt;
+        if(player.slowTimer > 0) player.slowTimer -= dt;
+
+        // 小屋区域
+        let houseFeatures = { moneyGen: false, recycler: false, fastHeal: false };
+        for(let i=1; i<=gameState.houseLevel; i++) {
+            let feat = HOUSE_LEVELS[i].feature;
+            if(feat === 'moneyGen' || feat === 'moneyGen2') houseFeatures.moneyGen = true;
+            if(feat === 'recycler') houseFeatures.recycler = true;
+            if(feat === 'fastHeal') houseFeatures.fastHeal = true;
+        }
+        let moneyRate = (HOUSE_LEVELS[gameState.houseLevel]?.feature === 'moneyGen2') ? 10 : 2;
+
+        if (player.x < SAFE_ZONE_LEFT) {
+            let rate = houseFeatures.fastHeal ? 8 : 3; 
+            player.stamina = Math.min(100, player.stamina + rate * dt);
+            if(houseFeatures.moneyGen) gameState.money += moneyRate * dt;
+            if(houseFeatures.recycler) {
+                liveHouse.recycleTimer += dt;
+                if(liveHouse.recycleTimer > 1.2 && player.trashCount > 0 && player.cardboardCount < player.maxCapacity) {
+                    liveHouse.recycleTimer = 0;
+                    player.trashCount--;
+                    player.cardboardCount++;
+                    createParticles(player.x, player.y, '#8B4513');
+                }
+            }
+        }
+
+        // 计算速度
+        let currentSpeed = player.speed;
+        if (gameState.weather === 'tailwind') currentSpeed *= 1.2;
+        if (player.slowTimer > 0) currentSpeed *= 0.5; // 牛肉减速
+
+        // 移动
+        let moveAmt = currentSpeed * dt;
+        let totalItems = player.cardboardCount + player.trashCount;
+        if (player.strength <= 0) {
+            let burden = 1 - (totalItems * 0.05); // 负重影响
+            moveAmt *= Math.max(0.2, burden);
+        }
+        if(gameState.weather === 'wind') player.x += (Math.sin(Date.now() / 500) * 100 * dt);
+        
+        if (keys['ArrowLeft'] || keys['KeyA']) player.x -= moveAmt;
+        if (keys['ArrowRight'] || keys['KeyD']) player.x += moveAmt;
+
+        if (player.x < 0) player.x = 0;
+        if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+
+        // 精力消耗
+        if (keys['ArrowLeft'] || keys['ArrowRight'] || keys['KeyA'] || keys['KeyD']) {
+            let drain = 1.5;
+            if (gameState.weather === 'overcast') drain = 0.75;
+            player.stamina -= drain * dt; 
+        }
+
+        // === 动态掉落系统 ===
+        gameState.dropTimer += dt;
+        
+        // 难度曲线：天数越高，掉落间隔越短
+        let baseRate = Math.max(0.4, 1.5 - (gameState.day * 0.1)); 
+        if (gameState.weather === 'rain') baseRate *= 0.5;
+
+        if (gameState.dropTimer > baseRate) {
+            gameState.dropTimer = 0;
+            spawnObject();
+        }
+
+        updateObjects(dt);
+        updateParticles(dt);
+
+        if (player.x > canvas.width - 120 && totalItems > 0) sellItems();
+        updateUI();
+    }
+
+    function spawnObject() {
+        let r = Math.random();
+        let day = gameState.day;
+        let type = 'cardboard';
+        
+        // 动态概率池
+        let pool = ['cardboard'];
+        if (day >= 2) { pool.push('trash'); pool.push('cardboard'); pool.push('cardboard'); }
+        if (day >= 4) { pool.push('water'); pool.push('cardboard'); pool.push('cardboard'); } // 水变多
+        if (day >= 6) { pool.push('gold'); pool.push('cardboard'); pool.push('water'); }
+        if (day >= 7) { pool.push('beef'); pool.push('mic_item'); pool.push('cardboard'); pool.push('cardboard'); pool.push('water'); }
+        if (day >= 9) { pool.push('trash'); pool.push('gold'); pool.push('cardboard'); pool.push('beef'); pool.push('mic_item'); }
+
+        // 天气影响
+        if (gameState.weather === 'rain') { pool.push('water'); pool.push('water'); }
+        
+        type = pool[Math.floor(Math.random() * pool.length)];
+
+        let minX = SAFE_ZONE_LEFT + 10;
+        let maxX = canvas.width - SAFE_ZONE_RIGHT - 50;
+        
+        objects.push({
+            type: type,
+            x: minX + Math.random() * (maxX - minX),
+            y: -40,
+            size: 40,
+            speed: 200 + Math.random() * 150,
+            rot: Math.random() * Math.PI,
+            magnetized: false
+        });
+    }
+
+    function handleCollision(obj) {
+        let totalItems = player.cardboardCount + player.trashCount;
+        
+        // 护盾逻辑
+        let isProtected = (player.shieldTimer > 0 || player.currentResist >= 100);
+
+        if (obj.type === 'mic_item') {
+            player.shieldTimer = 5; // 5秒护盾
+            createParticles(player.x, player.y, COLORS.mic);
+            showDialogue("🎤 偶像结界！免疫负面效果5秒！");
+        } 
+        else if (obj.type === 'beef') {
+            if (!isProtected) {
+                player.stamina -= 10;
+                player.slowTimer = 5;
+                showDialogue("🥩 有点晕... 速度减半！");
+                createParticles(player.x, player.y, COLORS.beef);
+            } else {
+                showDialogue("🛡️ 为了偶像身材，少吃一口！");
+            }
+        }
+        else if (obj.type === 'gold') {
+            createParticles(obj.x, obj.y, COLORS.gold);
+            gameState.money += 30;
+            showDialogue(`✨ 捡到 30 元！`);
+        } 
+        else if (obj.type === 'candy') {
+            createParticles(obj.x, obj.y, COLORS.candy);
+            player.stamina = Math.min(100, player.stamina + 5);
+            gameState.money += 10;
+            player.stamina += 5;
+            showDialogue(`🍬 糖果真甜！`);
+        } 
+        else if (obj.type === 'cardboard') {
+            if (totalItems < player.maxCapacity) {
+                player.cardboardCount++;
+                createParticles(obj.x, obj.y, COLORS.cardboard);
+            } else showDialogue("背包满啦！");
+        } 
+        else if (obj.type === 'trash') {
+            if (!isProtected && totalItems < player.maxCapacity) {
+                player.trashCount++;
+                createParticles(obj.x, obj.y, COLORS.trash);
+                showDialogue("呃...垃圾...");
+            } else if (isProtected) {
+                showDialogue("🛡️ 偶像护盾弹开了垃圾！");
+            }
+        } 
+        else if (obj.type === 'water') {
+            if (!isProtected) {
+                createParticles(obj.x, obj.y, COLORS.water);
+                let damage = Math.max(1, 10 - (player.currentResist || 0));
+                player.stamina -= damage;
+                if (player.cardboardCount > 0) {
+                    player.cardboardCount--;
+                    showDialogue("纸壳湿了！");
+                }
+            } else {
+                showDialogue("🛡️ 偶像力量躲开了雨水！");
+            }
+        }
+    }
+
+    // === 辅助函数 (粒子、绘制等) ===
+    function updateObjects(dt) {
+        for (let i = objects.length - 1; i >= 0; i--) {
+            let obj = objects[i];
+            // 磁力
+            if (player.magnetRadius > 0 && ['cardboard','gold','candy','mic_item'].includes(obj.type)) {
+                let dx = (player.x + player.width/2) - (obj.x + obj.size/2);
+                let dy = (player.y + player.height/2) - (obj.y + obj.size/2);
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < player.magnetRadius + 50) {
+                    obj.magnetized = true;
+                    obj.x += dx * 5 * dt; obj.y += dy * 5 * dt;
+                }
+            }
+            if (!obj.magnetized) obj.y += obj.speed * dt;
+            obj.rot += 2 * dt;
+
+            if (rectIntersect(player.x, player.y, player.width, player.height, obj.x, obj.y, obj.size, obj.size)) {
+                handleCollision(obj);
+                objects.splice(i, 1);
+                continue;
+            }
+            if (obj.y > canvas.height) objects.splice(i, 1);
+        }
+    }
+
+    function createParticles(x, y, color) {
+        for(let i=0; i<8; i++) {
+            particles.push({x: x+20, y: y+20, vx: (Math.random()-0.5)*300, vy: (Math.random()-0.5)*300, life: 0.5, color: color});
+        }
+    }
+    
+    function updateParticles(dt) {
+        for(let i=particles.length-1; i>=0; i--) {
+            let p = particles[i]; p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt;
+            if(p.life <= 0) particles.splice(i, 1);
+        }
+    }
+
+    function sellItems() {
+        let earned = 0; let msg = "";
+        if (player.cardboardCount > 0) {
+            let price = gameState.weather === 'boom' ? 10 : 5;
+            price += player.sellBonus;
+            earned = player.cardboardCount * price;
+            gameState.money += earned;
+            player.cardboardCount = 0;
+            msg = `卖出赚了 ${earned} 元！`;
+        }
+        if (player.trashCount > 0) {
+            let fine = player.trashCount * 2;
+            gameState.money = Math.max(0, gameState.money - fine);
+            player.trashCount = 0;
+            msg += ` 倒垃圾 -${fine}`;
+        }
+        if(msg) { showDialogue(msg); createParticles(player.x, player.y, '#32CD32'); }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if(gameState.weather === 'rain') {
+            ctx.fillStyle = "rgba(0,0,50,0.1)"; ctx.fillRect(0,0,canvas.width, canvas.height);
+        } else if (gameState.weather === 'overcast') {
+            ctx.fillStyle = "rgba(0,0,0,0.1)"; ctx.fillRect(0,0,canvas.width, canvas.height);
+        }
+        
+        ctx.fillStyle = COLORS.liveZone; ctx.fillRect(0, 0, SAFE_ZONE_LEFT, canvas.height);
+        ctx.fillStyle = COLORS.ground; ctx.fillRect(0, 550, canvas.width, 50);
+
+        drawPlayer();
+
+        for (let obj of objects) {
+            ctx.save(); ctx.translate(obj.x + obj.size/2, obj.y + obj.size/2); ctx.rotate(obj.rot);
+            if (obj.type === 'cardboard') {
+                ctx.fillStyle = COLORS.cardboard; ctx.fillRect(-obj.size/2, -obj.size/2, obj.size, obj.size);
+                ctx.strokeStyle = "#5C3317"; ctx.lineWidth = 2; ctx.strokeRect(-obj.size/2, -obj.size/2, obj.size, obj.size);
+                ctx.fillStyle = "#C19A6B"; ctx.fillRect(-5, -obj.size/2, 10, obj.size);
+            } else if (obj.type === 'gold') {
+                ctx.fillStyle = COLORS.gold; ctx.fillRect(-obj.size/2, -obj.size/2, obj.size, obj.size);
+                ctx.fillStyle = "#FFF"; ctx.font = "20px Arial"; ctx.fillText("🎁", -10, 8);
+            } else if (obj.type === 'trash') {
+                ctx.fillStyle = COLORS.trash; ctx.beginPath(); ctx.moveTo(0, -20); ctx.lineTo(15, 10); ctx.lineTo(-15, 10); ctx.fill();
+                ctx.fillStyle = "#000"; ctx.font = "15px Arial"; ctx.fillText("☠️", -8, 5);
+            } else if (obj.type === 'candy') {
+                ctx.fillStyle = COLORS.candy; ctx.beginPath(); ctx.arc(0, 0, obj.size/2, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = "#FFF"; ctx.font = "15px Arial"; ctx.fillText("🍬", -8, 5);
+            } else if (obj.type === 'beef') {
+                ctx.fillStyle = COLORS.beef; ctx.beginPath(); ctx.arc(0, 0, obj.size/2, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = "#FFF"; ctx.font = "20px Arial"; ctx.fillText("🥩", -10, 8);
+            } else if (obj.type === 'mic_item') {
+                ctx.fillStyle = COLORS.mic; ctx.beginPath(); ctx.arc(0, 0, obj.size/2, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = "#FFF"; ctx.font = "20px Arial"; ctx.fillText("🎤", -10, 8);
+            } else {
+                ctx.fillStyle = COLORS.water; ctx.beginPath(); ctx.arc(0, 0, obj.size/2, 0, Math.PI*2); ctx.fill();
+            }
+            ctx.restore();
+        }
+    }
+
+    function drawPlayer() {
+        ctx.fillStyle = COLORS.youyi;
+        // 护盾特效
+        if (player.shieldTimer > 0) {
+            ctx.shadowBlur = 15; ctx.shadowColor = "gold";
+        }
+        // 减速特效
+        if (player.slowTimer > 0) {
+            ctx.fillStyle = "#8B0000"; // 变红
+        }
+
+        ctx.beginPath(); ctx.roundRect(player.x, player.y, player.width, player.height, 8); ctx.fill();
+        ctx.shadowBlur = 0; // 重置阴影
+
+        if (player.magnetRadius > 0) {
+            ctx.strokeStyle = "rgba(255, 215, 0, 0.3)"; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(player.x + 25, player.y + 25, player.magnetRadius + 40, 0, Math.PI*2); ctx.stroke();
+        }
+
+        let eyeY = player.y + 20; ctx.fillStyle = "#000";
+        if(player.stamina < 30 || player.trashCount > 2) {
+            ctx.fillText("X", player.x + 10, eyeY + 5); ctx.fillText("X", player.x + 35, eyeY + 5);
+        } else {
+            ctx.beginPath(); ctx.arc(player.x + 15, eyeY, 3, 0, Math.PI*2); ctx.arc(player.x + 35, eyeY, 3, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.fillStyle = "#FF6347"; ctx.globalAlpha = 0.5;
+        ctx.beginPath(); ctx.arc(player.x + 10, player.y + 32, 5, 0, Math.PI*2); ctx.arc(player.x + 40, player.y + 32, 5, 0, Math.PI*2);
+        ctx.fill(); ctx.globalAlpha = 1.0;
+
+        let total = player.cardboardCount + player.trashCount;
+        for(let i=0; i<total; i++) {
+            let isTrash = i >= player.cardboardCount;
+            ctx.fillStyle = isTrash ? COLORS.trash : COLORS.cardboard;
+            let h = 8; let yPos = player.y - (i+1) * h;
+            ctx.fillRect(player.x + 5, yPos, 40, h-1);
+        }
+    }
+
+    function updateUI() {
+        document.getElementById('dayDisplay').innerText = gameState.day;
+        document.getElementById('moneyDisplay').innerText = Math.floor(gameState.money);
+        document.getElementById('boxDisplay').innerText = player.cardboardCount + player.trashCount;
+        document.getElementById('capDisplay').innerText = player.maxCapacity;
+        document.getElementById('staminaDisplay').innerText = Math.floor(player.stamina);
+        document.getElementById('timeDisplay').innerText = Math.floor(gameState.timeLeft);
+        
+        document.getElementById('houseDesc').innerText = HOUSE_LEVELS[gameState.houseLevel].passive;
+        document.getElementById('house-level-badge').innerText = `Lv.${gameState.houseLevel} 小屋`;
+
+        // 更新状态栏
+        let statusHtml = "";
+        if (player.shieldTimer > 0) statusHtml += `<div class="status-icon" style="background:#FFD700">🎤 护盾 ${Math.ceil(player.shieldTimer)}s</div>`;
+        if (player.slowTimer > 0) statusHtml += `<div class="status-icon" style="background:#8B0000">🥩 减速 ${Math.ceil(player.slowTimer)}s</div>`;
+        document.getElementById('status-bar').innerHTML = statusHtml;
+
+        let pct = Math.min(100, (gameState.money / GOAL_AMOUNT) * 100);
+        document.getElementById('goalBar').style.width = pct + "%";
+        document.getElementById('goalText').innerText = `${Math.floor(gameState.money)}/${GOAL_AMOUNT}`;
+    }
+
+    function showDialogue(text) {
+        const box = document.getElementById('dialogue-box');
+        box.innerText = text; box.style.display = 'block';
+        clearTimeout(window.dialogueTimeout);
+        window.dialogueTimeout = setTimeout(() => box.style.display = 'none', 2000);
+    }
+    
+    function rectIntersect(x1, y1, w1, h1, x2, y2, w2, h2) {
+        return x2 < x1 + w1 && x2 + w2 > x1 && y2 < y1 + h1 && y2 + h2 > y1;
+    }
+
+    function getBuffName(code) {
+        if(code === 'speed') return "极速";
+        if(code === 'shield') return "护盾";
+        if(code === 'luck') return "欧皇";
+        return "";
+    }
+    
+    // === 辅助函数 ===
+    function rollWeather() {
+        let r = Math.random(); let sum = 0;
+        for(let w of WEATHER_EVENTS) {
+            sum += w.prob;
+            if(r <= sum) {
+                gameState.weather = w.id;
+                const banner = document.getElementById('event-banner');
+                banner.innerText = `今日运势：${w.name} | ${w.desc}`;
+                banner.style.display = 'block';
+                
+                if(w.id === 'rain') banner.style.backgroundColor = '#4682B4';
+                else if(w.id === 'boom') banner.style.backgroundColor = '#FFD700';
+                else if(w.id === 'tailwind') banner.style.backgroundColor = '#32CD32';
+                else if(w.id === 'overcast') banner.style.backgroundColor = '#708090';
+                else banner.style.backgroundColor = '#FF6347';
+                return;
+            }
+        }
+    }
+
+    function rollGuest() {
+        const btn = document.getElementById('skill-btn');
+        
+        // 独立星瞳逻辑 (5% 概率)
+        if (Math.random() < 0.05) {
+            const guest = NPC_DB['xingtong'];
+            gameState.dailyGuest = guest;
+            document.getElementById('npcIcon').innerText = guest.icon;
+            document.getElementById('npcName').innerText = guest.name;
+            document.getElementById('npcDesc').innerHTML = guest.desc;
+            btn.style.display = 'flex';
+            btn.className = '';
+            btn.style.borderColor = guest.color;
+            showDialogue(`✨ 稀有事件！星瞳竟然来探班了！`);
+            return;
+        }
+
+        // 普通好友逻辑
+        if (gameState.unlockedNPCs.length === 0) {
+            btn.style.display = 'none';
+            gameState.dailyGuest = null;
+            return;
+        }
+
+        const guestId = gameState.unlockedNPCs[Math.floor(Math.random() * gameState.unlockedNPCs.length)];
+        const guest = NPC_DB[guestId];
+        gameState.dailyGuest = guest;
+        
+        document.getElementById('npcIcon').innerText = guest.icon;
+        document.getElementById('npcName').innerText = guest.name;
+        document.getElementById('npcDesc').innerHTML = guest.desc;
+        btn.style.display = 'flex';
+        btn.className = '';
+        btn.style.borderColor = guest.color;
+        showDialogue(`${guest.name} 来小屋做客了！`);
+    }
+
+    function useSkill() {
+        if(!gameState.isPlaying || gameState.skillUsed || !gameState.dailyGuest) return;
+        gameState.dailyGuest.skill();
+        gameState.skillUsed = true;
+        document.getElementById('skill-btn').className = 'used';
+    }
+
+    function applyBuffs() {
+        player.speed = player.baseSpeed;
+        let tempResist = player.waterResistance;
+        if(gameState.dailyBuff === 'speed') player.speed *= 1.3;
+        if(gameState.dailyBuff === 'poison') player.stamina = Math.max(1, player.stamina - 10);
+        if(gameState.dailyBuff === 'shield') tempResist += 100;
+        if(gameState.dailyBuff === 'all') { player.speed *= 1.3; tempResist += 5; }
+        player.currentResist = tempResist; 
+        if(gameState.dailyBuff) showDialogue(`Buff生效：${getBuffName(gameState.dailyBuff)}`);
+        gameState.dailyBuff = null;
+    }
+
+    function endDay() {
+        gameState.isPlaying = false;
+        document.getElementById('overlay').style.display = 'flex';
+        document.getElementById('event-banner').style.display = 'none';
+        document.getElementById('skill-btn').style.display = 'none';
+        document.getElementById('status-bar').innerHTML = "";
+
+        const title = document.getElementById('overlayTitle');
+        const desc = document.getElementById('overlayDesc');
+        const menu = document.getElementById('actionMenu');
+
+        if(gameState.money >= GOAL_AMOUNT) {
+            title.innerText = "🎉 演唱会开启！ 🎉";
+            desc.innerHTML = "又一成为了最棒的偶像！<br>所有朋友都来为你欢呼！";
+            menu.innerHTML = "<h2 style='color:gold; text-align:center'>感谢游玩！</h2>";
+            document.getElementById('startBtn').innerText = "重新开始";
+            document.getElementById('startBtn').onclick = () => location.reload();
+            return;
+        }
+
+        if (player.stamina <= 0) {
+            title.innerText = "累倒了..."; desc.innerHTML = "支付医药费 50 元。";
+            gameState.money = Math.max(0, gameState.money - 50); player.stamina = 50; 
+        } else {
+            title.innerText = `第 ${gameState.day} 天结算`; desc.innerHTML = "今天遇到了哪位朋友呢？";
+        }
+
+        renderMenu(menu);
+        document.getElementById('startBtn').innerText = "开始下一天";
+        document.getElementById('startBtn').onclick = () => { gameState.day++; startGame(); };
+        updateUI();
+    }
+
+    function renderMenu(container) {
+        container.innerHTML = "";
+        
+        // 小屋升级
+        let houseTitle = document.createElement('div');
+        houseTitle.className = 'section-title';
+        houseTitle.innerHTML = '🏠 直播小屋升级';
+        container.appendChild(houseTitle);
+
+        if(gameState.houseLevel < HOUSE_LEVELS.length - 1) {
+            let nextLvl = HOUSE_LEVELS[gameState.houseLevel + 1];
+            let npcName = NPC_DB[nextLvl.npc].name;
+            let houseBtn = createButton({
+                name: `升级至 Lv.${gameState.houseLevel+1}`,
+                desc: `解锁: ${nextLvl.desc} | 新朋友: ${npcName}`,
+                price: nextLvl.price,
+                buffName: "永久升级"
+            }, () => {
+                gameState.money -= nextLvl.price;
+                gameState.houseLevel++;
+                gameState.unlockedNPCs.push(nextLvl.npc);
+                if(nextLvl.feature === 'capPlus') player.maxCapacity += 3;
+                showDialogue(`小屋升级成功！${npcName} 来啦！`);
+                renderMenu(container); updateUI();
+            });
+            houseBtn.style.borderColor = '#FF69B4';
+            houseBtn.style.gridColumn = "span 3";
+            container.appendChild(houseBtn);
+        } else {
+            let maxBtn = document.createElement('div');
+            maxBtn.className = 'item-card';
+            maxBtn.style.gridColumn = "span 3";
+            maxBtn.style.borderColor = "gold";
+            maxBtn.innerHTML = `<div class="item-name">🏠 小屋已满级</div><div class="item-desc">最温馨的小屋建成！</div>`;
+            container.appendChild(maxBtn);
+        }
+
+        // 道具商店
+        let shopTitle = document.createElement('div');
+        shopTitle.className = 'section-title';
+        shopTitle.innerHTML = '🛍️ 第一百货';
+        container.appendChild(shopTitle);
+
+        SHOP_ITEMS.forEach(item => {
+            let btn = createButton(item, () => {
+                gameState.money -= item.price; item.func(); item.price = Math.floor(item.price * 1.5);
+                showDialogue(`购买成功：${item.name}`);
+                renderMenu(container); updateUI();
+            });
+            container.appendChild(btn);
+        });
+
+        // 食物区
+        let foodTitle = document.createElement('div');
+        foodTitle.className = 'section-title';
+        foodTitle.innerHTML = '🍜 深夜食堂';
+        container.appendChild(foodTitle);
+
+        FOOD_MENU.forEach(food => {
+            let displayInfo = { name: food.name, desc: food.desc, price: food.price, energy: food.energy, buffName: food.buffName };
+            let btn = createButton(displayInfo, () => {
+                gameState.money -= food.price;
+                player.stamina = Math.min(100, player.stamina + food.energy);
+                if(food.buff) { gameState.dailyBuff = food.buff; showDialogue(`获得Buff：${food.buffName}`); }
+                else showDialogue("吃饱了！");
+                renderMenu(container); updateUI();
+            });
+            container.appendChild(btn);
+        });
+    }
+
+    function createButton(item, onClick) {
+        let btn = document.createElement('button');
+        btn.className = 'item-card';
+        let infoHtml = "";
+        if(item.energy) infoHtml += item.energy >= 100 ? `⚡回满 ` : `⚡+${item.energy} `;
+        if(item.buffName) infoHtml += `✨${item.buffName}`;
+        btn.innerHTML = `<div class="item-name">${item.name}</div><div class="item-desc">${item.desc}</div><div class="item-info">${infoHtml}</div><div class="item-price">💰 ${item.price}</div>`;
+        btn.onclick = onClick;
+        if (gameState.money < item.price) { btn.disabled = true; btn.style.opacity = "0.6"; }
+        return btn;
+    }
+
+    init();
+</script>
+</body>
+</html>

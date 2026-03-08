@@ -1,523 +1,1187 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta target="_blank">
-    <link rel="shortcut icon" href="./images/2.jpg" type="image/x-icon">
-    <link rel="stylesheet" href="./CSS/bootstrap.min.css">
-    <link rel="stylesheet" href="./CSS/personal-info-main.css">
-    <link rel="stylesheet" href="./CSS/personal-info-animate.css">
-    <link rel="stylesheet" href="./CSS/animate.min.css">
-    <link href="./CSS/aos.css" rel="stylesheet">
+    <title>四禧丸子 · 禧运楼 · 国风虚拟偶像</title>
 
-    <title>关于我</title>
+    <!-- 引入 Fira Code 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- 引入自动生成的文件列表（由 Python 脚本生成） -->
+    <script src="filelist.js"></script>
+
+    <style>
+        /* ===== 基础重置 + 千问核心样式 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background-color: #f0f0f0;
+            color: #333;
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 固定背景层 */
+        .background-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('images/四禧丸子_官方背景.jpg');
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            opacity: 0.25;
+        }
+
+        /* 顶部导航 */
+        nav {
+            position: sticky;
+            top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            flex-wrap: wrap;
+        }
+
+        nav h1 {
+            font-size: 1.6rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        nav h1 a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        nav li {
+            margin: 0 0.2rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #34495e;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover {
+            background-color: #d74177;
+            color: white;
+        }
+
+        /* 主内容区域 */
+        main {
+            max-width: 1300px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(4px);
+            border-radius: 28px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        section {
+            margin-bottom: 5rem;
+            padding: 1.5rem 1rem;
+            scroll-margin-top: 80px;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            color: #2c3e50;
+            border-bottom: 3px solid #d74177;
+            padding-bottom: 0.6rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* 头部hero */
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.3)), url('images/mmexport1771209655924.jpg') no-repeat center center;
+            background-size: cover;
+            padding: 4rem 2rem;
+            text-align: center;
+            color: white;
+            border-radius: 40px;
+            margin: 1rem 2rem 2rem 2rem;
+            position: relative;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        .hero .personalImage img {
+            max-width: 280px;
+            border-radius: 30px;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(6px);
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        .hero .name {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .hero .motto {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: rgba(255,255,255,0.9);
+        }
+        .hero .self-intro {
+            max-width: 700px;
+            margin: 1rem auto;
+            font-size: 1.1rem;
+        }
+        .hero .btn {
+            background: #d74177;
+            color: white;
+            padding: 12px 36px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1.5rem;
+            font-weight: 600;
+            transition: 0.3s;
+            border: none;
+        }
+        .hero .btn:hover {
+            background: #ff7aa2;
+            transform: translateY(-3px);
+        }
+
+        /* 成员卡片网格 */
+        .member-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .member-card {
+            background: linear-gradient(145deg, #f8faff, #eef2f7);
+            border-radius: 24px;
+            padding: 1.8rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.6);
+            cursor: pointer;
+        }
+
+        .member-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 30px rgba(0,0,0,0.15);
+        }
+
+        .click-counter {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: rgba(0, 0, 0, 0.4);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            backdrop-filter: blur(4px);
+            font-weight: 500;
+        }
+
+        .member-card img {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 10px 18px rgba(0,0,0,0.15);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .member-card img:hover {
+            transform: scale(1.05);
+        }
+
+        .member-name {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin: 1rem 0 0.2rem;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .member-name.clickable:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+        .member-jp-name {
+            font-size: 1rem;
+            color: #7f8c8d;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+        .member-info p {
+            margin: 0.4rem 0;
+            font-size: 0.95rem;
+        }
+        .member-desc {
+            font-weight: 500;
+            margin-top: 1rem;
+            border-top: 1px dashed #ccc;
+            padding-top: 1rem;
+        }
+        .member-personality {
+            margin-top: 0.8rem;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        .extra-info {
+            display: none;
+            margin-top: 15px;
+            padding: 12px;
+            background: #fff3f5;
+            border-left: 4px solid #d74177;
+            border-radius: 12px;
+            text-align: left;
+        }
+
+        /* 核心能力进度条 */
+        .skills-section .card {
+            background: white;
+            border-radius: 32px;
+            padding: 2rem;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.05);
+        }
+        .member-skills-selector {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 2rem 0 1.5rem;
+        }
+        .member-tab-button {
+            background: #ecf0f1;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 50px;
+            font-family: 'Fira Code', monospace;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .member-tab-button.active,
+        .member-tab-button:hover {
+            background: #d74177;
+            color: white;
+            transform: scale(1.02);
+        }
+        .skill-bars-container {
+            display: none;
+            animation: fade 0.4s;
+        }
+        .skill-bars-container.active {
+            display: block;
+        }
+        @keyframes fade { from { opacity:0; } to { opacity:1; } }
+        .skill-bar-item { margin: 1.2rem 0; }
+        .skill-bar-label { display: flex; justify-content: space-between; font-weight: 500; }
+        .skill-name { cursor: pointer; color: #2c3e50; }
+        .skill-value { background: #e0e0e0; padding: 2px 12px; border-radius: 20px; }
+        .skill-bar-bg { background: #e9ecef; border-radius: 30px; height: 26px; overflow: hidden; position: relative; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+        .skill-bar-fill { height: 100%; border-radius: 30px; transition: width 0.5s; }
+        #tian-dou-skills .skill-bar-fill { background: linear-gradient(90deg, #A7C9D3, #c2e0ea); }
+        #you-yi-skills .skill-bar-fill { background: linear-gradient(90deg, #E3BA09, #f5d34b); }
+        #mu-mu-skills .skill-bar-fill { background: linear-gradient(90deg, #A1D29A, #c0e8b5); }
+        #li-an-skills .skill-bar-fill { background: linear-gradient(90deg, #E38691, #fbb1b6); }
+
+        /* 入坑必刷卡片网格 */
+        .portfolio-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+        }
+        .portfolio-container .card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .portfolio-container .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.12);
+        }
+        .portfolio-container img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+        .card-body {
+            padding: 1.2rem;
+            text-align: center;
+        }
+
+        /* 音乐作品tabs */
+        .tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 2rem; }
+        .tab-button { background: #ecf0f1; border: none; padding: 10px 30px; border-radius: 40px; font-weight: 600; cursor: pointer; }
+        .tab-button.active { background: #d74177; color: white; }
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+        .songs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .song-card { background: #f8f9fa; border-radius: 20px; padding: 1rem; cursor: pointer; transition: 0.2s; border: 1px solid #eee; }
+        .song-card:hover { border-color: #d74177; transform: scale(1.02); }
+        .song-cover { width: 100%; height: 120px; border-radius: 16px; background: #ccc; object-fit: cover; }
+
+        /* 成员个人曲部分 */
+        #members {
+            overflow-x: hidden;
+        }
+        .member-section {
+            background: #f8f9fa;
+            border-radius: 24px;
+            padding: 1.5rem;
+            overflow: hidden;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .member-section .member-name {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #d74177;
+            text-align: center;
+        }
+        .member-section .song-card {
+            width: 100%;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .member-section .song-cover {
+            height: 100px;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        /* 时间轴 */
+        .timeline {
+            position: relative;
+            padding-left: 2.5rem;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 8px;
+            bottom: 8px;
+            width: 4px;
+            background: #d74177;
+            border-radius: 4px;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .timeline-item:hover {
+            background: rgba(215, 65, 119, 0.05);
+            border-radius: 12px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.5rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #d74177;
+            border: 3px solid white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .timeline-date { font-weight: 700; color: #d74177; margin-right: 0.8rem; }
+
+        /* 游戏区卡片 + 新增展示模块卡片 */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin: 2rem 0;
+        }
+        .game-card {
+            background: #f5f7fa;
+            border-radius: 28px;
+            padding: 1.8rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid #fff;
+        }
+        .game-card:hover { background: #ffffff; box-shadow: 0 15px 25px rgba(0,0,0,0.1); transform: translateY(-5px); }
+        .game-icon { width: 90px; height: 90px; border-radius: 30px; object-fit: cover; margin-bottom: 1rem; }
+
+        /* 二创横向滚动 */
+        .fanworks-scroll {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding: 15px 5px 25px;
+        }
+        .fan-item {
+            flex: 0 0 auto;
+            width: 180px;
+            text-align: center;
+        }
+        .fan-item img { width: 100%; height: 110px; border-radius: 20px; object-fit: cover; }
+
+        /* 社交平台 */
+        .social-avatars {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 2.5rem 0;
+        }
+        .social-avatars a img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            transition: 0.2s;
+        }
+        .social-avatars a img:hover { transform: scale(1.1); }
+
+        .question-buttons { display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; margin: 20px 0; }
+        .question-btn { background: #d74177; color: white; border: none; padding: 12px; border-radius: 50px; font-weight: 600; cursor: pointer; }
+        .answer-input { width: 100%; padding: 14px; border-radius: 60px; border: 1px solid #ccc; margin: 10px 0; font-family: inherit; }
+        .submit-btn { background: #27ae60; color: white; border: none; padding: 14px; border-radius: 60px; width: 100%; font-weight: bold; cursor: pointer; }
+        .error-message { color: red; display: none; }
+
+        /* 弹窗 */
+        .modal, .video-modal { display: none; position: fixed; z-index: 2000; left:0; top:0; width:100%; height:100%; background: rgba(0,0,0,0.7); }
+        .modal-content, .video-modal-content { background: white; margin: 10% auto; padding: 2rem; border-radius: 40px; max-width: 500px; position: relative; }
+        .close, .close-video { position: absolute; right: 20px; top: 15px; font-size: 28px; cursor: pointer; }
+
+        /* 进度条 */
+        .progress-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 5px; background: transparent; z-index: 9999;
+        }
+        .progress-bar {
+            height: 100%; width: 0%; background: linear-gradient(90deg, #d74177, #f39c12); transition: width 0.1s;
+        }
+
+        /* 新增返回按钮样式 */
+        .back-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .back-btn {
+            background: #d74177;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        .back-btn:hover {
+            background: #ff7aa2;
+            transform: scale(1.02);
+        }
+        .current-folder {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .folder-view {
+            width: 100%;
+        }
+
+        footer {
+            text-align: center; padding: 2rem; background: rgba(255,255,255,0.8); backdrop-filter: blur(8px); border-radius: 60px 60px 0 0; margin-top: 3rem;
+        }
+
+        @media (max-width: 700px) {
+            nav { flex-direction: column; gap: 0.8rem; }
+            .hero { margin: 1rem; padding: 2rem 1rem; }
+            .hero .name { font-size: 2rem; }
+        }
+    </style>
 </head>
-
-
 <body>
-    <div class="fakeLoader"></div>
 
-    <div class="profile-page">
+    <!-- 进度条 -->
+    <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+    <!-- 固定背景层 -->
+    <div class="background-layer"></div>
 
-        <div class="page-header">
+    <!-- 导航 -->
+    <nav>
+        <h1><a href="#">四禧丸子 · 禧运楼</a></h1>
+        <ul>
+            <li><a href="#about">成员介绍</a></li>
+            <li><a href="#skills">核心能力</a></li>
+            <li><a href="#portfolio">入坑必刷</a></li>
+            <li><a href="#work">音乐作品</a></li>
+            <li><a href="#others">荣誉里程碑</a></li>
+            <li><a href="#games">游戏区</a></li>
+            <li><a href="#hd">HD画册</a></li>
+            <li><a href="#clothes">服饰展示</a></li>
+            <li><a href="#contact">社交平台</a></li>
+        </ul>
+    </nav>
 
-
-            <nav class="navbar navbar-expand-md bg-primary navbar-dark">
-                <div class="container-fluid container">
-                    <a class="navbar-brand log" href="#"></a>
-                    <button class="navbar-toggler" type="button" data-toggle="collapse"
-                        data-target="#collapsibleNavbar">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavbar">
-                        <ul class="nav navbar-nav">
-                            <li class="nav-item"><a class="nav-link" href="#about">基本资料</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#skill">专业技能</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#project">项目经验</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#work">工作经历</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#others">其他经历</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#contact">联系方式</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-
-            <a href="#about" class="go" title="Read More">
-                <svg t="1628741268385" class="j-icon" viewBox="0 0 1024 1024" version="1.1"
-                    xmlns="http://www.w3.org/2000/svg" p-id="5238" width="32" height="32">
-                    <path
-                        d="M780.190476 498.070349c0 4.534857-2.21054 9.638603-5.461333 13.003175l-255.024762 263.476825c-3.299556 3.397079-8.208254 5.640127-12.580571 5.640127-4.388571 0-9.313524-2.275556-12.580572-5.640127l-255.024762-263.476825a19.732317 19.732317 0 0 1-5.461333-13.003175c0-4.518603 2.21054-9.622349 5.461333-12.98692l27.355429-28.265651c3.299556-3.397079 7.671873-5.640127 12.580571-5.640127 4.388571 0 9.313524 2.275556 12.564318 5.640127L507.12381 679.042032l215.105015-222.224254c3.283302-3.397079 8.192-5.640127 12.564318-5.640127 4.388571 0 9.313524 2.275556 12.580571 5.640127l27.355429 28.281905c3.283302 3.380825 5.461333 8.452063 5.461333 12.970666z m0-217.120508c0 4.534857-2.21054 9.638603-5.461333 13.003175l-255.024762 263.476825c-3.299556 3.397079-8.208254 5.640127-12.580571 5.640127-4.388571 0-9.313524-2.275556-12.580572-5.640127l-255.024762-263.476825a19.732317 19.732317 0 0 1-5.461333-13.003175c0-4.518603 2.21054-9.622349 5.461333-12.98692l27.355429-28.265651c3.299556-3.397079 7.671873-5.640127 12.580571-5.640127 4.388571 0 9.313524 2.275556 12.564318 5.640127L507.12381 461.937778l215.105015-222.224254c3.283302-3.397079 8.192-5.640127 12.564318-5.640127 4.388571 0 9.313524 2.275556 12.580571 5.640127l27.355429 28.281905c3.283302 3.380825 5.461333 8.452063 5.461333 12.970666z"
-                        p-id="5239" fill="#1296db"></path>
-                </svg>
-            </a>
-            <div class="page-header-mask"></div>
-            <div class="page-header-particles" id="particles-js"></div>
-
-
-            <div class="container">
-                <div class="col-sm-12  .col-xs-12">
-                    <div class="left-content">
-                        <div class="row-no-use" style="height: 40px;"></div>
-                        <div class="personalImage">
-                            <a href="javascript:void(0)">
-                                <img class="myphoto" src="" alt="个人图片">
-                            </a>
-                        </div>
-
-                        <div class="name-container">
-                            <h2 class="name"><br></h2>
-                        </div>
-
-                        <div class="motto-container">
-                            <p class="motto"></p>
-                        </div>
-
-                        <div class="intro-container bb">
-                            <span class="info self-intro ">
-                                青青子衿，悠悠我心<br>
-                                但为君故，沉吟至今<br>
-                                相遇即是缘分<br>
-                                很高兴见到你!
-                            </span>
-                        </div>
-
-                        <div id="myButtons2" class="bs-example">
-                            <a href="#contact" class="hvr-bounce-to-right animate__backInRight">联系我</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
+    <!-- 头部hero -->
+    <div class="hero">
+        <div class="personalImage">
+            <img class="myphoto" src="images/四禧丸子_logo.png" alt="四禧丸子LOGO">
         </div>
-
-        <section class="about-section" id="about">
-            <div class="container">
-                <h2 class="section-title" data-aos="fade-up" data-aos-offset="10">基本资料</h2>
-                <div class="card" data-aos="fade-up" data-aos-offset="100">
-                    <div class="row">
-                        <div class="col-lg-6 col-md-12">
-                            <div class="card-body">
-                                <div class="h4 mt-0 title">关于我</div>
-                                <span class="me"></span>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-12">
-                            <div class="card-body">
-                                <div class="h4 mt-0 title">基本信息</div>
-                                <div class="row">
-                                    <div class="col-sm-4 col-xs-4"><strong>姓名:</strong></div>
-                                    <div class="col-sm-8 col-xs-8 gg name"></div>
-                                </div>
-                                <div class="row mt-2">
-                                    <div class="col-sm-4"><strong>性别:</strong></div>
-                                    <div class="col-sm-8 sex"></div>
-                                </div>
-                                <div class="row mt-2">
-                                    <div class="col-sm-4"><strong class="text-uppercase">年龄:</strong></div>
-                                    <div class="col-sm-8 age"></div>
-                                </div>
-                                <div class="row mt-2">
-                                    <div class="col-sm-4"><strong class="text-uppercase">电话:</strong></div>
-                                    <div class="col-sm-8 phone"></div>
-                                </div>
-                                <div class="row mt-2">
-                                    <div class="col-sm-4"><strong class="text-uppercase">邮箱:</strong></div>
-                                    <div class="col-sm-8 email"></div>
-                                </div>
-                                <div class="row mt-2">
-                                    <div class="col-sm-4"><strong class="text-uppercase">地址:</strong></div>
-                                    <div class="col-sm-8 address"></div>
-                                </div>
-
-                                <div class="row mt-2">
-                                    <div class="col-sm-4"><strong class="text-uppercase">期望岗位:</strong></div>
-                                    <div class="col-sm-8 for-work"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="skill-section" id="skill">
-            <div class="container">
-                <h2 class="section-title" data-aos="fade-up" data-aos-offset="10">专业技能</h2>
-                <div class="card" data-aos="fade-up" data-aos-offset="100" data-aos-anchor-placement="top-bottom">
-                    <div class="row">
-                        <div class="col-lg-6 col-md-12 p">
-                            <div class="card-body skill-body">
-                                <!-- <div class="progress_bar">
-                                    <div class="pro-bar">
-                                        <small class="progress_bar_title">
-                                            Java
-                                            <span class="progress_number">%</span>
-                                        </small>
-                                        <span class="progress-bar-inner p-a"
-                                            style="background-color: #1abc9c; width: 80%;" data-value="80"
-                                            data-percentage-value="80"></span>
-                                    </div>
-                                </div>
-
-                                <div class="progress_bar">
-                                    <div class="pro-bar">
-                                        <small class="progress_bar_title">
-                                            GoLang
-                                            <span class="progress_number">%</span>
-                                        </small>
-                                        <span class="progress-bar-inner p-a"
-                                            style="background-color: #bc1a99; width: 77%;" data-value="77"
-                                            data-percentage-value="77"></span>
-                                    </div>
-                                </div>
-
-                                <div class="progress_bar">
-                                    <div class="pro-bar">
-                                        <small class="progress_bar_title">
-                                            SQL
-                                            <span class="progress_number">%</span>
-                                        </small>
-                                        <span class="progress-bar-inner p-a"
-                                            style="background-color: #cedf3c; width: 75%;" data-value="75"
-                                            data-percentage-value="75"></span>
-                                    </div>
-                                </div>
-
-                                <div class="progress_bar">
-                                    <div class="pro-bar">
-                                        <small class="progress_bar_title">
-                                            HTML5
-                                            <span class="progress_number">%</span>
-                                        </small>
-                                        <span class="progress-bar-inner p-a"
-                                            style="background-color: #ec1b1b; width: 67%;" data-value="67"
-                                            data-percentage-value="67"></span>
-                                    </div>
-                                </div>
-
-                                <div class="progress_bar">
-                                    <div class="pro-bar">
-                                        <small class="progress_bar_title">
-                                            CSS3
-                                            <span class="progress_number">%</span>
-                                        </small>
-                                        <span class="progress-bar-inner p-a"
-                                            style="background-color: #c95a11; width: 60%;" data-value="60"
-                                            data-percentage-value="60"></span>
-                                    </div>
-                                </div>
-
-                                <div class="progress_bar">
-                                    <div class="pro-bar">
-                                        <small class="progress_bar_title">
-                                            JavaScript
-                                            <span class="progress_number">%</span>
-                                        </small>
-                                        <span class="progress-bar-inner p-a"
-                                            style="background-color: #2a1abc; width: 70%;" data-value="70"
-                                            data-percentage-value="70"></span>
-                                    </div>
-                                </div> -->
-                            </div>
-
-
-                        </div>
-
-                        <div class="col-lg-6 col-md-12 skill-about">
-                            <div class="card-body">
-                                <div class="h4 mt-0 title">技能描述</div>
-                                <div class="desc">
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </section>
-
-        <section class="portfolio-section" id="project">
-            <div class="tab-content gallery mt-5">
-                <h2 class="section-title" data-aos="fade-up" data-aos-offset="10">作品展示</h2>
-                <div class="container">
-                    <div class="ml-auto mr-auto portfolio-section-main-container">
-                        <!-- <div class="row">
-                            <div class="col-md-4">
-                                <div class="porfolio-image img-raised" data-aos="fade-up"
-                                    data-aos-anchor-placement="top-bottom">
-                                    <a href="#web-development" title="点击查看详细信息">
-                                        <figure class="portfolio-section-main"><img src="./images/index_background.jpg"
-                                                alt="Image" />
-                                            <figcaption>
-                                                <div class="h4">Project2</div>
-                                                <p>qrwqrqrwq</p>
-                                            </figcaption>
-                                        </figure>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="porfolio-image img-raised" data-aos="fade-up"
-                                    data-aos-anchor-placement="top-bottom">
-                                    <a href="#web-development" title="点击查看详细信息">
-                                        <figure class="portfolio-section-main"><img src="./images/index_background.jpg"
-                                                alt="Image" />
-                                            <figcaption>
-                                                <div class="h4">Project3</div>
-                                                <p>qwrwqrqwrwqrqwsa</p>
-                                            </figcaption>
-                                        </figure>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="porfolio-image img-raised" data-aos="fade-up"
-                                    data-aos-anchor-placement="top-bottom">
-                                    <a href="#web-development" title="点击查看详细信息">
-                                        <figure class="portfolio-section-main">
-                                            <img src="./images/index_background.jpg" alt="Image" />
-                                            <figcaption>
-                                                <div class="h4">Project1</div>
-                                                <p>qeweq</p>
-                                            </figcaption>
-                                        </figure>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="porfolio-image img-raised" data-aos="fade-up"
-                                    data-aos-anchor-placement="top-bottom">
-                                    <a href="#web-development" title="点击查看详细信息">
-                                        <figure class="portfolio-section-main"><img src="./images/index_background.jpg"
-                                                alt="Image" />
-                                            <figcaption>
-                                                <div class="h4">Project2</div>
-                                                <p>qrwqrqrwq</p>
-                                            </figcaption>
-                                        </figure>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="porfolio-image img-raised" data-aos="fade-up"
-                                    data-aos-anchor-placement="top-bottom">
-                                    <a href="#web-development" title="点击查看详细信息">
-                                        <figure class="portfolio-section-main"><img src="./images/index_background.jpg"
-                                                alt="Image" />
-                                            <figcaption>
-                                                <div class="h4">Project3</div>
-                                                <p>qwrwqrqwrwqrqwsa</p>
-                                            </figcaption>
-                                        </figure>
-                                    </a>
-                                </div>
-                            </div>
-                        </div> -->
-                    </div>
-                </div>
-
-            </div>
-
-
-        </section>
-
-        <section class="experience-section" id="work">
-            <div class="container">
-                <h2 class="section-title" data-aos="fade-in" data-aos-offset="10">工作经历</h2>
-                <!-- <div class="card">
-                    <div class="row">
-                        <div class="col-md-3 bg-primary" data-aos="fade-right" data-aos-offset="50"
-                            data-aos-duration="500">
-                            <div class="card-body">
-                                <p class="time">
-                                    2020/7/1 — 2021/8/10
-                                </p>
-                                <strong class="work"><br> 阎王殿实习生</strong>
-                            </div>
-                        </div>
-                        <div class="col-md-9" data-aos="fade-left" data-aos-offset="50" data-aos-duration="500">
-                            <div class="card-body">
-                                <p><strong>阎王殿研发部</strong></p>
-                                <p>随着阴历7月15中元节的到来，阎王殿的任务愈发庞大，我以及我所在小组主要负责阎王谱后台部分，拟在解决千万访问并发问题，经过不械努力，使得产品稳定、高效的运行。</p>
-                                <p>随着阴历7月15中元节的到来，阎王殿的任务愈发庞大，我以及我所在小组主要负责阎王谱后台部分，拟在解决千万访问并发问题，经过不械努力，使得产品稳定、高效的运行。</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div> -->
-            </div>
-        </section>
-
-
-
-        <section class="others-section" id="others">
-            <div class="container" data-aos="fade-up" data-aos-offset="100">
-                <h2 class="section-title">其它经历</h2>
-                <div class="col-sm-12 col-xs-12">
-                    <div class="content-timeline-border">
-                        <div class="timeline-left">
-                            <span></span>
-                            <ul class="timeul">
-                                <!-- <li>
-                                    <div class="time-title">2021-02-15</div>
-                                    <span></span>
-                                    <div class="time-content">
-                                        <h5>蓝桥杯省三等奖</h5>
-                                        <p>emmmmm。</p>
-                                    </div>
-
-                                </li>
-
-                                <li>
-                                    <div class="time-title">你爱我</div>
-                                    <span></span>
-                                    <div class="time-content">
-                                        <h5>团队程序设计天梯赛团队省二等奖，个人全国三等奖</h5>
-                                        
-                                    </div>
-                                </li> -->
-
-
-                            </ul>
-                        </div>
-                        <div class="timeline-right">
-                            <span></span>
-                            <ul class="timeul">
-                                <!-- <li>
-                                    <div class="time-title">2021-06-15</div>
-                                    <span></span>
-                                    <div class="time-content">
-                                        <h5>校赛三等奖</h5>
-                                        <p></p>
-                                    </div>
-                                </li> -->
-
-
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="contact-section" id="contact">
-            <div class="container">
-                <h2 class="section-title" data-aos="fade-in" data-aos-offset="10">联系我</h2>
-                <div class="main">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card mb-0" data-aos="zoom-in" data-aos-offset="100">
-
-                                <div class="row">
-                                    <div class="col-sm-6 col-xm-12 col-md-6">
-                                        <div class="card-body">
-
-                                            <p><strong>邮件联系我</strong></p>
-                                            <div class="row mb-3">
-                                                <div class="col">
-                                                    <div class="input-group"><span class="input-group-addon"><svg
-                                                                t="1628783460111" class="icon" viewBox="0 0 1024 1024"
-                                                                version="1.1" xmlns="http://www.w3.org/2000/svg"
-                                                                p-id="2051" width="16" height="16">
-                                                                <path
-                                                                    d="M550.079952 1023.808H229.120354A132.607834 132.607834 0 0 1 96.00052 891.712165V132.097115A132.479834 132.479834 0 0 1 229.120354 0.00128h565.759292c73.471908 0 133.119834 59.071926 133.119834 132.095835v627.519215c1.919998 126.143842-127.80784 265.471668-266.239667 264.19167H550.079952V1024h75.391906v-195.071756c0-48.447939 11.519986-61.119924 58.879927-61.119924h241.407698l-0.639999-74.239907-110.591862 1.151999H636.991844c-81.471898-1.151999-87.167891 54.335932-86.911892 75.903905l-0.255999 9.855987v11.711986l0.255999 231.61571zM337.472218 341.312853h349.055564a35.839955 35.839955 0 0 0 34.943956-36.607954 35.775955 35.775955 0 0 0-34.943956-36.543954H337.472218a35.775955 35.775955 0 0 0-34.943956 36.543954c0 20.223975 15.67998 36.607954 34.943956 36.607954z m104.703869 121.855848H337.472218a35.775955 35.775955 0 0 0-34.943956 36.543954c0 20.159975 15.67998 36.543954 34.943956 36.543955h168.703789a35.839955 35.839955 0 0 0 34.943957-36.543955 35.839955 35.839955 0 0 0-34.943957-36.607954h-63.99992z"
-                                                                    p-id="2052">
-
-                                                                </path>
-                                                            </svg>
-                                                        </span>
-                                                        <input class="form-control subject" type="text" name="Subject"
-                                                            placeholder="主题" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row mb-3">
-                                                <div class="col">
-                                                    <div class="input-group">
-                                                        <textarea class="form-control message" name="message"
-                                                            placeholder="message" rows="5"></textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col">
-                                                    <button class="btn btn-primary send-btn">Send</button>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="card-body">
-                                            <p class="mb-0"><strong>电话</strong></p>
-                                            <p class="pb-2 phone"></p>
-                                            <p class="mb-0"><strong>邮箱</strong></p>
-                                            <p class="pb-2 email"></p>
-                                            <p class="mb-0"><strong>地址</strong></p>
-                                            <p class="pb-2 address"></p>
-                                            <p class="mb-0"><strong>QQ</strong></p>
-                                            <p class="qq"></p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-12">
-
-                                        <dic class="card-body">
-                                            <div class="container text-center icon-insert">
-
-                                                <!-- <a class="my-tooltip" href="#" title="访问我的CSDN主页">
-                                                    <img src="./svg/csdn.svg" alt="我的CSDN主页">
-
-                                                    <span class="my-tooltiptext">我的CSDN主页</span>
-                                                </a>
-
-                                                <a class="my-tooltip" href="#" title="访问我的CSDN主页">
-                                                    <img src="./svg/github.svg" alt="">
-                                                    <span class="my-tooltiptext">我的Github主页</span>
-                                                </a> -->
-
-                                            </div>
-                                        </dic>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <div class="name">四禧丸子</div>
+        <div class="motto">老字号新传承，国风虚拟偶像</div>
+        <div class="self-intro">四禧丸子是由四位虚拟偶像组成的国风虚拟偶像组合，恬豆、又一、沐霂、梨安四位成员传承百年老字号「禧运楼」，以Bilibili为主阵地，用音乐和直播传递快乐</div>
+        <a href="#contact" class="btn">关注我们</a>
     </div>
-    <section class="footer">
-        <div style="padding: 20px;" class="container">
-            中网文（2018)228-024号 | Copyright 2020-2030 me.com All Rights Reserved| 郑公备：41011002002133215 | 豫公网安备
-            x-41010202002051号
-        </div>
-    </section>
+
+    <!-- 主内容 -->
+    <main>
+        <!-- 成员介绍 -->
+        <section id="about">
+            <h2>✨ 成员介绍</h2>
+            <div class="member-grid">
+                <!-- 恬豆 -->
+                <div class="member-card" data-member="bekki" data-click-count="0">
+                    <div class="click-counter">点击: 0</div>
+                    <img class="member-avatar" src="images/恬豆_团服头像.jpg" alt="恬豆" style="border-color: #A7C9D3;">
+                    <div class="member-name clickable" style="color:#A7C9D3;" onclick="toggleExtraInfo('bekki-extra')">恬豆 Bekki</div>
+                    <div class="member-jp-name">禧运楼老板娘兼首席糕点师</div>
+                    <div class="member-info">
+                        <p><strong>生日：</strong>6月14日</p><p><strong>粉丝名：</strong>恬豆包</p><p><strong>代表色：</strong>#A7C9D3</p><p><strong>特长：</strong>料理、唱歌</p>
+                    </div>
+                    <div class="member-desc" style="color:#A7C9D3;">咦？这里有颗豆豆好像快要发芽了。</div>
+                    <div class="member-personality">用可爱和元气化解一切难题的神器团宠。反射弧很长，做事从不着急。贤惠能干的小厨娘。</div>
+                    <div id="bekki-extra" class="extra-info">✨ 恬豆因为某五字歌曲被唠了两辈子</div>
+                </div>
+                <!-- 又一 -->
+                <div class="member-card" data-member="yoyi" data-click-count="0">
+                    <div class="click-counter">点击: 0</div>
+                    <img class="member-avatar" src="images/又一_团服头像.jpg" alt="又一" style="border-color: #E3BA09;">
+                    <div class="member-name clickable" style="color:#E3BA09;" onclick="toggleExtraInfo('yoyi-extra')">又一 Yoyi</div>
+                    <div class="member-jp-name">禧运楼舞台总管</div>
+                    <div class="member-info">
+                        <p><strong>生日：</strong>1月28日</p><p><strong>粉丝名：</strong>酥酥又</p><p><strong>代表色：</strong>#E3BA09</p><p><strong>特长：</strong>唱歌(哈吉米)</p>
+                    </div>
+                    <div class="member-desc" style="color:#E3BA09;">世界上又一美女诞生！（ '▿ ' ）</div>
+                    <div class="member-personality">爱吐槽的古灵精怪小恶魔，但种种行为也经常被别人吐槽。总是沉浸在自己的世界里。</div>
+                    <div id="yoyi-extra" class="extra-info">✨ 又别是大果村村花，和又爸又妈一样神</div>
+                </div>
+                <!-- 沐霂 -->
+                <div class="member-card" data-member="queenie" data-click-count="0">
+                    <div class="click-counter">点击: 0</div>
+                    <img class="member-avatar" src="images/沐霂_团服头像.jpg" alt="沐霂" style="border-color: #A1D29A;">
+                    <div class="member-name clickable" style="color:#A1D29A;" onclick="toggleExtraInfo('queenie-extra')">沐霂 Queenie</div>
+                    <div class="member-jp-name">是禧运楼掌柜兼队长。</div>
+                    <div class="member-info">
+                        <p><strong>生日：</strong>10月17日</p><p><strong>粉丝名：</strong>小沐标</p><p><strong>代表色：</strong>#A1D29A</p><p><strong>特长：</strong>宅舞</p>
+                    </div>
+                    <div class="member-desc" style="color:#A1D29A;">来和我一起在雨中肆意奔跑吧！</div>
+                    <div class="member-personality">沉着冷静的队长，是团内的拍板人。有主见，有时也被别人说是个傲娇。</div>
+                    <div id="queenie-extra" class="extra-info">✨ 沐霂的身高据(自己)说是167</div>
+                </div>
+                <!-- 梨安 -->
+                <div class="member-card" data-member="lian" data-click-count="0">
+                    <div class="click-counter">点击: 0</div>
+                    <img class="member-avatar" src="images/梨安_团服头像.jpg" alt="梨安" style="border-color: #E38691;">
+                    <div class="member-name clickable" style="color:#E38691;" onclick="toggleExtraInfo('lian-extra')">梨安 Lian</div>
+                    <div class="member-jp-name">禧运楼看板娘。</div>
+                    <div class="member-info">
+                        <p><strong>生日：</strong>12月3日</p><p><strong>粉丝名：</strong>向心梨</p><p><strong>代表色：</strong>#E38691</p><p><strong>特长：</strong>舞蹈、乒乓球</p>
+                    </div>
+                    <div class="member-desc" style="color:#E38691;">温柔的"高智商"美女。（店小二把引号去掉！！！）</div>
+                    <div class="member-personality">外表性感内心细腻，有明确的目标和信念。一直在别人看不到的地方默默认真努力，但是生活中是个大迷糊。</div>
+                    <div id="lian-extra" class="extra-info">✨ 梨安有一次饿哭了，因为只能吃五个手枪腿</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 核心能力 -->
+        <section id="skills" class="skills-section">
+            <h2>⚡ 核心能力</h2>
+            <div class="card">
+                <div class="card-body">
+                    <div class="member-skills-selector">
+                        <button class="member-tab-button active" data-target="tian-dou-skills">恬豆 Bekki</button>
+                        <button class="member-tab-button" data-target="you-yi-skills">又一 Yoyi</button>
+                        <button class="member-tab-button" data-target="mu-mu-skills">沐霂 Queenie</button>
+                        <button class="member-tab-button" data-target="li-an-skills">梨安 Lian</button>
+                    </div>
+                    <!-- 恬豆 -->
+                    <div id="tian-dou-skills" class="skill-bars-container active">
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="唱歌" data-hidden="*****">唱歌</span><span class="skill-value">75</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:75%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="跳舞" data-hidden="🧟‍♀️">跳舞</span><span class="skill-value">65(how u like that)</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:65%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="游戏" data-hidden="发量">游戏</span><span class="skill-value">50</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:50%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="杂谈" data-hidden="爆了爆了">杂谈</span><span class="skill-value">85</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:85%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="做饭" data-hidden="怡锅乱炖">做饭</span><span class="skill-value">95 (特长)</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:95%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="运动" data-hidden="发面">运动</span><span class="skill-value">60</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:60%"></div></div></div>
+                    </div>
+                    <!-- 又一 -->
+                    <div id="you-yi-skills" class="skill-bars-container">
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="唱歌" data-hidden="哈吉米">唱歌</span><span class="skill-value">92(特长)</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:92%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="跳舞" data-hidden="邦邦邦">跳舞</span><span class="skill-value">70</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:70%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="游戏" data-hidden="熬夜">游戏</span><span class="skill-value">88(国家特级熬夜运动员)</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:88%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="杂谈" data-hidden="🎆">杂谈</span><span class="skill-value">92</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:92%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="做饭" data-hidden="家乡菜">做饭</span><span class="skill-value">85</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:85%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="运动" data-hidden="体力">运动</span><span class="skill-value">65(也曾是特长)</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:65%"></div></div></div>
+                    </div>
+                    <!-- 沐霂 -->
+                    <div id="mu-mu-skills" class="skill-bars-container">
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="唱歌" data-hidden="元气">唱歌</span><span class="skill-value">78</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:78%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="跳舞" data-hidden="GN">跳舞</span><span class="skill-value">92 (特长)</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:92%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="游戏" data-hidden="老沐代打">游戏</span><span class="skill-value">78</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:78%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="杂谈" data-hidden="💣">杂谈</span><span class="skill-value">82</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:82%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="做饭" data-hidden="拳力">做饭</span><span class="skill-value">86</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:86%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="运动" data-hidden="身高">运动</span><span class="skill-value">59</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:59%"></div></div></div>
+                    </div>
+                    <!-- 梨安 -->
+                    <div id="li-an-skills" class="skill-bars-container">
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="唱歌" data-hidden="树脂">唱歌</span><span class="skill-value">85</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:85%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="跳舞" data-hidden="日灶">跳舞</span><span class="skill-value">90 (特长)</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:90%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="游戏" data-hidden="打枪">游戏</span><span class="skill-value">68</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:68%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="杂谈" data-hidden="嗦面">杂谈</span><span class="skill-value">77</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:77%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="做饭" data-hidden="胃袋(天蓬下凡一吃三)">做饭</span><span class="skill-value">88</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:88%"></div></div></div>
+                        <div class="skill-bar-item"><div class="skill-bar-label"><span class="skill-name" data-visible="运动" data-hidden="现充">运动</span><span class="skill-value">85(国家一级干饭运动员)</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:85%"></div></div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 入坑必刷 -->
+        <section id="portfolio">
+            <h2>🎬 入坑必刷</h2>
+            <div class="portfolio-container">
+                <div class="card" onclick="openVideo('BV1JG4y1Y79G')"><img src="images/我给月老整不会了~.jpg"><div class="card-body"><h5>七夕特别直播</h5><p>3D团播 2022.8.4</p></div></div>
+                <div class="card" onclick="openVideo('BV1BV4y1y7dC')"><img src="images/迟到的端午节.jpg"><div class="card-body"><h5>端午特别直播</h5><p>2023.6.25</p></div></div>
+                <div class="card" onclick="openVideo('BV1DN4y1D7Ki')"><img src="images/一球成名！.jpg"><div class="card-body"><h5>运动主题</h5><p>2023.11.10</p></div></div>
+                <div class="card" onclick="openVideo('BV1Ly411Y7XX')"><img src="images/四禧丸子二周年特别直播.jpg"><div class="card-body"><h5>二周年</h5><p>2024.5.17</p></div></div>
+                <div class="card" onclick="openVideo('BV1Jy411b74t')"><img src="images/幼儿园奇妙夜.jpg"><div class="card-body"><h5>儿童节新衣</h5><p>2024.6.1</p></div></div>
+                <div class="card" onclick="openVideo('BV15X5nzBEcK')"><img src="images/现代医学奇迹！.jpg"><div class="card-body"><h5>复播3D</h5><p>2025.4.18</p></div></div>
+                <div class="card" onclick="openVideo('BV125MXzAEyH')"><img src="images/丸全随机事件.jpg"><div class="card-body"><h5>BW神人事件</h5><p>2025.7.12</p></div></div>
+                <div class="card" onclick="openVideo('BV1KCS7BDEAf')"><img src="images/谁是丸子王.jpg"><div class="card-body"><h5>智斗巅峰</h5><p>2025.11.28</p></div></div>
+            </div>
+        </section>
+
+        <!-- 音乐作品 -->
+        <section id="work">
+            <h2>🎵 音乐作品</h2>
+            <div class="tabs">
+                <button class="tab-button active" onclick="showTab('group')">团体歌曲</button>
+                <button class="tab-button" onclick="showTab('members')">成员个人曲</button>
+            </div>
+            <!-- 团体歌曲 -->
+            <div id="group" class="content-section active">
+                <div class="songs-grid">
+                    <div class="song-card" onclick="openVideo('BV1pZ4y1k7sx')"><img class="song-cover" src="images/耀.jpg"><div class="song-info"><div class="song-title">《耀》</div><div class="song-date">2022-02-15</div></div></div>
+                    <div class="song-card" onclick="openVideo('BV14S4y1v7jz')"><img class="song-cover" src="images/浅梦.jpg"><div class="song-info"><div class="song-title">《浅梦》</div><div class="song-date">2022-03-31</div></div></div>
+                    <div class="song-card" onclick="openVideo('BV11d4y1X74K')"><img class="song-cover" src="images/相思图.jpg"><div class="song-info"><div class="song-title">《相思图》</div><div class="song-date">2022-09-11</div></div></div>
+                    <div class="song-card" onclick="openVideo('BV1u84y187pQ')"><img class="song-cover" src="images/四喜东家.jpg"><div class="song-info"><div class="song-title">《四喜东家》</div><div class="song-date">2023-01-22</div></div></div>
+                    <div class="song-card" onclick="openVideo('BV1S7421P7aa')"><img class="song-cover" src="images/星光练习曲.jpg"><div class="song-info"><div class="song-title">《星光练习曲》</div><div class="song-date">2024-02-02</div></div></div>
+                    <div class="song-card" onclick="openVideo('BV1iC41177a5')"><img class="song-cover" src="images/念我.jpg"><div class="song-info"><div class="song-title">《念我》</div><div class="song-date">2024-05-18</div></div></div>
+                    <div class="song-card" onclick="openVideo('BV1pgFNerEZ2')"><img class="song-cover" src="images/免我蹉跎苦.jpg"><div class="song-info"><div class="song-title">《免我蹉跎苦》</div><div class="song-date">2025-01-26</div></div></div>
+                    <div class="song-card" onclick="openVideo('BV1c6cwzZE7U')"><img class="song-cover" src="images/凑热闹.jpg"><div class="song-info"><div class="song-title">《凑热闹》</div><div class="song-date">2026-02-08</div></div></div>
+                    <div class="song-card" onclick="openVideo('BV14FPKzHEnT')"><img class="song-cover" src="images/四禧新年颂.jpg"><div class="song-info"><div class="song-title">《四禧新年颂》</div><div class="song-date">2026-03-04</div></div></div>
+                </div>
+            </div>
+            <!-- 成员个人曲 -->
+            <div id="members" class="content-section">
+                <div class="member-grid">
+                    <!-- 恬豆 -->
+                    <div class="member-section">
+                        <div class="member-name">💩恬豆</div>
+                        <div class="song-card" onclick="openVideo('BV1wr4y1u7LM')"><img class="song-cover" src="images/ChuLuBaby.jpg"><div class="song-info"><div class="song-title">ChuLuBaby</div></div></div>
+                        <div class="song-card" onclick="openVideo('BV1Y14y1z7aH')"><img class="song-cover" src="images/心动的节奏.jpg"><div class="song-info"><div class="song-title">心动的节奏</div></div></div>
+                        <div class="song-card" onclick="openVideo('BV1HT421r7R1')"><img class="song-cover" src="images/甜蜜冠冕.jpg"><div class="song-info"><div class="song-title">甜蜜冠冕</div></div></div>
+                        <div class="song-card" onclick="openVideo('BV1cEahzWE4h')"><img class="song-cover" src="images/日落海岸线.jpg"><div class="song-info"><div class="song-title">日落海岸线</div></div></div>
+                    </div>
+                    <!-- 梨安 -->
+                    <div class="member-section">
+                        <div class="member-name">🐷梨安</div>
+                        <div class="song-card" onclick="openVideo('BV18G4y1c7pQ')"><img class="song-cover" src="images/危险界限.jpg"><div class="song-info"><div class="song-title">危险界限</div></div></div>
+                        <div class="song-card" onclick="openVideo('BV1wK411v7mb')"><img class="song-cover" src="images/恋爱单日券.jpg"><div class="song-info"><div class="song-title">恋爱单日券</div></div></div>
+                        <div class="song-card" onclick="openVideo('BV1E3PizxEwU')"><img class="song-cover" src="images/暗里生花.jpg"><div class="song-info"><div class="song-title">暗里生花(试听版)</div></div></div>
+                    </div>
+                    <!-- 沐霂 -->
+                    <div class="member-section">
+                        <div class="member-name">🐮沐霂</div>
+                        <div class="song-card" onclick="openVideo('BV1884y1i7CM')"><img class="song-cover" src="images/这一次.png"><div class="song-info"><div class="song-title">这一次</div></div></div>
+                        <div class="song-card" onclick="openVideo('BV12u4y1n741')"><img class="song-cover" src="images/下一站旅程.jpg"><div class="song-info"><div class="song-title">下一站旅程</div></div></div>
+                        <div class="song-card" onclick="openVideo('BV1VCysBKETY')"><img class="song-cover" src="images/相伴花海.jpg"><div class="song-info"><div class="song-title">相伴花海</div></div></div>
+                        <div class="song-card" onclick="openVideo('BV1FvxFzSEyc')"><img class="song-cover" src="images/唯属你我.jpg"><div class="song-info"><div class="song-title">唯属你我</div></div></div>
+                    </div>
+                    <!-- 又一 -->
+                    <div class="member-section">
+                        <div class="member-name">🐵又一</div>
+                        <div class="song-card" onclick="openVideo('BV1zs4y1U7Qx')"><img class="song-cover" src="images/ChaseTheMoon.jpg"><div class="song-info"><div class="song-title">Chase the moon</div></div></div>
+                        <div class="song-card" onclick="openVideo('BV1dp421y7dX')"><img class="song-cover" src="images/月相的坚守自盗.jpg"><div class="song-info"><div class="song-title">月相的监守自盗</div></div></div>
+                        <div class="song-card" onclick="openVideo('BV1916VB8Eeq')"><img class="song-cover" src="images/江湖浅影.jpg"><div class="song-info"><div class="song-title">江湖浅影</div></div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 荣誉里程碑 -->
+        <section id="others">
+            <h2>🏆 荣誉里程碑</h2>
+            <div class="timeline">
+                <div class="timeline-item clickable" onclick="toggleMilestone(this)"><span class="timeline-date">2022年1月16日</span> <span>禧运楼开张营业</span></div>
+                <div class="timeline-item"><span class="timeline-date">2022年3月25日</span> 梨安参与“超链接电波”</div>
+                <div class="timeline-item"><span class="timeline-date">2022年3月27日</span> 参与冰火春日宴</div>
+                <div class="timeline-item"><span class="timeline-date">2022年6月30日</span> 恬豆首场全景3D生日会</div>
+                <div class="timeline-item"><span class="timeline-date">2022年9月</span> bilibili与英雄体育战略合作</div>
+                <div class="timeline-item"><span class="timeline-date">2022年10月2日</span> 冰火秋日游</div>
+                <div class="timeline-item"><span class="timeline-date">2022年10月29日</span> 沐霂生日会千人舰队</div>
+                <div class="timeline-item"><span class="timeline-date">2023年1月14日</span> 梨安新形象生日会</div>
+                <div class="timeline-item"><span class="timeline-date">2023年3月31日</span> 又一生日会千人舰队</div>
+                <div class="timeline-item"><span class="timeline-date">2023年11月16日</span> 收藏集发售</div>
+                <div class="timeline-item"><span class="timeline-date">2024年2月3日</span> 首次线下演出《星光练习曲》</div>
+                <div class="timeline-item"><span class="timeline-date">2024年7月19日</span> 恬豆万人舰队生日会</div>
+                <div class="timeline-item"><span class="timeline-date">2025年1月1日</span> 加入VirtuaReal</div>
+                <div class="timeline-item"><span class="timeline-date">2025年5月2日</span> VirtuaReal Music Mixup</div>
+                <div class="timeline-item"><span class="timeline-date">2025年8月24日</span> 冰火夏梦季</div>
+                <div class="timeline-item"><span class="timeline-date">2025年12月23日</span> 又一充电中凭借作品《哈雪大冒险》加冕虚拟最强音</div>
+            </div>
+        </section>
+
+        <!-- 游戏区 + 二创 -->
+        <section id="games">
+            <h2>🎮 游戏区</h2>
+            <div class="game-grid">
+                <div class="game-card" onclick="openGame('games/小豆剪刘海威力加强版.html')"><img class="game-icon" src="images/小豆剪刘海.jpg"><div class="game-name">小豆剪刘海</div></div>
+                <div class="game-card" onclick="openGame('games/小梨爱做饭.html')"><img class="game-icon" src="images/小梨爱做饭.jpg"><div class="game-name">小梨爱做饭</div></div>
+                <div class="game-card" onclick="openGame('games/小沐要长高V1.0.html')"><img class="game-icon" src="images/小沐要长高.jpg"><div class="game-name">小沐要长高</div></div>
+                <div class="game-card" onclick="openGame('games/小又致富经.html')"><img class="game-icon" src="images/小又致富经.jpg"><div class="game-name">小又致富经</div></div>
+                <div class="game-card" onclick="openGame('games/四区姐妹/四区姐妹.html')"><img class="game-icon" src="images/四区姐妹.png"><div class="game-name">四区姐妹</div></div> 
+                <div class="game-card" onclick="openGame('games/猪猪出栏争霸赛.html')"><img class="game-icon" src="images/猪猪出栏争霸赛.png"><div class="game-name">猪猪出栏争霸赛</div></div>          
+            </div>
+            <h3>优秀二创</h3>
+            <div class="fanworks-scroll">
+                <div class="fan-item"><a href="https://www.bilibili.com/video/BV1uVzzBsEkH" target="_blank"><img src="images/禧運小剧场.jpg">禧运小剧场</a></div>
+                <div class="fan-item"><a href="https://www.bilibili.com/video/BV1MuffBtEf4" target="_blank"><img src="images/禧運樓小剧糖.jpg">禧运楼大饭堂</a></div>
+                <div class="fan-item"><a href="https://www.bilibili.com/video/BV1tdzDBsE9a" target="_blank"><img src="images/MMD.png">3D二创</a></div>
+                <div class="fan-item"><a href="https://www.bilibili.com/video/BV1J3BuBnEkb" target="_blank"><img src="images/ai剧场.png">CP手书</a></div>
+                <div class="fan-item"><a href="https://www.bilibili.com/video/BV18g6wBREzp" target="_blank"><img src="images/丸和贵物二创.jpg">丸和贵物</a></div>
+                <div class="fan-item"><a href="https://www.bilibili.com/video/BV1EC411h7ZB" target="_blank"><img src="images/烟店的监守自盗.jpg">烟店的监守自盗</a></div>
+            </div>
+        </section>
+
+        <!-- ========== HD 画册（两级浏览，数据由 filelist.js 提供） ========== -->
+        <section id="hd">
+            <h2>📷 HD 画册</h2>
+            <!-- 文件夹列表视图（初始显示） -->
+            <div id="hd-root" class="folder-view">
+                <div class="folder-grid game-grid" id="hd-folders"></div>
+            </div>
+            <!-- 文件夹内图片视图（初始隐藏） -->
+            <div id="hd-folder-view" class="folder-view" style="display: none;">
+                <div class="back-bar">
+                    <button class="back-btn" onclick="showHDRoot()">← 返回上级</button>
+                    <span class="current-folder" id="hd-current-folder"></span>
+                </div>
+                <div class="image-grid game-grid" id="hd-images"></div>
+            </div>
+        </section>
+
+        <!-- ========== 服饰展示（两级浏览，数据由 filelist.js 提供） ========== -->
+        <section id="clothes">
+            <h2>👗 服饰展示</h2>
+            <div id="clothes-root" class="folder-view">
+                <div class="folder-grid game-grid" id="clothes-folders"></div>
+            </div>
+            <div id="clothes-folder-view" class="folder-view" style="display: none;">
+                <div class="back-bar">
+                    <button class="back-btn" onclick="showClothesRoot()">← 返回上级</button>
+                    <span class="current-folder" id="clothes-current-folder"></span>
+                </div>
+                <div class="image-grid game-grid" id="clothes-images"></div>
+            </div>
+        </section>
+
+        <!-- 社交平台 -->
+        <section id="contact">
+            <h2>📱 社交平台</h2>
+            <div class="social-avatars">
+                <a href="https://space.bilibili.com/1660392980" target="_blank"><img src="images/四.png" alt="恬豆"></a>
+                <a href="https://space.bilibili.com/1217754423" target="_blank"><img src="images/禧.png" alt="又一"></a>
+                <a href="https://space.bilibili.com/1878154667" target="_blank"><img src="images/丸.png" alt="沐霂"></a>
+                <a href="https://space.bilibili.com/1900141897" target="_blank"><img src="images/子字举牌.png" alt="梨安"></a>
+            </div>
+             <h2>切片员</h2>
+             <div class="social-avatars">
+                <a href="https://space.bilibili.com/1113769832" target="_blank"><img src="images/安子.jpg" alt="秩序丶安"></a>
+                <a href="https://space.bilibili.com/1497560529" target="_blank"><img src="images/录播机.jpg" alt="录播机"></a>
+                <a href="https://space.bilibili.com/3546873990219945" target="_blank"><img src="images/耿鬼.jpg" alt="愉光Omega"></a>
+                <a href="https://space.bilibili.com/13193691" target="_blank"><img src="images/栝豆发芽了.jpg" alt="栝豆发芽了"></a>
+            </div>
+            <h2>粉丝团伙</h2>
+             <div class="social-avatars">
+                <a href="https://space.bilibili.com/3546384907110734" target="_blank"><img src="images/牛博士.jpg" alt="沐霂博士学社"></a>
+                <a href="https://space.bilibili.com/3493266391566784" target="_blank"><img src="images/包子铺.jpg" alt="恬豆包子铺"></a>
+                <a href="https://space.bilibili.com/3546380643601223" target="_blank"><img src="images/充电站.jpg" alt="酥酥又充电站"></a>
+                <a href="https://space.bilibili.com/357839454" target="_blank"><img src="images/美食屋.jpg" alt="向心梨美食屋"></a>
+            </div>
+            <!-- 石油工部分（初始隐藏，答对问题后显示） -->
+            <div id="oil-workers-block" style="display: none;">
+                <h2>石油工</h2>
+                <div class="social-avatars">
+                    <a href="https://space.bilibili.com/5921775" target="_blank"><img src="images/翻桌树.jpg" alt="翻桌树"></a>
+                    <a href="https://space.bilibili.com/11283581" target="_blank"><img src="images/赵伦宇.jpg" alt="赵伦宇"></a>
+                    <a href="https://space.bilibili.com/34983598" target="_blank"><img src="images/好栗嗨.jpg" alt="普通小豆好栗嗨呀"></a>
+                    <a href="https://space.bilibili.com/1519588" target="_blank"><img src="images/虎落平阳变北7.jpg" alt="虎落平阳变北7"></a>
+                </div>
+            </div>
+            <p>如果您想知道禧运楼更多秘密，请选择下面任意一个问题回答：</p>
+            <div class="question-buttons">
+                <button class="question-btn" onclick="selectQuestion('favorite_song')">恬豆最喜欢听什么歌</button>
+                <button class="question-btn" onclick="selectQuestion('height')">沐霂身高多少</button>
+                <button class="question-btn" onclick="selectQuestion('favorite_food')">又爸又妈在哪认识的又一</button>
+                <button class="question-btn" onclick="selectQuestion('chicken_legs')">梨安几个手枪腿吃不饱</button>
+            </div>
+            <input type="text" id="selectedQuestion" class="answer-input" placeholder="请选择一个问题" readonly>
+            <input type="text" id="answerInput" class="answer-input" placeholder="请输入答案">
+            <div id="errorMessage" class="error-message">答案错误，请重新输入</div>
+            <button class="submit-btn" onclick="verifyAnswer()">提交验证</button>
+            <div id="social-actions" style="display: none; margin-top:30px;">
+                <h3>请选择要执行的操作：</h3>
+                <ul id="social-links-list"></ul>
+            </div>
+            <div id="social-rules" style="display:none; margin-top:30px;"></div>
+        </section>
+
+        <footer>
+            <p>四禧丸子（SIXIWANZI）官方介绍站 | 资料来源：萌娘百科 | Copyright © 2025 SIXIWANZI All Rights Reserved</p>
+        </footer>
+    </main>
+
+    <!-- 视频弹窗 -->
+    <div id="videoModal" class="video-modal"><div class="video-modal-content"><span class="close-video">&times;</span><div class="video-container"><iframe id="videoFrame" frameborder="0" allowfullscreen></iframe></div></div></div>
+
+    <script>
+        // ---------- 原有功能 ----------
+        // 滚动进度条
+        window.addEventListener('scroll', function() {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            let docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            let percent = (scrollTop / docHeight) * 100;
+            document.getElementById('progressBar').style.width = percent + '%';
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // 头像点击四次跳转百度百科 + 计数
+        document.querySelectorAll('.member-avatar').forEach(avatar => {
+            let clickCount = 0;
+            const memberCard = avatar.closest('.member-card');
+            const memberType = memberCard.dataset.member;
+            const counterElement = memberCard.querySelector('.click-counter');
+            avatar.addEventListener('click', function(e) {
+                e.stopPropagation();
+                clickCount++;
+                memberCard.dataset.clickCount = clickCount;
+                counterElement.textContent = `点击: ${clickCount}`;
+                avatar.classList.add('click-animation');
+                setTimeout(() => avatar.classList.remove('click-animation'), 300);
+                if (clickCount >= 4) {
+                    clickCount = 0; memberCard.dataset.clickCount = 0; counterElement.textContent = '点击: 0';
+                    let searchQuery = { bekki:'张怡', lian:'温晶婕', queenie:'万丽娜', yoyi:'袁雨桢' }[memberType] || '四禧丸子';
+                    window.open(`https://baike.baidu.com/item/${encodeURIComponent(searchQuery)}`, '_blank');
+                }
+            });
+        });
+        // 卡片点击重置计数
+        document.querySelectorAll('.member-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (!e.target.closest('.member-avatar')) {
+                    this.dataset.clickCount = '0';
+                    this.querySelector('.click-counter').textContent = '点击: 0';
+                }
+            });
+        });
+
+        // 核心能力tab切换
+        const tabButtons = document.querySelectorAll('.member-tab-button');
+        const skillContainers = document.querySelectorAll('.skill-bars-container');
+        tabButtons.forEach(btn => btn.addEventListener('click', () => {
+            tabButtons.forEach(b => b.classList.remove('active'));
+            skillContainers.forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.target).classList.add('active');
+        }));
+
+        // 技能名称点击切换隐藏文本
+        document.querySelectorAll('.skill-name').forEach(span => {
+            span.addEventListener('click', function() {
+                let hidden = this.getAttribute('data-hidden');
+                if (hidden) {
+                    if (this.textContent === this.getAttribute('data-visible')) {
+                        this.textContent = hidden;
+                    } else {
+                        this.textContent = this.getAttribute('data-visible');
+                    }
+                }
+            });
+        });
+
+        // 音乐作品tab
+        window.showTab = function(tabName) {
+            document.querySelectorAll('#work .content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('#work .tab-button').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        };
+
+        // 打开视频/游戏
+        window.openVideo = function(bvid) { window.open(`https://www.bilibili.com/video/${bvid}`, '_blank'); };
+        window.openGame = function(path) { window.open(path, '_blank'); };
+
+        // 里程碑点击切换
+        window.toggleMilestone = function(el) {
+            let h4 = el.querySelector('.timeline-date');
+            let p = el.querySelector('span:last-child');
+            if (h4 && p) {
+                if (h4.innerText.includes('2022年1月16日')) {
+                    h4.innerText = '2021年8月28日'; p.innerText = '袁雨桢 温晶婕 最后一次公演';
+                } else {
+                    h4.innerText = '2022年1月16日'; p.innerText = '禧运楼开张营业';
+                }
+            }
+        };
+
+        // 额外信息显示
+        window.toggleExtraInfo = function(id) {
+            let el = document.getElementById(id);
+            if (el) el.style.display = el.style.display === 'block' ? 'none' : 'block';
+        };
+
+        // 社交平台验证逻辑 + 石油工解锁
+        let currentQuestion = null;
+        const answers = { favorite_song: "aytdd", height: "159", favorite_food: "大果村", chicken_legs: "5" };
+        window.selectQuestion = function(key) {
+            currentQuestion = key;
+            let texts = { favorite_song:"恬豆最喜欢听什么歌", height:"沐霂身高多少", favorite_food:"又爸又妈在哪认识的又一", chicken_legs:"梨安几个手枪腿吃不饱" };
+            document.getElementById('selectedQuestion').value = texts[key];
+        };
+        window.verifyAnswer = function() {
+            let ans = document.getElementById('answerInput').value.trim();
+            let err = document.getElementById('errorMessage');
+            if (!currentQuestion) { err.textContent = "请先选择问题"; err.style.display = 'block'; return; }
+            if (!ans) { err.textContent = "请输入答案"; err.style.display = 'block'; return; }
+            if (answers[currentQuestion] && ans === answers[currentQuestion]) {
+                err.style.display = 'none';
+                // 带@账号名的链接映射
+                let map = {
+                    favorite_song: {
+                        weibo: { text: '微博@开朗小栗', url: 'https://weibo.com/u/7569110245' },
+                        xhs: { text: '小红书@普通小栗', url: 'https://www.xiaohongshu.com/explore/普通小栗' }
+                    },
+                    height: {
+                        weibo: { text: '微博@小孩子少吃糖', url: 'https://weibo.com/u/5482136589' },
+                        xhs: { text: '小红书@小孩子少吃糖', url: 'https://www.xiaohongshu.com/explore/小孩子少吃糖' }
+                    },
+                    favorite_food: {
+                        weibo: { text: '微博@不是你俊的俊', url: 'https://weibo.com/u/7440469872' },
+                        xhs: { text: '小红书@不是你俊的俊', url: 'https://www.xiaohongshu.com/explore/不是你俊的俊' }
+                    },
+                    chicken_legs: {
+                        weibo: { text: '微博@士多啤梨挖掘机', url: 'https://weibo.com/u/8010499842' },
+                        xhs: { text: '小红书@士多啤梨挖掘机', url: 'https://www.xiaohongshu.com/explore/士多啤梨挖掘机' }
+                    }
+                };
+                let info = map[currentQuestion];
+                let linksHtml = `<li><a href="${info.weibo.url}" target="_blank">${info.weibo.text}</a></li><li><a href="${info.xhs.url}" target="_blank">${info.xhs.text}</a></li>`;
+                document.getElementById('social-links-list').innerHTML = linksHtml;
+                document.getElementById('social-actions').style.display = 'block';
+                // 解锁石油工
+                document.getElementById('oil-workers-block').style.display = 'block';
+                alert("验证成功！");
+            } else {
+                err.style.display = 'block';
+                document.getElementById('answerInput').value = '';
+            }
+        };
+
+        // 弹窗关闭
+        const modal = document.getElementById('videoModal');
+        const closeBtn = document.querySelector('.close-video');
+        if (closeBtn) {
+            closeBtn.onclick = () => { modal.style.display = 'none'; document.getElementById('videoFrame').src = ''; };
+        }
+        window.onclick = (e) => { if (e.target === modal) { modal.style.display = 'none'; document.getElementById('videoFrame').src = ''; } };
+
+        // ---------- HD 和 clothes 两级浏览（数据来自全局 hdData / clothesData，由 filelist.js 提供） ----------
+         function renderHDFolders() {
+            const container = document.getElementById('hd-folders');
+            if (!container) return;
+            const folders = Object.keys(window.hdData || {});
+            if (folders.length === 0) {
+                container.innerHTML = '<p style="grid-column:1/-1; text-align:center;">暂无文件夹</p>';
+                return;
+            }
+            let html = '';
+            folders.forEach(folder => {
+                html += `
+                    <div class="game-card" onclick="showHDFolder('${folder}')">
+                        <div class="game-icon" style="background:#eee; display:flex; align-items:center; justify-content:center; font-size:2rem;">📁</div>
+                        <div class="game-name">${folder}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        window.showHDFolder = function(folderName) {
+            const files = window.hdData[folderName];
+            if (!files || files.length === 0) {
+                alert('该文件夹中没有图片');
+                return;
+            }
+            document.getElementById('hd-current-folder').textContent = folderName;
+            const imagesContainer = document.getElementById('hd-images');
+            let html = '';
+            files.forEach(file => {
+                const ext = file.split('.').pop().toLowerCase();
+                const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+                const path = `HD/${folderName}/${file}`;
+                if (isImage) {
+                    html += `
+                        <div class="game-card" onclick="window.open('${path}', '_blank')">
+                            <img class="game-icon" src="${path}" alt="${file}" onerror="this.src='images/placeholder.jpg';">
+                            <div class="game-name">${file}</div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="game-card" onclick="window.open('${path}', '_blank')">
+                            <div class="game-icon" style="background:#eee; display:flex; align-items:center; justify-content:center;">📄</div>
+                            <div class="game-name">${file}</div>
+                        </div>
+                    `;
+                }
+            });
+            imagesContainer.innerHTML = html;
+            document.getElementById('hd-root').style.display = 'none';
+            document.getElementById('hd-folder-view').style.display = 'block';
+        };
+
+        window.showHDRoot = function() {
+            document.getElementById('hd-root').style.display = 'block';
+            document.getElementById('hd-folder-view').style.display = 'none';
+            document.getElementById('hd-images').innerHTML = '';
+        };
+
+        function renderClothesFolders() {
+            const container = document.getElementById('clothes-folders');
+            if (!container) return;
+            const folders = Object.keys(window.clothesData || {});
+            if (folders.length === 0) {
+                container.innerHTML = '<p style="grid-column:1/-1; text-align:center;">暂无文件夹</p>';
+                return;
+            }
+            let html = '';
+            folders.forEach(folder => {
+                html += `
+                    <div class="game-card" onclick="showClothesFolder('${folder}')">
+                        <div class="game-icon" style="background:#eee; display:flex; align-items:center; justify-content:center; font-size:2rem;">📁</div>
+                        <div class="game-name">${folder}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        window.showClothesFolder = function(folderName) {
+            const files = window.clothesData[folderName];
+            if (!files || files.length === 0) {
+                alert('该文件夹中没有图片');
+                return;
+            }
+            document.getElementById('clothes-current-folder').textContent = folderName;
+            const imagesContainer = document.getElementById('clothes-images');
+            let html = '';
+            files.forEach(file => {
+                const ext = file.split('.').pop().toLowerCase();
+                const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+                const path = `clothes/${folderName}/${file}`;
+                if (isImage) {
+                    html += `
+                        <div class="game-card" onclick="window.open('${path}', '_blank')">
+                            <img class="game-icon" src="${path}" alt="${file}" onerror="this.src='images/placeholder.jpg';">
+                            <div class="game-name">${file}</div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="game-card" onclick="window.open('${path}', '_blank')">
+                            <div class="game-icon" style="background:#eee; display:flex; align-items:center; justify-content:center;">📄</div>
+                            <div class="game-name">${file}</div>
+                        </div>
+                    `;
+                }
+            });
+            imagesContainer.innerHTML = html;
+            document.getElementById('clothes-root').style.display = 'none';
+            document.getElementById('clothes-folder-view').style.display = 'block';
+        };
+
+        window.showClothesRoot = function() {
+            document.getElementById('clothes-root').style.display = 'block';
+            document.getElementById('clothes-folder-view').style.display = 'none';
+            document.getElementById('clothes-images').innerHTML = '';
+        };
+
+        // 页面加载后初始化
+        window.addEventListener('DOMContentLoaded', function() {
+            renderHDFolders();
+            renderClothesFolders();
+        });
+    </script>
 </body>
-<script src="./JS/jquery-3.6.0.js">
-</script>
-<script src="./JS/popper.min.js">
-</script>
-<script src="./JS/bootstrap.min.js">
-</script>
-
-<script src="./JS/particles.min.js"></script>
-<script src="./JS/app.js"></script>
-<script src="./JS/aos.js"></script>
-<script src="./JS/personal-info-main.js"></script>
-<script>
-    AOS.init();
-</script>
-
-
-
 </html>

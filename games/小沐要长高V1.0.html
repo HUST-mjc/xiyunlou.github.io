@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>小沐要长高V1.0</title>
+    <style>
+        :root {
+            --theme-color: #A1D29A;
+            --theme-dark: #7fb079;
+            --bg-color: #f4fdf4;
+            --text-color: #333;
+        }
+        body {
+            margin: 0; padding: 0;
+            background-color: #eee;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            overflow: hidden; touch-action: none;
+            user-select: none;
+        }
+        #game-container {
+            position: relative;
+            width: 100%; max-width: 480px; height: 100vh;
+            margin: 0 auto;
+            background: var(--bg-color);
+            box-shadow: 0 0 30px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        canvas { display: block; width: 100%; height: 100%; }
+        
+        .ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            z-index: 10;
+        }
+        .hud {
+            position: absolute; top: 0; left: 0; width: 100%;
+            padding: 15px; box-sizing: border-box;
+            display: flex; justify-content: space-between;
+            font-weight: bold; font-size: 20px;
+            color: var(--text-color); pointer-events: none;
+            z-index: 5; text-shadow: 1px 1px 2px white;
+        }
+        .screen {
+            background: rgba(255, 255, 255, 0.97);
+            padding: 20px; border-radius: 20px;
+            border: 4px solid var(--theme-color);
+            pointer-events: auto;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            display: none;
+            width: 90%; max-width: 380px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .screen.active { display: block; animation: popIn 0.3s; }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        h1 { color: var(--theme-dark); margin: 0 0 5px; font-size: 22px; }
+        h2 { margin: 5px 0; font-size: 16px; color: #555; }
+        p { color: #777; font-size: 12px; margin: 2px 0; }
+        
+        button {
+            background: var(--theme-color); color: white;
+            border: none; padding: 10px 20px;
+            font-size: 16px; border-radius: 50px;
+            cursor: pointer; margin: 5px; font-weight: bold;
+            box-shadow: 0 3px 0 var(--theme-dark);
+            transition: all 0.1s; width: 80%;
+        }
+        button:active { transform: translateY(3px); box-shadow: none; }
+        button.secondary { background: #999; box-shadow: 0 3px 0 #777; font-size: 14px; padding: 8px 15px; }
+        button.danger {
+            background: #ff6b6b;
+            font-size: 12px;
+            padding: 6px 12px;
+            margin-top: 15px;
+            box-shadow: 0 3px 0 #cc5555;
+            width: auto;
+        }
+        
+        /* 商店样式 */
+        .shop-container {
+            display: flex; flex-direction: column; gap: 6px; margin-top: 8px;
+        }
+        .shop-item {
+            background: #fff; padding: 6px 12px;
+            border-radius: 10px; border: 1px solid #e0e0e0;
+            display: flex; justify-content: space-between; align-items: center;
+            height: 40px;
+        }
+        .shop-info { text-align: left; display: flex; flex-direction: column; justify-content: center; }
+        .shop-info h4 { margin: 0; color: #444; font-size: 14px; line-height: 1.1; }
+        .shop-info p { margin: 0; font-size: 10px; color: #888; line-height: 1.1; }
+        
+        .shop-buy-btn {
+            background: var(--theme-color); font-size: 11px;
+            padding: 4px 8px; width: auto; min-width: 60px; margin: 0;
+            box-shadow: 0 2px 0 var(--theme-dark);
+            height: 24px; line-height: 16px;
+        }
+        .shop-buy-btn.disabled { background: #ddd; box-shadow: none; color: #999; cursor: not-allowed; transform: none;}
+
+        .leaderboard-box {
+            background: #f8f8f8; border-radius: 10px;
+            padding: 8px; margin: 8px 0;
+            max-height: 120px; overflow-y: scroll; border: 1px solid #eee;
+        }
+        .rank-row {
+            display: flex; justify-content: space-between;
+            padding: 3px 0; border-bottom: 1px dashed #eee; font-size: 12px;
+        }
+        .rank-row.player { color: var(--theme-dark); font-weight: bold; background: #eeffee; }
+        
+        #height-display { font-family: 'Courier New', monospace; color: var(--theme-dark); font-weight: 900; }
+        #toast {
+            position: absolute; top: 15%; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.8); color: #fff; padding: 8px 16px; font-size: 14px;
+            border-radius: 20px; z-index: 100; display: none;
+            animation: fadeInOut 2s forwards;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, 10px); }
+            10% { opacity: 1; transform: translate(-50%, 0); }
+            90% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -10px); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+    <div id="toast">草鱼 +100 (小沐的压箱底宝贝!)</div>
+
+    <div class="hud" id="hud" style="display:none;">
+        <div id="height-display">159.50000000</div>
+        <div style="display:flex; gap:15px;">
+            <span onclick="toggleSound()" style="cursor:pointer;pointer-events:auto">🔊</span>
+            <div>🐟 <span id="fish-count">0.0</span></div>
+        </div>
+    </div>
+
+    <div class="ui-layer">
+        <div id="start-screen" class="screen active">
+            <h1>🐮 小沐要长高</h1>
+            <p>“头上有犄角，才能长更高...”</p>
+            <div class="leaderboard-box" id="start-leaderboard"></div>
+            <button onclick="startGame()">开始爬升</button>
+            <button class="secondary" onclick="openShop()">妙妙工具</button>
+            <br>
+            <button class="danger" onclick="resetData()">🗑️ 删档重来</button>
+        </div>
+
+        <div id="game-over-screen" class="screen">
+            <h1 style="color:#ff6b6b">掉下去啦!</h1>
+            <p id="final-msg">...</p>
+            <h2 style="font-size:20px; margin:4px 0;"><span id="final-height">159.xxx</span> cm</h2>
+            <div class="leaderboard-box" id="end-leaderboard"></div>
+            <p>获得草鱼: +<span id="gained-fish">0.0</span></p>
+            <button onclick="startGame()">再试一次</button>
+            <button class="secondary" onclick="openShop()">去强化</button>
+        </div>
+
+        <div id="shop-screen" class="screen">
+            <h2 onclick="mobileCheatTrigger()" style="margin:0 0 5px 0;">🛍️ 小沐的百宝箱</h2>
+            <p style="margin-bottom:5px;">持有: 🐟 <span id="shop-fish-display">0.0</span> <span style="font-size:10px;color:#ccc">****</span></p>
+            <div class="shop-container" id="shop-list"></div>
+            <button class="secondary" onclick="closeShop()" style="margin-top:10px; width:60%; padding:6px;">返回</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// --- 🎵 音效系统 (8-bit 合成器) ---
+const Sound = {
+    ctx: null,
+    bgmOsc: null,
+    isMuted: false,
+
+    init: function() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    },
+
+    // 播放单次音效
+    play: function(type) {
+        if (this.isMuted || !this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        const now = this.ctx.currentTime;
+        
+        if (type === 'jump') {
+            // 跳跃：短促的升调 (哔!)
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.linearRampToValueAtTime(300, now + 0.1);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            osc.start(now);
+            osc.stop(now + 0.1);
+        } 
+        else if (type === 'fish') {
+            // 吃草鱼：清脆的高音 (叮!)
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1200, now);
+            osc.frequency.exponentialRampToValueAtTime(1800, now + 0.1);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            osc.start(now);
+            osc.stop(now + 0.15);
+        }
+        else if (type === 'bomb') {
+            // 牛头炸弹：激昂的长升调 (哇喔!)
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(200, now);
+            osc.frequency.linearRampToValueAtTime(800, now + 0.5);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.linearRampToValueAtTime(0.01, now + 0.5);
+            osc.start(now);
+            osc.stop(now + 0.5);
+        }
+        else if (type === 'die') {
+            // 死亡：快速降调 (呃...)
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(300, now);
+            osc.frequency.linearRampToValueAtTime(50, now + 0.3);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+            osc.start(now);
+            osc.stop(now + 0.3);
+        }
+    },
+
+    // 简单的 BGM 循环 (可选)
+    toggle: function() {
+        this.isMuted = !this.isMuted;
+        return this.isMuted;
+    }
+};
+const CONFIG = {
+    gravity: 0.25, baseJumpForce: -6.9, moveSpeed: 4.9,
+    width: 0, height: 0,
+    themeColor: '#A1D29A', bombColor: '#FF6B6B',
+    skinColor: '#A1D29A', blushColor: '#FFB6C1', eyeColor: '#2F4F2F', hornColor: '#FFF8DC'
+};
+
+// --- 数值调整：低增益，全10级 ---
+const UPGRADES = {
+    insoles: { 
+        name: "内增高", desc: "跳跃高度 +3%", // Nerf: 5 -> 3%
+        maxLevel: 10, 
+        effect: (lv) => 1 + (lv * 0.03) 
+    },
+    fakeHeight: { 
+        name: "虚报身高", desc: "初始 +0.04cm", // Nerf: 0.05 -> 0.04
+        maxLevel: 10, 
+        effect: (lv) => 159.5 + (lv * 0.04) 
+    },
+    fishValue: { 
+        name: "下头雷达", desc: "草鱼价值 +0.2", // Nerf: 0.5 -> 0.2
+        maxLevel: 10, 
+        effect: (lv) => 1 + (lv * 0.2) 
+    },
+    fanRate: { 
+        name: "粉丝召唤", desc: "小沐标率UP", // Nerf: 4 -> 2% growth
+        maxLevel: 10, 
+        effect: (lv) => 0.05 + (lv * 0.02) 
+    },
+    bombTime: { 
+        name: "易燃易爆", desc: "炸弹时间UP", // Nerf: 30 -> 15 frames
+        maxLevel: 10, 
+        effect: (lv) => 90 + (lv * 15) 
+    }
+};
+
+const NPC_RANKS = [
+    { name: "又一", h: 167.0000000 }, { name: "泽音", h: 166.0000000 }, { name: "螃蟹老头", h: 166.0000000 }, 
+    { name: "酸汤老头", h: 165.5000000 }, { name: "水獭小头", h: 165.0000000 }, { name: "红绿灯老头", h: 165.0000000 },
+    { name: "梨安", h: 164.0000000 }, { name: "数字老头", h: 160.0000000 }, { name: "恬豆", h: 158.0000000 }
+];
+
+let saveState = {
+    fish: parseFloat(localStorage.getItem('mumu_fish_v5') || '0'),
+    // 新增：读取历史最高记录，如果没有则默认为0
+    best: parseFloat(localStorage.getItem('mumu_best_h_v5') || '0'),
+    upgrades: JSON.parse(localStorage.getItem('mumu_upgrades_v5') || JSON.stringify({
+        insoles: 0, fakeHeight: 0, fishValue: 0, fanRate: 0, bombTime: 0
+    }))
+};
+
+// 价格公式：线性增长 (5, 7, 9, ... 23)
+function getCost(level) {
+    return 5 + (level * 2);
+}
+
+let game = { status: 'MENU', scoreRaw: 0, displayH: 159.5, fishGained: 0 };
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+    const c = document.getElementById('game-container');
+    canvas.width = c.clientWidth; canvas.height = c.clientHeight;
+    CONFIG.width = canvas.width; CONFIG.height = canvas.height;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// --- 实体类 (保持不变) ---
+class Player {
+    constructor() {
+        this.size = 32; this.x = CONFIG.width/2 - 16; this.y = CONFIG.height - 150;
+        this.vx = 0; this.vy = 0; this.isFlying = false; this.flyTimer = 0;
+        this.facing = 1; this.particles = [];
+    }
+    update() {
+        if (keys.ArrowLeft) { this.vx = -CONFIG.moveSpeed; this.facing = -1; }
+        else if (keys.ArrowRight) { this.vx = CONFIG.moveSpeed; this.facing = 1; }
+        else { this.vx = 0; }
+        if (this.isFlying) {
+            this.vy = -14; this.flyTimer--;
+            if(Math.random()>0.3) this.particles.push({ x:this.x+16, y:this.y+32, vx:(Math.random()-0.5)*2, vy:Math.random()*3+2, life:20, color:'#FF6B6B' });
+            if (this.flyTimer <= 0) { this.isFlying = false; this.vy = -6; }
+        } else { this.vy += CONFIG.gravity; }
+        this.x += this.vx; this.y += this.vy;
+        if (this.x + this.size < 0) this.x = CONFIG.width;
+        if (this.x > CONFIG.width) this.x = -this.size;
+        for(let i=this.particles.length-1; i>=0; i--) { let p = this.particles[i]; p.x+=p.vx; p.y+=p.vy; p.life--; if(p.life<=0) this.particles.splice(i,1); }
+    }
+    draw() {
+        ctx.save();
+        this.particles.forEach(p => { ctx.fillStyle=p.color; ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill(); });
+        let isAngry = this.isFlying;
+        ctx.fillStyle = isAngry ? CONFIG.bombColor : CONFIG.themeColor;
+        ctx.beginPath(); ctx.roundRect(this.x, this.y, this.size, this.size, 8); ctx.fill();
+        // 牛角
+        ctx.fillStyle = CONFIG.hornColor; 
+        let hS = isAngry ? 5 : 3;
+        ctx.beginPath(); ctx.moveTo(this.x+6, this.y+2); ctx.lineTo(this.x-hS, this.y-hS-2); ctx.lineTo(this.x+12, this.y+2); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(this.x+26, this.y+2); ctx.lineTo(this.x+32+hS, this.y-hS-2); ctx.lineTo(this.x+20, this.y+2); ctx.fill();
+        // 脸
+        let cx = this.x + 16 + (this.facing*2), cy = this.y + 16;
+        ctx.globalAlpha=0.4; ctx.fillStyle=CONFIG.blushColor;
+        ctx.beginPath(); ctx.ellipse(cx-8, cy+5, 3, 2, 0, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(cx+8, cy+5, 3, 2, 0, 0, Math.PI*2); ctx.fill();
+        ctx.globalAlpha=1.0;
+        ctx.strokeStyle = isAngry ? '#fff' : CONFIG.eyeColor; ctx.fillStyle = isAngry ? '#fff' : CONFIG.eyeColor;
+        ctx.lineWidth=1.5; ctx.lineCap='round';
+        if (isAngry) {
+            ctx.beginPath(); ctx.moveTo(cx-9, cy-5); ctx.lineTo(cx-3, cy-2); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx+9, cy-5); ctx.lineTo(cx+3, cy-2); ctx.stroke();
+            ctx.beginPath(); ctx.ellipse(cx-6, cy+1, 2, 3, 0, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(cx+6, cy+1, 2, 3, 0, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(cx-4, cy+7); ctx.lineTo(cx-2, cy+10); ctx.lineTo(cx+2, cy+10); ctx.lineTo(cx+4, cy+7); ctx.stroke();
+        } else if (this.vy < -1) {
+            ctx.beginPath(); ctx.moveTo(cx-9, cy-1); ctx.quadraticCurveTo(cx-6, cy-4, cx-3, cy-1); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx+3, cy-1); ctx.quadraticCurveTo(cx+6, cy-4, cx+9, cy-1); ctx.stroke();
+            ctx.beginPath(); ctx.arc(cx, cy+5, 3, 0, Math.PI); ctx.fill();
+        } else if (this.vy > 2) {
+            ctx.beginPath(); ctx.arc(cx-6, cy-1, 3, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(cx+6, cy-1, 3, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(cx, cy+6, 2, 0, Math.PI*2); ctx.stroke();
+        } else {
+            ctx.beginPath(); ctx.arc(cx-6, cy-1, 2.5, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(cx+6, cy-1, 2.5, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(cx, cy+4, 3, 0.2, Math.PI-0.2); ctx.stroke();
+        }
+        ctx.restore();
+    }
+}
+
+class Platform {
+    constructor(y) {
+        this.w = 65; this.h = 14; this.x = Math.random()*(CONFIG.width-this.w); this.y = y;
+        this.isTarget = Math.random() < UPGRADES.fanRate.effect(saveState.upgrades.fanRate);
+    }
+    draw() {
+        if (this.isTarget) {
+            ctx.fillStyle = '#FFB6C1'; ctx.beginPath(); ctx.roundRect(this.x, this.y, this.w, this.h, 6); ctx.fill();
+            ctx.fillStyle = '#FFF0F5'; ctx.fillRect(this.x+5, this.y+2, this.w-10, 4);
+            ctx.font = '20px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('🎯', this.x+this.w/2, this.y+this.h/2+2);
+        } else {
+            ctx.fillStyle = '#888'; ctx.beginPath(); ctx.roundRect(this.x, this.y, this.w, this.h, 4); ctx.fill();
+            ctx.fillStyle = CONFIG.themeColor; ctx.fillRect(this.x, this.y, this.w, 4);
+        }
+    }
+}
+
+class Item {
+    constructor(x, y, type) {
+        this.x = x; this.y = y; this.type = type; this.collected = false; this.baseY = y; this.t = Math.random()*100;
+    }
+    update(p) {
+        if(this.collected) return;
+        let dx = (p.x+16)-(this.x+12), dy = (p.y+16)-(this.y+12);
+        if(Math.sqrt(dx*dx+dy*dy) < 25) {
+            this.collected = true;
+            if(this.type === 'fish') {
+                game.fishGained += UPGRADES.fishValue.effect(saveState.upgrades.fishValue);
+                Sound.play('fish'); 
+            }
+            else { p.isFlying = true; Sound.play('bomb'); p.flyTimer = UPGRADES.bombTime.effect(saveState.upgrades.bombTime); p.vy = -15; }
+        }
+    }
+    draw() {
+        if(this.collected) return;
+        let y = this.baseY + Math.sin(this.t += 0.1) * 3;
+        ctx.font = '24px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(this.type === 'fish' ? '🐟' : '💣', this.x+12, y+12);
+    }
+}
+
+let player, platforms = [], items = [], keys = {}, animId;
+window.addEventListener('keydown', e => { keys[e.code] = true; checkCheatCode(e.key); });
+window.addEventListener('keyup', e => keys[e.code] = false);
+canvas.addEventListener('touchstart', e => { e.preventDefault(); if(e.touches[0].clientX < CONFIG.width/2) keys.ArrowLeft=true; else keys.ArrowRight=true; }, {passive:false});
+canvas.addEventListener('touchend', () => { keys.ArrowLeft=false; keys.ArrowRight=false; });
+
+function initGame() {
+    player = new Player(); platforms = []; items = [];
+    game.scoreRaw = 0; game.fishGained = 0;
+    game.displayH = UPGRADES.fakeHeight.effect(saveState.upgrades.fakeHeight);
+    for(let i=0; i<CONFIG.height; i+=70) platforms.push(new Platform(CONFIG.height - i));
+    platforms.push({x:0, y:CONFIG.height-10, w:CONFIG.width, h:10, isTarget:false, draw:function(){ ctx.fillStyle='#888'; ctx.fillRect(0,this.y,this.w,this.h); }});
+}
+
+function update() {
+    if(game.status !== 'PLAYING') return;
+    player.update();
+    platforms.forEach(p => {
+        if(player.vy>0 && player.y+32 > p.y && player.y+32 < p.y+p.h+10 && player.x+32 > p.x && player.x < p.x+p.w) {
+            let force = CONFIG.baseJumpForce * UPGRADES.insoles.effect(saveState.upgrades.insoles);
+            if(p.isTarget) force *= 1.35; 
+            player.vy = force; player.y = p.y - 32;
+            Sound.play('jump'); // <--- 加入这一行
+        }
+    });
+    items.forEach(i => i.update(player));
+    if(player.y < CONFIG.height * 0.45) {
+        let d = (CONFIG.height * 0.45) - player.y;
+        player.y += d; game.scoreRaw += d;
+        platforms.forEach(p => p.y += d); items.forEach(i => { i.y += d; i.baseY += d; });
+        platforms = platforms.filter(p => p.y < CONFIG.height + 50);
+        items = items.filter(i => i.y < CONFIG.height + 50 && !i.collected);
+        let lastY = platforms[platforms.length-1].y;
+        if(lastY > 70) {
+            let newY = -20; let p = new Platform(newY); platforms.push(p);
+            if(Math.random()<0.12) items.push(new Item(p.x+10, newY-30, 'fish'));
+            else if(Math.random()<0.03) items.push(new Item(p.x+10, newY-30, 'bomb'));
+        }
+    }
+    if(player.y > CONFIG.height) gameOver();
+    let startH = UPGRADES.fakeHeight.effect(saveState.upgrades.fakeHeight);
+    let progress = 1 - (1 / (1 + game.scoreRaw * 0.000015));
+    game.displayH = startH + (160.0 - startH) * progress;
+    document.getElementById('height-display').innerText = game.displayH.toFixed(8) + " cm";
+    document.getElementById('fish-count').innerText = game.fishGained.toFixed(1);
+}
+function loop() { update(); draw(); animId = requestAnimationFrame(loop); }
+function draw() {
+    ctx.fillStyle = '#f4fdf4'; ctx.fillRect(0, 0, CONFIG.width, CONFIG.height);
+    ctx.strokeStyle = 'rgba(161, 210, 154, 0.2)'; ctx.lineWidth = 1;
+    for(let i=0; i<CONFIG.width; i+=30) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,CONFIG.height); ctx.stroke(); }
+    for(let i=0; i<CONFIG.height; i+=30) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(CONFIG.width,i); ctx.stroke(); }
+    platforms.forEach(p => p.draw()); items.forEach(i => i.draw()); player.draw();
+}
+
+let cheatBuffer="", CHEAT_CODE="1017", mobileCheatCount=0;
+function checkCheatCode(key) {
+    if(document.getElementById('shop-screen').classList.contains('active') && !isNaN(key)) {
+        cheatBuffer += key; if(cheatBuffer.length>4) cheatBuffer=cheatBuffer.slice(-4);
+        if(cheatBuffer===CHEAT_CODE) { activateCheat(); cheatBuffer=""; }
+    }
+}
+function mobileCheatTrigger() { if(++mobileCheatCount>=4) { activateCheat(); mobileCheatCount=0; } }
+function activateCheat() {
+    saveState.fish += 100; localStorage.setItem('mumu_fish_v5', saveState.fish); updateShopUI();
+    const t = document.getElementById('toast'); t.style.display='block'; setTimeout(()=>t.style.display='none',2000);
+}
+
+function renderLeaderboard(id, score) {
+    const list = document.getElementById(id); list.innerHTML = '';
+    let ranks = [...NPC_RANKS];
+    if(score !== undefined) ranks.push({ name: "沐霂(你)", h: score, isP: true });
+    ranks.sort((a,b) => b.h - a.h);
+    ranks.forEach((r,i) => {
+        let div = document.createElement('div'); div.className = `rank-row ${r.isP?'player':''}`;
+        div.innerHTML = `<span>${i<3?['🥇','🥈','🥉'][i]:(i+1)} ${r.name}</span><span>${r.isP?r.h.toFixed(8):r.h} cm</span>`;
+        list.appendChild(div);
+    });
+}
+function startGame() {
+    Sound.init(); // <--- 点击开始时启动音频引擎
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('hud').style.display = 'flex'; game.status = 'PLAYING'; initGame(); if(!animId) loop();
+}
+function gameOver() {
+    Sound.play('die'); 
+    game.status = 'GAMEOVER';
+    saveState.fish += game.fishGained;
+    
+    // --- 新增逻辑：判断是否打破记录 ---
+    if (game.displayH > saveState.best) {
+        saveState.best = game.displayH;
+    }
+    // 保存鱼和最高记录
+    localStorage.setItem('mumu_fish_v5', saveState.fish);
+    localStorage.setItem('mumu_best_h_v5', saveState.best);
+    // -------------------------------
+
+    document.getElementById('hud').style.display = 'none';
+    document.getElementById('game-over-screen').classList.add('active');
+    
+    // 本次成绩
+    document.getElementById('final-height').innerText = game.displayH.toFixed(8);
+    document.getElementById('gained-fish').innerText = game.fishGained.toFixed(1);
+    
+    // 随机吐槽
+    const msgs = ["还是做不到吗", "160cm 遥不可及", "小沐标也没办法了", "小沐震怒!", "一定能到达的！应该吧...", "刷新纪录了吗？"];
+    document.getElementById('final-msg').innerText = msgs[Math.floor(Math.random()*msgs.length)];
+    
+    // 排行榜显示的是：历史最高记录 (saveState.best)
+    // 为了防止刚买完虚报身高还没玩，显示的高度比基础身高还低，取两者最大值
+    let currentBase = UPGRADES.fakeHeight.effect(saveState.upgrades.fakeHeight);
+    let showBest = Math.max(saveState.best, currentBase);
+    
+    renderLeaderboard('end-leaderboard', showBest);
+}
+function openShop() {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('shop-screen').classList.add('active'); cheatBuffer=""; updateShopUI();
+}
+function closeShop() {
+    document.getElementById('shop-screen').classList.remove('active');
+    document.getElementById('start-screen').classList.add('active');
+    
+    // 计算当前最高展示值 (历史最高 vs 当前初始身高 取最大值)
+    let currentBase = UPGRADES.fakeHeight.effect(saveState.upgrades.fakeHeight);
+    let showBest = Math.max(saveState.best, currentBase);
+    
+    renderLeaderboard('start-leaderboard', showBest);
+}
+function updateShopUI() {
+    document.getElementById('shop-fish-display').innerText = saveState.fish.toFixed(1);
+    const list = document.getElementById('shop-list'); list.innerHTML = '';
+    Object.keys(UPGRADES).forEach(key => {
+        let u = UPGRADES[key], lv = saveState.upgrades[key];
+        // 价格公式调整：5 + 2*lv
+        let cost = getCost(lv);
+        let btn = lv >= u.maxLevel ? `<button class="shop-buy-btn disabled">MAX</button>` :
+            `<button class="shop-buy-btn ${saveState.fish>=cost?'':'disabled'}" onclick="buy('${key}',${cost})">升 Lv.${lv+1} (🐟${cost})</button>`;
+        let div = document.createElement('div'); div.className='shop-item';
+        div.innerHTML = `<div class="shop-info"><h4>${u.name} <span style="color:var(--theme-color);font-size:11px">Lv.${lv}</span></h4><p>${u.desc}</p></div>${btn}`;
+        list.appendChild(div);
+    });
+}
+function resetData() {
+    if(confirm("确定要删除所有进度（草鱼、等级、记录）吗？此操作不可恢复！")) {
+        // 清除特定的存储键值，防止误删其他网页数据（虽然本地文件通常不冲突）
+        localStorage.removeItem('mumu_fish_v5');
+        localStorage.removeItem('mumu_best_h_v5');
+        localStorage.removeItem('mumu_upgrades_v5');
+        
+        // 刷新页面
+        location.reload();
+    }
+}
+function toggleSound() {
+    let muted = Sound.toggle();
+    // 修改图标
+    document.querySelector('.hud span').innerText = muted ? '🔇' : '🔊';
+}
+window.buy = function(k, c) {
+    if(saveState.fish >= c) {
+        saveState.fish -= c; saveState.upgrades[k]++;
+        localStorage.setItem('mumu_fish_v5', saveState.fish); localStorage.setItem('mumu_upgrades_v5', JSON.stringify(saveState.upgrades));
+        updateShopUI();
+    }
+}
+initGame(); 
+draw(); 
+// 计算并显示最高分
+let currentBase = UPGRADES.fakeHeight.effect(saveState.upgrades.fakeHeight);
+let showBest = Math.max(saveState.best, currentBase);
+renderLeaderboard('start-leaderboard', showBest);
+</script>
+</body>
+</html>

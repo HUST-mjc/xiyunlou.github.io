@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 关键：这行代码允许加载 Bilibili 的图片 -->
+    <meta name="referrer" content="no-referrer">
+    <title>小豆剪刘海威力加强版</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f8ff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        #game-layout {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        #game-container {
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+            background: #2c3e50;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 4px solid #A7C9D3;
+        }
+
+        canvas {
+            display: block;
+            cursor: crosshair;
+        }
+
+        /* 侧边栏 UI */
+        #ui-sidebar {
+            width: 320px;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            height: 730px;
+            box-sizing: border-box;
+        }
+
+        .panel-header {
+            font-size: 18px;
+            color: #4a6fa5;
+            text-align: center;
+            font-weight: bold;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-group {
+            display: flex;
+            justify-content: space-between;
+            background: #f4f8fb;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+        }
+        .currency { color: #E3BA09; }
+
+        /* 子弹预览区 */
+        .bullet-queue {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            background: #fff;
+            border: 2px dashed #A7C9D3;
+            padding: 10px 5px;
+            border-radius: 8px;
+            min-height: 80px;
+            position: relative;
+        }
+        .preview-slot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        .preview-label { font-size: 10px; color: #888; margin-bottom: 5px; }
+        canvas.mini-canvas { background: transparent; }
+        .arrow-icon { font-size: 16px; color: #ccc; }
+        #future-slot { opacity: 0.3; filter: grayscale(100%); transition: 0.3s; }
+        #future-slot.unlocked { opacity: 1; filter: none; }
+
+        /* 商店 */
+        .shop-section-title {
+            font-size: 13px;
+            color: #888;
+            font-weight: bold;
+            margin-top: 5px;
+            border-left: 3px solid #A7C9D3;
+            padding-left: 5px;
+        }
+        #shop-panel {
+            flex-grow: 1;
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 5px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .shop-item {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .shop-item:hover {
+            border-color: #A7C9D3;
+            transform: translateX(3px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .shop-item.disabled { opacity: 0.5; cursor: not-allowed; background: #eee; }
+        .shop-item.purchased-perma { background: #e6fffa; border-color: #38b2ac; cursor: default; }
+        .item-info { display: flex; flex-direction: column; }
+        .item-name { font-size: 13px; font-weight: bold; color: #333; }
+        .item-desc { font-size: 10px; color: #888; }
+        .item-cost { font-size: 11px; color: #E3BA09; font-weight: bold; }
+
+        /* 设置区 */
+        .settings-area {
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .btn-upload {
+            border: 1px solid #A7C9D3;
+            color: #4a6fa5;
+            background-color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .upload-btn-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* UI Overlays */
+        #boss-banner {
+            position: absolute; top: 180px; left: 0; width: 100%;
+            background: rgba(0,0,0,0.85); color: white; text-align: center; padding: 20px 0;
+            display: none; z-index: 20; border-top: 3px solid #A7C9D3; border-bottom: 3px solid #A7C9D3;
+            animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        #boss-ui {
+            position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+            width: 85%; display: none; z-index: 10;
+        }
+        .hp-bar-bg {
+            width: 100%; height: 18px; background: rgba(0,0,0,0.6);
+            border-radius: 10px; overflow: hidden; border: 2px solid white;
+        }
+        #hp-bar { width: 100%; height: 100%; background: linear-gradient(90deg, #ff4e50, #f9d423); transition: width 0.2s; }
+
+        #modal-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); display: none;
+            justify-content: center; align-items: center; z-index: 100;
+        }
+        .modal-content {
+            background: white; padding: 30px; border-radius: 15px; text-align: center;
+            box-shadow: 0 0 30px rgba(167, 201, 211, 0.8);
+        }
+        button {
+            background: #A7C9D3; color: white; border: none; padding: 10px 20px;
+            border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 10px;
+        }
+        button:hover { background: #8fb6c2; }
+        
+        #toast {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8); color: #fff; padding: 10px 20px; border-radius: 5px;
+            pointer-events: none; opacity: 0; transition: opacity 0.5s; z-index: 200;
+        }
+
+        #pause-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); display: none;
+            justify-content: center; align-items: center; z-index: 90;
+            backdrop-filter: blur(2px); color: white; font-size: 30px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+        #blind-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #2c3e50; display: none; justify-content: center; align-items: center;
+            color: white; font-weight: bold; font-size: 14px; border-radius: 6px; z-index: 5;
+        }
+        #reverse-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: transparent; 
+            box-shadow: none;  
+            display: none; 
+            justify-content: center; align-items: center; pointer-events: none;
+            z-index: 4; 
+        }
+        
+        .pause-btn { font-size: 12px; background: #eee; color: #333; padding: 2px 8px; border-radius: 4px; cursor: pointer; }
+        .pause-btn:hover { background: #ddd; }
+
+    </style>
+</head>
+<body>
+
+<div id="game-layout">
+    <div id="game-container">
+        <div id="boss-ui">
+            <div id="boss-name" style="text-align:center; color:white; font-weight:bold; text-shadow:0 1px 2px black;">BOSS</div>
+            <div class="hp-bar-bg"><div id="hp-bar"></div></div>
+        </div>
+
+        <div id="boss-banner">
+            <div id="banner-title" style="font-size: 24px; font-weight: bold;">BOSS APPROACHING</div>
+            <div id="banner-ability" style="font-size: 14px; color: #FFB7B2; margin-top: 5px;">Ability Info</div>
+        </div>
+
+        <canvas id="gameCanvas" width="480" height="720"></canvas>
+        <div id="pause-overlay">
+            <div style="text-align: center;">
+                <div style="font-size: 32px; margin-bottom: 20px; letter-spacing: 2px;">PAUSED</div>
+                <div style="font-size: 14px; line-height: 2; color: rgba(255,255,255,0.9); text-align: left; display: inline-block;">
+                    <div>🏃 <b>移动</b> : A / D 或 ← / →</div>
+                    <div>🎯 <b>瞄准</b> : 鼠标移动</div>
+                    <div>🔥 <b>发射</b> : 空格 或 鼠标左键</div>
+                    <div>⏸ <b>继续</b> : 按 P 键</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 技能特效遮罩 -->
+        <div id="reverse-overlay">
+            <div style="font-size: 30px; font-weight: bold; color: #8B00FF; text-shadow: 0 0 10px white; transform: rotate(-10deg);">😵 左右混乱!</div>
+        </div>
+
+        <div id="modal-overlay">
+            <div class="modal-content">
+                <h2 style="color: #4a6fa5; margin-top: 0;">游戏结束</h2>
+                <p id="modal-msg" style="font-size: 18px; font-weight: bold; color: #333;">得分: 0</p>
+                <div style="font-size: 12px; color: #888; margin-top: 5px;">(最高分: <span id="high-score-display">0</span>)</div>
+        
+                <!-- 操作提示 -->
+                <div style="background: #f0f8ff; padding: 10px; border-radius: 8px; margin: 15px 0; font-size: 13px; color: #555; text-align: left;">
+                    <div style="font-weight: bold; margin-bottom: 5px; color: #A7C9D3;">操作指南：</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                        <span>⬅️ A / ← 左移</span>
+                        <span>➡️ D / → 右移</span>
+                        <span>🖱️ 鼠标瞄准</span>
+                        <span>␣ 空格发射</span>
+                    </div>
+                </div>
+
+                <button onclick="resetGame()">重新整理发型</button>
+            </div>
+        </div>
+        <div id="toast" class="toast">Cheats Activated!</div>
+    </div>
+
+    <!-- UI Sidebar -->
+    <div id="ui-sidebar">
+        <div class="panel-header">
+            <span>Bekki 的指挥所</span>
+            <span class="pause-btn" onclick="togglePause()">暂停(P)</span>
+        </div>
+        
+        <div class="stat-group">
+            <div>分数 <span id="score-disp" style="color:#333">0</span></div>
+            <div class="currency">🌙 <span id="coin-disp">0</span></div>
+        </div>
+
+        <!-- 队列预览 -->
+        <div class="bullet-queue">
+            <div id="blind-overlay">? ? ?</div>
+            <div class="preview-slot">
+                <span class="preview-label">当前发射</span>
+                <canvas id="current-bullet-canvas" width="40" height="40" class="mini-canvas"></canvas>
+            </div>
+            <div class="arrow-icon">➜</div>
+            <div class="preview-slot">
+                <span class="preview-label">下一发</span>
+                <canvas id="next-bullet-canvas" width="40" height="40" class="mini-canvas"></canvas>
+            </div>
+            <div class="arrow-icon">➜</div>
+            <div class="preview-slot" id="future-slot">
+                <span class="preview-label">???</span>
+                <canvas id="future-bullet-canvas" width="40" height="40" class="mini-canvas"></canvas>
+            </div>
+        </div>
+
+        <div style="font-size:12px; color:#666; margin-top:5px;">下一波生长:</div>
+        <div style="width:100%; height:6px; background:#eee; border-radius:3px; overflow:hidden;">
+            <div id="timer-bar" style="width:0%; height:100%; background:#A7C9D3;"></div>
+        </div>
+
+        <div class="panel-header" style="margin-top:10px; font-size:16px;">月亮商店</div>
+        <div id="shop-panel">
+            <!-- Items -->
+        </div>
+
+        <!-- 皮肤上传 -->
+        <div class="settings-area">
+            <div class="upload-btn-wrapper">
+                <button class="btn-upload">🖼️ 替换角色立绘 (点击上传)</button>
+                <input type="file" id="skin-upload" accept="image/png, image/jpeg">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- 1. 全局变量定义 (放在最上面!) ---
+    var customSkinImg = null;       // 玩家上传的图片
+    var defaultPlayerImg = new Image(); // 默认图片对象
+    
+    // 设置允许跨域加载 (尝试绕过一些简单的CORS限制)
+    defaultPlayerImg.crossOrigin = "Anonymous";
+    
+    // 使用你提供的B站图片链接
+    defaultPlayerImg.src = "https://i0.hdslb.com/bfs/new_dyn/72d6715efd830cf44015cfb037d81d7f394070451.png@1192w_1192h.avif";
+
+    // --- 音效系统 (Web Audio API) ---
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioContext();
+
+    const SFX = {
+        play(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+            
+            if (type === 'shoot') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.15);
+                gainNode.gain.setValueAtTime(0.3, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.start(now); osc.stop(now + 0.15);
+            } else if (type === 'hit') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.linearRampToValueAtTime(50, now + 0.1);
+                gainNode.gain.setValueAtTime(0.3, now);
+                gainNode.gain.linearRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+            } else if (type === 'clear') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.setValueAtTime(1200, now + 0.1);
+                gainNode.gain.setValueAtTime(0.2, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
+            } else if (type === 'explosion') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(100, now);
+                osc.frequency.exponentialRampToValueAtTime(10, now + 0.4);
+                gainNode.gain.setValueAtTime(0.4, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.start(now); osc.stop(now + 0.4);
+            } else if (type === 'ice_crack') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(1200, now);
+                osc.frequency.linearRampToValueAtTime(800, now + 0.05);
+                gainNode.gain.setValueAtTime(0.2, now);
+                gainNode.gain.linearRampToValueAtTime(0.01, now + 0.05);
+                osc.start(now); osc.stop(now + 0.05);
+            } else if (type === 'boss_hit') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(100, now);
+                osc.frequency.exponentialRampToValueAtTime(30, now + 0.2);
+                gainNode.gain.setValueAtTime(0.2, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.start(now); osc.stop(now + 0.2);
+            }
+        }
+    };
+
+    // --- 核心配置 ---
+    const CANVAS_W = 480;
+    const CANVAS_H = 720;
+    const GRID_COLS = 9;
+    
+    const TILE_RADIUS = CANVAS_W / (GRID_COLS * 2); 
+    const TILE_DIAMETER = TILE_RADIUS * 2;
+    const ROW_HEIGHT = TILE_RADIUS * Math.sqrt(3);
+
+    const GRID_ROWS = 14; 
+    const BOSS_SCORE_REQ = 2000; 
+
+    const COLOR_DEFS = {
+        DEFAULT: '#A7C9D3', YELLOW: '#E3BA09', PINK: '#E38691', GREEN: '#A1D29A',
+        PURPLE: '#8B00FF', BLUE: '#418BDE', INDIGO: '#74759b', PEACH: '#fcd2d2',
+        RAINBOW: 'RAINBOW', STONE: '#888888' 
+    };
+    
+    const FIXED_COLORS = [COLOR_DEFS.DEFAULT, COLOR_DEFS.YELLOW, COLOR_DEFS.PINK, COLOR_DEFS.GREEN];
+    
+    const BOSSES = [
+        { name: "又一 (Youyi)", color: COLOR_DEFS.YELLOW, hp: 100, ability: "急速生长：刘海生长速度翻倍！" },
+        { name: "梨安 (Lian)", color: COLOR_DEFS.PINK, hp: 180, ability: "自我修复：每秒回复生命值。" },
+        { name: "沐霂 (Mumu)", color: COLOR_DEFS.GREEN, hp: 250, ability: "藤蔓护盾：受到非克制颜色伤害减半。" },
+        { name: "星瞳 (Xingtong)", color: COLOR_DEFS.PURPLE, hp: 330, ability: "反向诅咒：持续 5 秒，左右操作互换！", nextColor: COLOR_DEFS.BLUE },
+        { name: "七海 (Nanami)", color: COLOR_DEFS.BLUE, hp: 400, ability: "石化凝视：将随机刘海变成石头。", nextColor: COLOR_DEFS.INDIGO },
+        { name: "雫るる (Shizuru)", color: COLOR_DEFS.INDIGO, hp: 440, ability: "视野遮蔽：隐藏你的发射预览。", nextColor: COLOR_DEFS.PEACH },
+        { name: "塔菲 (Taffy)", color: COLOR_DEFS.PEACH, hp: 500, ability: "甜蜜陷阱：每隔一段时间冰冻你的操作。", nextColor: COLOR_DEFS.DEFAULT },
+        { name: "豆恬 (Doutian)", color: COLOR_DEFS.DEFAULT, hp: 1000, ability: "终焉时刻：血量极厚！", final: true }
+    ];
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const curPreviewCtx = document.getElementById('current-bullet-canvas').getContext('2d');
+    const nextPreviewCtx = document.getElementById('next-bullet-canvas').getContext('2d');
+    const futurePreviewCtx = document.getElementById('future-bullet-canvas').getContext('2d');
+    const futureSlotEl = document.getElementById('future-slot');
+    const pauseOverlay = document.getElementById('pause-overlay');
+    const blindOverlay = document.getElementById('blind-overlay');
+    const reverseOverlay = document.getElementById('reverse-overlay');
+
+    // UI Elements
+    const scoreEl = document.getElementById('score-disp');
+    const coinEl = document.getElementById('coin-disp');
+    const timerBar = document.getElementById('timer-bar');
+    const bossUi = document.getElementById('boss-ui');
+    const hpBarEl = document.getElementById('hp-bar');
+    const bossBanner = document.getElementById('boss-banner');
+    const modalEl = document.getElementById('modal-overlay');
+    const shopPanel = document.getElementById('shop-panel');
+    const toastEl = document.getElementById('toast');
+    const skinInput = document.getElementById('skin-upload');
+    const highScoreEl = document.getElementById('high-score-display');
+
+    // Game Variables
+    let grid = [];
+    let fallingBubbles = [];
+    let particles = [];
+    let floatingTexts = []; 
+    let gameState = 'playing'; 
+    let isPaused = false;
+    let score = 0;
+    let highScore = 0; 
+    let moonCoins = 0;
+    let bossIndex = 0;
+    let currentBoss = null;
+    let levelScore = 0;
+    let specialColor = null; 
+    let isTrueEndless = false; 
+    let endlessLevel = 0; 
+    let nextRandomBossIndex = -1;
+    
+    // Effects
+    let shakeIntensity = 0; 
+    let reverseControlsTimer = 0; 
+
+    // Player Position & Stats
+    let player = {
+        x: CANVAS_W / 2, 
+        y: CANVAS_H - 40,
+        width: 44, height: 44,
+        angle: -Math.PI / 2, color: COLOR_DEFS.DEFAULT,
+        haloAngle: 0, faceTimer: 0,
+        shotSpeed: 24, 
+        aimLine: true, wideShot: false, futureSight: false
+    };
+
+    const SHOP_ITEMS = [
+        { id: 'rainbow', type: 'once', name: '彩虹刘海', desc:'下一发全能色', cost: 10, apply: () => nextBulletQueue[0] = COLOR_DEFS.RAINBOW },
+        { id: 'bomb', type: 'once', name: '清屏炸弹', desc:'消除最下方5行', cost: 40, apply: () => smartClearBottom() },
+        { id: 'freeze', type: 'once', name: '时间冻结', desc:'暂停生长15秒', cost: 25, apply: () => freezeTimer = 15000 },
+        { id: 'sight', type: 'perma', name: '大脑扩容', desc:'解锁第3格预览', cost: 150, purchased: false, apply: () => { player.futureSight = true; futureSlotEl.classList.add('unlocked'); futureSlotEl.querySelector('span').innerText = "未来"; } },
+        { id: 'speed', type: 'perma', name: '极速发射', desc:'永久增加射速', cost: 200, purchased: false, apply: () => player.shotSpeed = 35 },
+        { id: 'luck', type: 'perma', name: '1', desc:'狗狗出现率UP', cost: 300, purchased: false, apply: () => DOGGO_CHANCE = 0.25 }
+    ];
+
+    let projectiles = [];
+    let currentBulletColor = '';
+    let nextBulletQueue = []; 
+    
+    let timeSinceLastRow = 0;
+    let rowAddInterval = 12000; 
+    const INITIAL_INTERVAL = 12000;
+    let freezeTimer = 0;
+    let blindTimer = 0; 
+    let DOGGO_CHANCE = 0.08;
+    const DOGGO_LIFETIME = 800; 
+
+    let keys = {};
+    let cheatBuffer = []; 
+
+    // --- Persistence ---
+    function loadGameData() {
+        const saved = localStorage.getItem('xiaodou_game_data');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                moonCoins = data.coins || 0;
+                highScore = data.highScore || 0;
+                if (data.upgrades) {
+                    data.upgrades.forEach(id => {
+                        const item = SHOP_ITEMS.find(i => i.id === id);
+                        if (item) {
+                            item.purchased = true;
+                            item.apply();
+                        }
+                    });
+                }
+            } catch (e) { console.error("Save load failed", e); }
+        }
+        highScoreEl.innerText = highScore;
+    }
+
+    function saveGameData() {
+        const upgrades = SHOP_ITEMS.filter(i => i.type === 'perma' && i.purchased).map(i => i.id);
+        const data = {
+            coins: moonCoins,
+            highScore: Math.max(score, highScore),
+            upgrades: upgrades
+        };
+        localStorage.setItem('xiaodou_game_data', JSON.stringify(data));
+        highScoreEl.innerText = data.highScore;
+    }
+
+    // --- Skin Upload Logic ---
+    skinInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const img = new Image();
+            img.onload = function() {
+                customSkinImg = img;
+            };
+            img.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // --- Floating Text ---
+    function spawnFloatingText(x, y, text, color = "#FFF600") {
+        floatingTexts.push({
+            x: x, y: y, text: text, color: color,
+            life: 60, dy: -2
+        });
+    }
+
+    // --- Init ---
+    function init() {
+        loadGameData(); // Load save
+        grid = [];
+        for(let r=0; r<GRID_ROWS+6; r++) {
+            grid[r] = [];
+            for(let c=0; c<GRID_COLS; c++) grid[r][c] = { active: false, type: '', hasDoggo: false, doggoTimer: 0, isIce: false, isBomb: false };
+        }
+        
+        score = 0; levelScore = 0; bossIndex = 0;
+        specialColor = null; 
+        isTrueEndless = false; endlessLevel = 0; nextRandomBossIndex = -1;
+        
+        player.shotSpeed = 24; 
+        player.aimLine = true; 
+        player.futureSight = false;
+        SHOP_ITEMS.forEach(i => { if(i.type==='perma' && i.purchased) i.apply(); });
+
+        isPaused = false;
+        futureSlotEl.querySelector('span').innerText = player.futureSight ? "未来" : "???";
+
+        DOGGO_CHANCE = 0.08; freezeTimer = 0; blindTimer = 0; reverseControlsTimer = 0;
+        rowAddInterval = INITIAL_INTERVAL;
+        gameState = 'playing';
+        fallingBubbles = []; particles = []; projectiles = []; floatingTexts = []; currentBoss = null;
+
+        nextBulletQueue = [pickRandomColor(), pickRandomColor()];
+        currentBulletColor = pickRandomColor();
+        
+        for(let r=0; r<5; r++) generateRow(r, false);
+
+        bossUi.style.display = 'none'; bossBanner.style.display = 'none'; modalEl.style.display = 'none';
+        pauseOverlay.style.display = 'none'; blindOverlay.style.display = 'none'; reverseOverlay.style.display = 'none';
+        
+        updateUI(); renderShop(); updatePreviewCanvas();
+        requestAnimationFrame(loop);
+    }
+
+    function togglePause() {
+        if(gameState === 'gameover') return;
+        isPaused = !isPaused;
+        pauseOverlay.style.display = isPaused ? 'flex' : 'none';
+    }
+
+    function getActiveColors() {
+        let pool = [...FIXED_COLORS];
+        if (specialColor) pool.push(specialColor);
+        return pool;
+    }
+    
+    function pickRandomColor() {
+        let pool = getActiveColors();
+        return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function generateRow(r, allowFeatures = true) {
+        for(let c=0; c<GRID_COLS; c++) {
+            if(r % 2 === 1 && c === GRID_COLS-1) { grid[r][c].active = false; continue; }
+            grid[r][c].active = true;
+            grid[r][c].type = pickRandomColor();
+            grid[r][c].hasDoggo = false;
+            grid[r][c].isIce = false;
+            grid[r][c].isBomb = false;
+            grid[r][c].doggoTimer = 0;
+
+            if (allowFeatures) {
+                let rng = Math.random();
+                if (bossIndex > 1 && rng < 0.05) grid[r][c].isIce = true;
+                else if (bossIndex > 4 && rng < 0.04) grid[r][c].isBomb = true;
+                else if(Math.random() < DOGGO_CHANCE) {
+                    grid[r][c].hasDoggo = true; grid[r][c].doggoTimer = DOGGO_LIFETIME;
+                }
+            }
+        }
+    }
+
+    function addTwoRows() {
+        for(let r = GRID_ROWS-2; r<GRID_ROWS; r++) {
+            for(let c=0; c<GRID_COLS; c++) { if(grid[r][c].active) { gameOver(); return; } }
+        }
+        for(let r = GRID_ROWS+4; r>=2; r--) {
+            for(let c=0; c<GRID_COLS; c++) { if(grid[r-2]) grid[r][c] = {...grid[r-2][c]}; }
+        }
+        for(let r=0; r<2; r++) generateRow(r, true);
+        shakeIntensity = 5; 
+    }
+
+    function smartClearBottom() {
+        let lowestActiveRow = -1;
+        for(let r=GRID_ROWS+5; r>=0; r--) {
+            for(let c=0; c<GRID_COLS; c++) {
+                if(grid[r][c].active) { lowestActiveRow = r; break; }
+            }
+            if(lowestActiveRow !== -1) break;
+        }
+
+        if(lowestActiveRow === -1) return;
+
+        let start = Math.max(0, lowestActiveRow - 4);
+        for(let r=lowestActiveRow; r>=start; r--) {
+            for(let c=0; c<GRID_COLS; c++) {
+                if(grid[r][c].active) {
+                    grid[r][c].active = false;
+                    createExplosion(getTilePos(r,c).x, getTilePos(r,c).y, grid[r][c].type === COLOR_DEFS.STONE ? '#888' : grid[r][c].type);
+                }
+            }
+        }
+        shakeIntensity = 10;
+        checkFloating();
+        SFX.play('clear');
+    }
+
+    function replaceColorOnGrid(oldColor, newColor) {
+        if (oldColor === COLOR_DEFS.DEFAULT && !isTrueEndless) return; 
+
+        for(let r=0; r<GRID_ROWS+6; r++) {
+            for(let c=0; c<GRID_COLS; c++) {
+                if(grid[r][c].active && grid[r][c].type === oldColor) {
+                    grid[r][c].type = newColor;
+                    createExplosion(getTilePos(r,c).x, getTilePos(r,c).y, newColor);
+                }
+            }
+        }
+        if(currentBulletColor === oldColor) currentBulletColor = newColor;
+        nextBulletQueue.forEach((c, i) => { if(c === oldColor) nextBulletQueue[i] = newColor; });
+        specialColor = newColor;
+        updatePreviewCanvas();
+    }
+
+function triggerBossAbility(boss) {
+        if(boss.name.includes("Xingtong")) {
+            reverseControlsTimer = 300; 
+            reverseOverlay.style.display = 'flex';
+            spawnFloatingText(CANVAS_W/2, CANVAS_H/2, "😵 反向操作!", "#8B00FF");
+        }
+        else if(boss.name.includes("Nanami")) {
+            // --- 修改开始：限制石头数量 ---
+            
+            // 1. 先数一下场上现在有多少个石头
+            let currentStones = 0;
+            let candidates = [];
+            
+            for(let r=0; r<GRID_ROWS+6; r++) {
+                for(let c=0; c<GRID_COLS; c++) {
+                    if(grid[r][c].active) {
+                        if (grid[r][c].type === COLOR_DEFS.STONE) {
+                            currentStones++;
+                        } else {
+                            // 收集可以变成石头的目标（非石头泡泡）
+                            candidates.push({r,c});
+                        }
+                    }
+                }
+            }
+
+            // 2. 如果石头已经超过 7 个，技能失效，直接返回
+            if (currentStones >= 7) return;
+
+            // 3. 计算这次生成几个（最多2个，但不能超过总数7的上限）
+            let amountToSpawn = Math.min(2, 7 - currentStones);
+
+            if(candidates.length > 0 && amountToSpawn > 0) {
+                for(let k=0; k < amountToSpawn; k++) {
+                    // 随机选一个倒霉蛋变成石头
+                    let randIndex = Math.floor(Math.random() * candidates.length);
+                    let t = candidates[randIndex];
+                    
+                    // 从候选列表中移除，防止重复选中
+                    candidates.splice(randIndex, 1);
+                    
+                    grid[t.r][t.c].type = COLOR_DEFS.STONE;
+                    createExplosion(getTilePos(t.r,t.c).x, getTilePos(t.r,t.c).y, '#555');
+                }
+            }
+        } // <--- 原代码这里少了这个大括号！
+        else if(boss.name.includes("Shizuru")) {
+            blindTimer = 400; 
+            blindOverlay.style.display = 'flex';
+        }
+    }
+
+    // --- Render & Logic ---
+    function renderShop() {
+        shopPanel.innerHTML = '';
+        const renderSection = (title, type) => {
+            let items = SHOP_ITEMS.filter(i => i.type === type);
+            if(items.length === 0) return;
+            let header = document.createElement('div');
+            header.className = 'shop-section-title';
+            header.innerText = title;
+            shopPanel.appendChild(header);
+            items.forEach(item => {
+                let div = document.createElement('div');
+                let isPurchased = (item.type === 'perma' && item.purchased);
+                let isDisabled = (moonCoins < item.cost);
+                if(item.type === 'once') isDisabled = (moonCoins < item.cost);
+                else if (isPurchased) isDisabled = false;
+
+                div.className = `shop-item ${ (isDisabled && !isPurchased) ? 'disabled' : ''} ${isPurchased ? 'purchased-perma' : ''}`;
+                div.innerHTML = `
+                    <div class="item-info">
+                        <span class="item-name">${item.name}</span>
+                        <span class="item-desc">${item.desc}</span>
+                        <span class="item-cost">${isPurchased ? '已拥有' : '🌙 '+item.cost}</span>
+                    </div>
+                    <div style="font-size:16px;">${isPurchased ? '✅' : '➕'}</div>
+                `;
+                div.onclick = () => buyItem(item);
+                shopPanel.appendChild(div);
+            });
+        };
+        renderSection("消耗品", "once");
+        renderSection("永久升级", "perma");
+    }
+
+    function buyItem(item) {
+        if(item.type === 'perma' && item.purchased) return;
+        if(moonCoins >= item.cost) {
+            moonCoins -= item.cost;
+            item.apply();
+            if(item.type === 'perma') item.purchased = true;
+            if(item.id === 'rainbow') updatePreviewCanvas();
+            saveGameData(); 
+            updateUI(); renderShop(); updatePreviewCanvas();
+            SFX.play('clear');
+        }
+    }
+
+    let lastTime = 0;
+    function loop(now) {
+        let dt = now - lastTime;
+        lastTime = now;
+        
+        if (!isPaused) {
+            update(dt);
+        }
+        draw(); 
+        if(gameState !== 'gameover') requestAnimationFrame(loop);
+    }
+
+    function update(dt) {
+        if(gameState === 'gameover') return;
+
+        // 震动数据更新，但不在 draw 中使用
+        if(shakeIntensity > 0) shakeIntensity *= 0.9;
+        if(shakeIntensity < 0.5) shakeIntensity = 0;
+
+        if(reverseControlsTimer > 0) {
+            reverseControlsTimer--;
+            if(reverseControlsTimer <= 0) reverseOverlay.style.display = 'none';
+        }
+
+        if(freezeTimer > 0) freezeTimer -= dt;
+        if(blindTimer > 0) {
+            blindTimer--;
+            if(blindTimer <= 0) blindOverlay.style.display = 'none';
+        }
+
+        if(gameState === 'boss' && currentBoss) {
+            if(currentBoss.name.includes("Lian")) currentBoss.hp = Math.min(currentBoss.maxHp, currentBoss.hp + 0.03);
+            currentBoss.t += 0.03;
+            currentBoss.x = CANVAS_W/2 + Math.sin(currentBoss.t) * 100;
+
+            if(Math.floor(Date.now()/5000) > currentBoss.lastSkillTime) {
+                triggerBossAbility(currentBoss);
+                currentBoss.lastSkillTime = Math.floor(Date.now()/5000);
+            }
+        }
+
+        if(freezeTimer <= 0) {
+            let difficultyFactor = 1 + (score / 1000) * 0.035 + (isTrueEndless ? endlessLevel * 0.08 : 0);
+            let currentInterval = Math.max(7000, INITIAL_INTERVAL / difficultyFactor);
+            if(currentBoss && currentBoss.name.includes("Youyi")) currentInterval /= 1.5; 
+            if(currentBoss && currentBoss.name.includes("Nanami")) currentInterval /= 2; 
+
+            timeSinceLastRow += dt;
+            let pct = timeSinceLastRow / currentInterval * 100;
+            timerBar.style.width = Math.min(100, pct) + "%";
+            timerBar.style.background = currentInterval < 5000 ? "#ff6b6b" : "#A7C9D3";
+
+            if(timeSinceLastRow > currentInterval) { 
+                addTwoRows(); 
+                timeSinceLastRow = 0; 
+            }
+        } else {
+            timerBar.style.width = "100%"; timerBar.style.background = "#FDFD96";
+        }
+
+        for(let r=0; r<GRID_ROWS+6; r++) {
+            for(let c=0; c<GRID_COLS; c++) {
+                if(grid[r][c].active && grid[r][c].hasDoggo) {
+                    grid[r][c].doggoTimer--;
+                    if(grid[r][c].doggoTimer <= 0) grid[r][c].hasDoggo = false;
+                }
+            }
+        }
+
+        if(gameState === 'playing' && levelScore >= BOSS_SCORE_REQ) {
+            if (bossIndex < BOSSES.length || isTrueEndless) {
+                startBossFight();
+            }
+        }
+
+        let moveLeft = keys['ArrowLeft'] || keys['KeyA'];
+        let moveRight = keys['ArrowRight'] || keys['KeyD'];
+        
+        if (reverseControlsTimer > 0) {
+            [moveLeft, moveRight] = [moveRight, moveLeft];
+        }
+
+        if(moveLeft) player.x = Math.max(player.width/2, player.x - 6);
+        if(moveRight) player.x = Math.min(CANVAS_W - player.width/2, player.x + 6);
+
+        if(!(currentBoss && currentBoss.name.includes("Taffy") && Math.floor(Date.now()/2000)%2===0)) {
+            if(keys['ArrowUp']) player.angle = Math.max(-Math.PI+0.2, player.angle - 0.05);
+            if(keys['ArrowDown']) player.angle = Math.min(-0.2, player.angle + 0.05);
+        }
+
+        projectiles.forEach(p => {
+            if(!p.active) return;
+            p.x += p.dx; p.y += p.dy;
+            
+            if(currentBoss && currentBoss.name.includes("Shizuru") && Math.random() < 0.05) {
+                p.dx += (Math.random()-0.5)*2;
+            }
+            if(p.x < p.r || p.x > CANVAS_W - p.r) {
+                p.dx *= -1; p.x = Math.max(p.r, Math.min(p.x, CANVAS_W - p.r));
+            }
+
+            if(gameState === 'boss' && currentBoss) {
+                if(p.y < 160 && p.x > currentBoss.x - 60 && p.x < currentBoss.x + 60) {
+                    let isWeak = (p.color === currentBoss.color || p.isRainbow);
+                    let dmg = isWeak ? 20 : 5;
+                    if(currentBoss.name.includes("Mumu") && !isWeak) dmg = 2;
+                    damageBoss(dmg);
+                    p.active = false;
+                    createExplosion(p.x, p.y, p.isRainbow ? '#fff' : p.color);
+                    SFX.play('boss_hit');
+                    return;
+                }
+            }
+
+            if(p.y < TILE_RADIUS) snapToGrid(p);
+            else checkGridCollision(p);
+        });
+        projectiles = projectiles.filter(p => p.active);
+
+        for(let i=fallingBubbles.length-1; i>=0; i--) {
+            let b = fallingBubbles[i];
+            b.dy += 0.5; b.x += b.dx; b.y += b.dy; b.angle+=0.1;
+            if(b.y > CANVAS_H+50) fallingBubbles.splice(i,1);
+        }
+        
+        for(let i=floatingTexts.length-1; i>=0; i--) {
+            let ft = floatingTexts[i];
+            ft.y += ft.dy;
+            ft.life--;
+            if(ft.life <= 0) floatingTexts.splice(i,1);
+        }
+    }
+
+    function startBossFight() {
+        gameState = 'boss';
+        let bossData;
+        
+        if (isTrueEndless) {
+            let randomIdx = Math.floor(Math.random() * BOSSES.length);
+            bossData = BOSSES[randomIdx];
+            nextRandomBossIndex = Math.floor(Math.random() * BOSSES.length);
+        } else {
+            bossData = BOSSES[bossIndex];
+        }
+
+        currentBoss = { ...bossData, x: CANVAS_W/2, y: 100, maxHp: bossData.hp, t: 0, lastSkillTime: 0 };
+        
+        if (isTrueEndless) {
+            let multiplier = 1 + (endlessLevel * 0.3);
+            if (endlessLevel > 10) multiplier *= 1.2;
+            currentBoss.maxHp = Math.floor(bossData.hp * multiplier);
+        } else {
+            currentBoss.maxHp = bossData.hp;
+        }
+        
+        currentBoss.hp = currentBoss.maxHp;
+
+        if(currentBoss.color && !FIXED_COLORS.includes(currentBoss.color)) {
+            specialColor = currentBoss.color;
+        }
+
+        bossUi.style.display = 'block';
+        document.getElementById('boss-name').innerText = currentBoss.name;
+        bossBanner.style.display = 'block';
+        document.getElementById('banner-title').innerText = "⚠ " + currentBoss.name + (isTrueEndless ? ` (Lv.${endlessLevel+1})` : "");
+        document.getElementById('banner-ability').innerText = currentBoss.ability;
+        setTimeout(() => bossBanner.style.display = 'none', 4000);
+        updateBossHp();
+    }
+
+    function damageBoss(dmg) {
+        if(!currentBoss) return;
+        currentBoss.hp -= dmg;
+        spawnFloatingText(currentBoss.x + (Math.random()-0.5)*40, currentBoss.y, "-" + dmg, "#ff4e50");
+        shakeIntensity = 5;
+        
+        updateBossHp();
+        if(currentBoss.hp <= 0) {
+            createExplosion(currentBoss.x, currentBoss.y, currentBoss.color);
+            score += 2000; moonCoins += 100;
+            shakeIntensity = 20; 
+            
+            if (!isTrueEndless) {
+                if (currentBoss.final) {
+                    alert("恭喜击败豆恬！\n进入【真·无尽模式】\nBOSS将随机降临！");
+                    isTrueEndless = true;
+                }
+                if(currentBoss.nextColor) replaceColorOnGrid(currentBoss.color, currentBoss.nextColor);
+                bossIndex++;
+            } else {
+                endlessLevel++;
+                let nextBoss = BOSSES[nextRandomBossIndex];
+                if (currentBoss.color && nextBoss.color) replaceColorOnGrid(currentBoss.color, nextBoss.color);
+            }
+
+            levelScore = 0; currentBoss = null;
+            gameState = 'playing'; bossUi.style.display = 'none';
+            blindOverlay.style.display = 'none'; blindTimer = 0; reverseOverlay.style.display = 'none'; reverseControlsTimer = 0;
+            saveGameData();
+            updateUI();
+        }
+    }
+
+    function updateBossHp() {
+        let pct = Math.max(0, currentBoss.hp / currentBoss.maxHp * 100);
+        hpBarEl.style.width = pct + "%";
+    }
+
+    function checkGridCollision(p) {
+        let cr = Math.floor((p.y - TILE_RADIUS)/ROW_HEIGHT);
+        let start = Math.max(0, cr-3), end = Math.min(GRID_ROWS+5, cr+3);
+        for(let r=start; r<end; r++) {
+            for(let c=0; c<GRID_COLS; c++) {
+                if(grid[r][c].active) {
+                    let tilePos = getTilePos(r,c);
+                    if(Math.hypot(p.x-tilePos.x, p.y-tilePos.y) < TILE_RADIUS+p.r-2) {
+                        snapToGrid(p); return;
+                    }
+                }
+            }
+        }
+    }
+
+    function snapToGrid(p) {
+        let pos = getClosestGrid(p.x, p.y);
+        if(grid[pos.r] && grid[pos.r][pos.c] && grid[pos.r][pos.c].active) {
+            let neighbors = getNeighbors(pos.r, pos.c);
+            for(let n of neighbors) { if(!grid[n.r][n.c].active) { pos = n; break; } }
+        }
+
+        if(grid[pos.r] && grid[pos.r][pos.c]) {
+            grid[pos.r][pos.c] = {
+                active: true, type: p.color,
+                hasDoggo: false, doggoTimer: 0, 
+                isRainbow: p.isRainbow, isIce: false, isBomb: false
+            };
+            
+            if (p.color !== COLOR_DEFS.STONE) {
+                let matches = findMatches(pos.r, pos.c, p.color, p.isRainbow);
+                if(matches.length >= 3) {
+                    processElimination(matches);
+                    if(gameState === 'boss' && currentBoss) {
+                        if(matches[0].color === currentBoss.color || p.isRainbow) damageBoss(matches.length * 3);
+                    }
+                } else {
+                    SFX.play('hit');
+                }
+            } else {
+                SFX.play('hit');
+            }
+            
+            if(pos.r >= GRID_ROWS-1) gameOver();
+        }
+        p.active = false;
+    }
+
+    function findMatches(r, c, type, isRainbow) {
+        if (type === COLOR_DEFS.STONE && !isRainbow) return []; 
+
+        let matched = []; let visited = new Set();
+        let queue = [{r,c}]; visited.add(`${r},${c}`);
+        let targetType = type;
+        if(isRainbow) {
+            let ns = getNeighbors(r, c);
+            for(let n of ns) {
+                if(grid[n.r][n.c].active && !grid[n.r][n.c].isRainbow && grid[n.r][n.c].type !== COLOR_DEFS.STONE) { 
+                    targetType = grid[n.r][n.c].type; break; 
+                }
+            }
+        }
+        while(queue.length) {
+            let curr = queue.pop(); 
+            matched.push({...curr, color: grid[curr.r][curr.c].type, isIce: grid[curr.r][curr.c].isIce, isBomb: grid[curr.r][curr.c].isBomb});
+            
+            getNeighbors(curr.r, curr.c).forEach(n => {
+                let key = `${n.r},${n.c}`;
+                if(!visited.has(key) && grid[n.r][n.c].active) {
+                    let cell = grid[n.r][n.c];
+                    if (cell.type === COLOR_DEFS.STONE) return; 
+
+                    let match = (cell.type === targetType) || cell.isRainbow || targetType === COLOR_DEFS.RAINBOW;
+                    if(targetType === COLOR_DEFS.RAINBOW && !cell.isRainbow) targetType = cell.type;
+                    if(match) { visited.add(key); queue.push(n); }
+                }
+            });
+        }
+        return matched;
+    }
+
+    function triggerBomb(r, c) {
+        SFX.play('explosion');
+        shakeIntensity = 15;
+        createExplosion(getTilePos(r,c).x, getTilePos(r,c).y, "#FF4500");
+        spawnFloatingText(getTilePos(r,c).x, getTilePos(r,c).y, "BOOM!", "#FF4500");
+
+        let neighbors = getNeighbors(r,c);
+        neighbors.push({r,c}); 
+        neighbors.forEach(n => {
+            if(grid[n.r][n.c].active) {
+                grid[n.r][n.c].active = false;
+                createExplosion(getTilePos(n.r,n.c).x, getTilePos(n.r,n.c).y, grid[n.r][n.c].type);
+                score += 5;
+            }
+        });
+    }
+
+    function processElimination(matches) {
+        let clearedCount = 0;
+        let anyBomb = false;
+
+        matches.forEach(m => {
+             if(grid[m.r][m.c].isBomb) anyBomb = true;
+        });
+
+        if (anyBomb) {
+            matches.forEach(m => {
+                if(grid[m.r][m.c].isBomb) {
+                    triggerBomb(m.r, m.c);
+                    grid[m.r][m.c].active = false;
+                } else {
+                    if(grid[m.r][m.c].active) {
+                         grid[m.r][m.c].active = false;
+                         spawnFalling(m.r, m.c, grid[m.r][m.c].type, grid[m.r][m.c].hasDoggo, false);
+                    }
+                }
+            });
+        } else {
+            matches.forEach(m => {
+                let cell = grid[m.r][m.c];
+                if (cell.isIce) {
+                    cell.isIce = false;
+                    SFX.play('ice_crack');
+                    createExplosion(getTilePos(m.r,m.c).x, getTilePos(m.r,m.c).y, "#fff");
+                } else {
+                    cell.active = false;
+                    spawnFalling(m.r, m.c, cell.type, cell.hasDoggo, cell.isRainbow);
+                    clearedCount++;
+                }
+            });
+        }
+
+        if(clearedCount > 0) {
+            score += clearedCount * 10; 
+            levelScore += clearedCount * 10;
+            if (matches.length > 0) {
+                 let first = matches[0];
+                 let p = getTilePos(first.r, first.c);
+                 spawnFloatingText(p.x, p.y, `+${clearedCount*10}`);
+            }
+            shakeIntensity = Math.min(15, matches.length * 1.5);
+            SFX.play('clear');
+        }
+        
+        checkFloating(); updateUI();
+    }
+    
+    function checkFloating() {
+        let visited = new Set(); let queue = [];
+        for(let c=0; c<GRID_COLS; c++) { if(grid[0][c].active) { queue.push({r:0,c}); visited.add(`0,${c}`); } }
+        while(queue.length) {
+            let curr = queue.shift();
+            getNeighbors(curr.r,curr.c).forEach(n => {
+                if(!visited.has(`${n.r},${n.c}`) && grid[n.r][n.c].active) {
+                    visited.add(`${n.r},${n.c}`); queue.push(n);
+                }
+            });
+        }
+        let dropped = 0;
+        for(let r=0; r<GRID_ROWS+6; r++) {
+            for(let c=0; c<GRID_COLS; c++) {
+                if(grid[r][c].active && !visited.has(`${r},${c}`)) {
+                    let cell = grid[r][c]; cell.active = false;
+                    spawnFalling(r, c, cell.type, cell.hasDoggo, cell.isRainbow);
+                    score += 20; levelScore += 20;
+                    dropped++;
+                }
+            }
+        }
+        if (dropped > 0) {
+            spawnFloatingText(CANVAS_W/2, CANVAS_H/2, "DROP BONUS!", "#418BDE");
+        }
+    }
+
+    function spawnFalling(r, c, color, hasDoggo, isRainbow) {
+        let p = getTilePos(r,c);
+        fallingBubbles.push({ x:p.x, y:p.y, dx:(Math.random()-0.5)*4, dy:-2, angle:0, color:color, hasDoggo:hasDoggo, isRainbow:isRainbow });
+        if(hasDoggo) moonCoins += 10;
+        createExplosion(p.x, p.y, isRainbow ? '#fff' : (color===COLOR_DEFS.STONE ? '#888' : color));
+    }
+
+    function draw() {
+        ctx.save();
+        ctx.clearRect(0,0,CANVAS_W,CANVAS_H);
+
+        // 1. 画瞄准线
+        if(player.aimLine) {
+            let sx=player.x, sy=player.y-30;
+            let ex=sx+Math.cos(player.angle)*1000, ey=sy+Math.sin(player.angle)*1000;
+            ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(ex,ey);
+            ctx.strokeStyle="rgba(167, 201, 211, 0.5)"; ctx.lineWidth=2; ctx.setLineDash([10,10]); ctx.stroke(); ctx.setLineDash([]);
+        }
+
+        // 2. 画死亡线
+        ctx.strokeStyle = 'rgba(255,50,50,0.3)'; ctx.lineWidth=2; ctx.setLineDash([10,5]);
+        ctx.beginPath(); ctx.moveTo(0,(GRID_ROWS-1)*ROW_HEIGHT); ctx.lineTo(CANVAS_W,(GRID_ROWS-1)*ROW_HEIGHT); ctx.stroke(); ctx.setLineDash([]);
+
+        // 3. 画棋盘上的泡泡
+        for(let r=0; r<GRID_ROWS+6; r++) {
+            for(let c=0; c<GRID_COLS; c++) {
+                if(grid[r][c].active) {
+                    let p = getTilePos(r,c);
+                    let alpha = 1;
+                    if(grid[r][c].hasDoggo && grid[r][c].doggoTimer < 200) alpha = 0.5 + Math.sin(Date.now()/50)*0.5; 
+                    ctx.globalAlpha = alpha;
+                    // 棋盘上的泡泡一般不转 (false)
+                    drawBubble(ctx, p.x, p.y, TILE_RADIUS-1, grid[r][c].type, false, grid[r][c].hasDoggo, grid[r][c].isRainbow, grid[r][c].isIce, grid[r][c].isBomb);
+                    ctx.globalAlpha = 1;
+                }
+            }
+        }
+
+        // 4. 画掉落的泡泡
+        fallingBubbles.forEach(b => {
+            ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.angle);
+            drawBubble(ctx, 0, 0, TILE_RADIUS-1, b.color, false, b.hasDoggo, b.isRainbow, false, false);
+            ctx.restore();
+        });
+
+        // 5. 画玩家 (B站图片)
+        drawPlayer();
+        
+        // 6. 【关键！】画玩家手里即将发射的球
+        let isRainbow = (currentBulletColor === COLOR_DEFS.RAINBOW);
+        // 我已经在这里强制开启了旋转 (true)
+        // 同时也保留了你的位置设置 (player.y - 25)
+        drawBubble(ctx, player.x, player.y - 15, 18, currentBulletColor, true, false, isRainbow, false, false);
+
+        // 7. 画飞行中的子弹 (也让它转，效果更好)
+        projectiles.forEach(p => {
+             drawBubble(ctx, p.x, p.y, p.r, p.color, true, false, p.isRainbow, false, false);
+        });
+
+        // 8. 画BOSS
+        if(gameState === 'boss' && currentBoss) drawBoss(currentBoss);
+
+        // 9. 画粒子特效
+        particles.forEach((p,i) => {
+            p.x+=p.dx; p.y+=p.dy; p.life--;
+            ctx.globalAlpha=p.life/20; ctx.fillStyle=p.color; ctx.beginPath(); ctx.arc(p.x,p.y,4,0,Math.PI*2); ctx.fill();
+            if(p.life<=0) particles.splice(i,1);
+        });
+        ctx.globalAlpha = 1;
+        
+        // 10. 画浮动文字
+        floatingTexts.forEach(ft => {
+            ctx.font = "bold 24px Arial";
+            ctx.fillStyle = ft.color;
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 3;
+            ctx.textAlign = "center";
+            ctx.strokeText(ft.text, ft.x, ft.y);
+            ctx.fillText(ft.text, ft.x, ft.y);
+        });
+
+        ctx.restore();
+    }
+
+    function drawBubble(ctx, x, y, r, color, spin, hasDoggo, isRainbow, isIce, isBomb) {
+        ctx.save();
+        if(x!==0) ctx.translate(x,y);
+        
+        // 1. 旋转控制
+        // 我把速度改成了 / 150，这个速度肉眼看最舒服，不会因为太快而像静止
+        let angle = 0;
+        if(spin) {
+            angle = Date.now() / 150; 
+            ctx.rotate(angle);
+        }
+        
+        // 2. 画圆底色
+        ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2);
+        if(isRainbow) {
+            let g = ctx.createRadialGradient(0,0,r*0.2,0,0,r);
+            g.addColorStop(0,"red"); g.addColorStop(0.2,"orange"); g.addColorStop(0.4,"yellow"); g.addColorStop(0.6,"green"); g.addColorStop(0.8,"blue"); g.addColorStop(1,"purple");
+            ctx.fillStyle=g;
+        } else if (color === COLOR_DEFS.STONE) {
+            ctx.fillStyle = '#999';
+        } else { 
+            ctx.fillStyle = color; 
+        }
+        ctx.fill();
+        
+        // 3. 画“蚊香”螺旋纹理
+        if (color === COLOR_DEFS.STONE) {
+            ctx.strokeStyle = "#555"; ctx.lineWidth=2;
+            ctx.beginPath(); ctx.moveTo(-5,-5); ctx.lineTo(5,5); ctx.moveTo(5,-5); ctx.lineTo(-5,5); ctx.stroke();
+        } else {
+            ctx.strokeStyle="rgba(255,255,255,0.6)"; ctx.lineWidth=2;
+            ctx.beginPath();
+            // 螺旋线绘制逻辑
+            for(let i=0,a=0,rd=1; i<25; i++,a+=0.5,rd+=0.6) ctx.lineTo(Math.cos(a)*rd, Math.sin(a)*rd);
+            ctx.stroke();
+        }
+
+        // 4. 让图标反向旋转（保持直立）
+        if(hasDoggo || isBomb || isIce) {
+            if(spin) ctx.rotate(-angle);
+        }
+
+        if(hasDoggo) {
+            ctx.font = "20px Arial"; ctx.textAlign="center"; ctx.textBaseline="middle";
+            ctx.fillText("🐶",0,2);
+        }
+        if(isBomb) {
+            ctx.font = "20px Arial"; ctx.textAlign="center"; ctx.textBaseline="middle";
+            ctx.fillText("💣", 0, 2);
+        }
+        if(isIce) {
+             ctx.fillStyle = "rgba(255,255,255,0.4)";
+             ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
+             ctx.strokeStyle = "white"; ctx.lineWidth = 2;
+             ctx.beginPath(); 
+             ctx.moveTo(-5,-8); ctx.lineTo(5,8);
+             ctx.moveTo(5,-8); ctx.lineTo(-5,8);
+             ctx.stroke();
+        }
+
+        ctx.restore();
+    }
+
+    // --- 防弹版绘制玩家函数 ---
+    function drawPlayer() {
+        ctx.save(); 
+        ctx.translate(player.x, player.y);
+        
+        // 1. 判断是否使用玩家上传的图
+        var useUpload = (typeof customSkinImg !== 'undefined' && customSkinImg);
+        
+        // 2. 判断是否使用默认网络图 (增加 complete 检查以确保图片下载完了)
+        var useDefault = (typeof defaultPlayerImg !== 'undefined' && 
+                          defaultPlayerImg.src && 
+                          defaultPlayerImg.complete && 
+                          defaultPlayerImg.naturalWidth > 0); // 确保图片不是坏的
+
+        if (useUpload) {
+            ctx.drawImage(customSkinImg, -25, -25, 50, 50);
+        } 
+        else if (useDefault) {
+            ctx.drawImage(defaultPlayerImg, -35, -35, 70, 70);
+        }
+        else {
+            // --- 保底方案: 画方块 ---
+            if (!player.haloAngle) player.haloAngle = 0;
+            player.haloAngle += 0.05;
+            
+            // 光环
+            ctx.beginPath(); 
+            ctx.ellipse(0, -35, 22, 6, player.haloAngle, 0, Math.PI*2); 
+            ctx.strokeStyle = "#FDFD96"; 
+            ctx.lineWidth = 3; 
+            ctx.stroke();
+
+            // 脸
+            ctx.fillStyle = player.color || '#A7C9D3'; 
+            ctx.beginPath(); 
+            ctx.rect(-22, -22, 44, 44); 
+            ctx.fill(); 
+            ctx.strokeStyle = "#fff"; 
+            ctx.lineWidth = 2; 
+            ctx.stroke();
+
+            // 表情
+            if (!player.faceTimer) player.faceTimer = 0;
+            player.faceTimer++;
+            var blink = (player.faceTimer % 200 > 190);
+            ctx.fillStyle = "#333";
+            if(blink) { 
+                ctx.fillRect(-12, -4, 8, 2); 
+                ctx.fillRect(4, -4, 8, 2); 
+            } else { 
+                ctx.beginPath(); ctx.arc(-8, -4, 3, 0, Math.PI*2); ctx.fill(); 
+                ctx.beginPath(); ctx.arc(8, -4, 3, 0, Math.PI*2); ctx.fill(); 
+            }
+            
+            ctx.beginPath(); ctx.strokeStyle = "#333"; ctx.arc(0, 4, 3, 0, Math.PI); ctx.stroke();
+        }
+
+        ctx.restore();
+    }
+
+    function drawBoss(boss) {
+        let x=boss.x, y=boss.y;
+        ctx.beginPath(); ctx.ellipse(x,y,70,20,0,0,Math.PI*2); ctx.fillStyle="rgba(0,0,0,0.3)"; ctx.fill();
+        ctx.save(); ctx.translate(x,y); ctx.rotate(Math.sin(boss.t)*0.1);
+        ctx.fillStyle=boss.color; ctx.beginPath(); ctx.roundRect(-45,-45,90,90,15); ctx.fill(); ctx.lineWidth=4; ctx.strokeStyle="white"; ctx.stroke();
+        ctx.fillStyle="white";
+        ctx.beginPath(); ctx.moveTo(-25,-15); ctx.lineTo(-5,-5); ctx.lineTo(-25,5);
+        ctx.moveTo(25,-15); ctx.lineTo(5,-5); ctx.lineTo(25,5); ctx.fill();
+        ctx.beginPath(); ctx.strokeStyle="white"; ctx.moveTo(-15,20); ctx.lineTo(15,20); ctx.stroke();
+        ctx.restore();
+    }
+
+    function fire() {
+        if(gameState==='gameover' || isPaused) return;
+        SFX.play('shoot');
+        let isRainbow = (currentBulletColor === COLOR_DEFS.RAINBOW);
+        let p = {
+            active: true, x: player.x, y: player.y - 15,
+            dx: Math.cos(player.angle) * player.shotSpeed, dy: Math.sin(player.angle) * player.shotSpeed,
+            r: player.wideShot ? 30 : 20, color: currentBulletColor, isRainbow: isRainbow
+        };
+        projectiles.push(p);
+        currentBulletColor = nextBulletQueue.shift();
+        nextBulletQueue.push(pickRandomColor()); 
+        updatePreviewCanvas(); renderShop();
+    }
+
+    function updatePreviewCanvas() {
+        const drawP = (ctx, col) => {
+            if(!col) { ctx.clearRect(0,0,40,40); return; }
+            ctx.clearRect(0,0,40,40);
+            drawBubble(ctx, 20, 20, 18, col, false, false, col === COLOR_DEFS.RAINBOW, false, false);
+        };
+        drawP(curPreviewCtx, currentBulletColor);
+        drawP(nextPreviewCtx, nextBulletQueue[0]);
+        if(player.futureSight) drawP(futurePreviewCtx, nextBulletQueue[1]);
+        else futurePreviewCtx.clearRect(0,0,40,40);
+    }
+
+    window.addEventListener('keydown', e => {
+        cheatBuffer.push(e.key);
+        if(cheatBuffer.length > 4) cheatBuffer.shift();
+        if(cheatBuffer.join('') === '0614') {
+            moonCoins += 622; updateUI(); renderShop();
+            toastEl.style.opacity = 1; setTimeout(() => toastEl.style.opacity = 0, 2000);
+            cheatBuffer = [];
+        }
+        if(e.key.toLowerCase() === 'p') togglePause();
+        keys[e.code]=true; if(e.code==='Space'){ fire(); e.preventDefault(); }
+    });
+    window.addEventListener('keyup', e=>keys[e.code]=false);
+    canvas.addEventListener('mousemove', e=>{
+        if(isPaused) return;
+        let rect=canvas.getBoundingClientRect();
+        let a = Math.atan2(e.clientY-rect.top-(player.y-30), e.clientX-rect.left-player.x);
+        player.angle = Math.max(-Math.PI+0.2, Math.min(-0.2, a));
+    });
+    canvas.addEventListener('mousedown', fire);
+    
+    function getTilePos(r, c) { 
+        return { 
+            x: c * TILE_DIAMETER + TILE_RADIUS + (r%2) * TILE_RADIUS, 
+            y: r * ROW_HEIGHT + TILE_RADIUS 
+        }; 
+    }
+    
+    function getClosestGrid(x, y) {
+        let r = Math.max(0, Math.round((y - TILE_RADIUS) / ROW_HEIGHT));
+        let rowStart = (r % 2) * TILE_RADIUS;
+        let c = Math.round((x - TILE_RADIUS - rowStart) / TILE_DIAMETER);
+        c = Math.max(0, Math.min(c, (r%2 ? GRID_COLS-2 : GRID_COLS-1)));
+        return {r,c};
+    }
+    
+    function getNeighbors(r, c) {
+        let odd=r%2===1, res=[];
+        let dirs=[{r,c:c-1},{r,c:c+1},{r:r-1,c},{r:r+1,c},{r:r-1,c:odd?c+1:c-1},{r:r+1,c:odd?c+1:c-1}];
+        dirs.forEach(d=>{ if(d.r>=0 && d.r<GRID_ROWS+6 && d.c>=0 && d.c<GRID_COLS && !(d.r%2&&d.c===GRID_COLS-1)) res.push(d); });
+        return res;
+    }
+    function createExplosion(x,y,c){ for(let i=0;i<6;i++) particles.push({x,y,dx:(Math.random()-0.5)*8,dy:(Math.random()-0.5)*8,life:25,color:c}); }
+    function updateUI() { scoreEl.innerText=score; coinEl.innerText=moonCoins; }
+    function gameOver() { 
+        gameState='gameover'; 
+        saveGameData(); 
+        document.getElementById('modal-msg').innerText="得分: "+score; 
+        modalEl.style.display='flex'; 
+    }
+    function resetGame() { init(); }
+
+    init();
+</script>
+</body>
+</html>
