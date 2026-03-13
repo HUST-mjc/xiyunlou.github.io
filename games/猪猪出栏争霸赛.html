@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>猪猪出栏争霸赛</title>
+    <title>猪猪出栏争霸赛 · 飞行优化版</title>
     <style>
         :root {
             --theme-color: #FF6B9D;
@@ -12,23 +12,33 @@
             --text-color: #333;
         }
         body {
-            margin: 0; padding: 0;
+            margin: 0;
+            padding: 0;
             background-color: #1a1a1a;
             font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
-            overflow: hidden;
-            user-select: none;
+            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
         #game-wrapper {
-            width: 100vw;
-            height: 100vh;
+            width: 1200px;           /* 固定宽度 */
+            height: 800px;           /* 固定高度 */
             display: flex;
             flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            border-radius: 24px;
+            overflow: hidden;
+            background: #2d2d2d;
         }
         #screens-container {
             flex: 1;
             display: flex;
             overflow: hidden;
             position: relative;
+            background: #222;
         }
         .player-screen {
             flex: 1;
@@ -41,12 +51,8 @@
         .player-screen.single { max-width: 100%; }
         .player-screen.dual { max-width: 50%; }
         .player-screen.quad { max-width: 25%; }
-        .player-screen.eliminated {
-            background: #2a2a2a !important;
-        }
-        .player-screen.fallen {
-            background: #1a1a1a !important;
-        }
+        .player-screen.eliminated { background: #2a2a2a !important; }
+        .player-screen.fallen { background: #1a1a1a !important; }
 
         canvas { 
             display: block; 
@@ -98,9 +104,7 @@
             opacity: 0;
             transition: opacity 0.5s;
         }
-        .danger-zone.active {
-            opacity: 1;
-        }
+        .danger-zone.active { opacity: 1; }
         .danger-text {
             position: absolute;
             bottom: 10%;
@@ -113,11 +117,7 @@
         }
 
         .eliminated-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85);
             display: none;
             flex-direction: column;
@@ -126,9 +126,7 @@
             pointer-events: none;
             z-index: 20;
         }
-        .eliminated-overlay.active {
-            display: flex;
-        }
+        .eliminated-overlay.active { display: flex; }
         .eliminated-text {
             font-size: 48px;
             color: #ff6b6b;
@@ -137,22 +135,14 @@
             animation: shake 0.5s infinite;
         }
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+            0%,100%{ transform: translateX(0); }
+            25%{ transform: translateX(-5px); }
+            75%{ transform: translateX(5px); }
         }
-        .eliminated-weight {
-            font-size: 24px;
-            color: white;
-            margin-top: 10px;
-        }
+        .eliminated-weight { font-size: 24px; color: white; margin-top: 10px; }
 
         .fallen-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9);
             display: none;
             flex-direction: column;
@@ -161,24 +151,13 @@
             pointer-events: none;
             z-index: 25;
         }
-        .fallen-overlay.active {
-            display: flex;
-        }
-        .fallen-text {
-            font-size: 42px;
-            color: #888;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .fallen-sub {
-            font-size: 18px;
-            color: #aaa;
-        }
+        .fallen-overlay.active { display: flex; }
+        .fallen-text { font-size: 42px; color: #888; font-weight: bold; margin-bottom: 10px; }
+        .fallen-sub { font-size: 18px; color: #aaa; }
 
         .player-timer {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             font-size: 48px;
             font-weight: bold;
@@ -217,19 +196,15 @@
             animation: pulse 1s infinite;
         }
         @keyframes pulse { 
-            0%, 100% { transform: translateX(-50%) scale(1); } 
-            50% { transform: translateX(-50%) scale(1.1); } 
+            0%,100%{ transform: translateX(-50%) scale(1); } 
+            50%{ transform: translateX(-50%) scale(1.1); } 
         }
 
         .ui-layer {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 200;
@@ -237,7 +212,7 @@
         }
 
         .screen {
-            background: rgba(255, 255, 255, 0.98);
+            background: rgba(255,255,255,0.98);
             padding: 30px;
             border-radius: 20px;
             border: 4px solid var(--theme-color);
@@ -250,161 +225,51 @@
         }
         .screen.active { display: block; animation: popIn 0.4s; }
         @keyframes popIn { 
-            from { transform: scale(0.8); opacity: 0; } 
-            to { transform: scale(1); opacity: 1; } 
+            from{ transform: scale(0.8); opacity: 0; } 
+            to{ transform: scale(1); opacity: 1; } 
         }
 
-        h1 { 
-            color: var(--theme-dark); 
-            margin: 0 0 10px; 
-            font-size: 32px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
+        h1 { color: var(--theme-dark); margin: 0 0 10px; font-size: 32px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
         h2 { margin: 10px 0; font-size: 18px; color: #555; }
         p { color: #777; font-size: 14px; margin: 5px 0; }
 
         button {
-            background: var(--theme-color); 
-            color: white;
-            border: none; 
-            padding: 15px 30px;
-            font-size: 18px; 
-            border-radius: 50px;
-            cursor: pointer; 
-            margin: 8px; 
-            font-weight: bold;
-            box-shadow: 0 4px 0 var(--theme-dark);
-            transition: all 0.1s; 
-            width: 85%;
+            background: var(--theme-color); color: white;
+            border: none; padding: 15px 30px; font-size: 18px; border-radius: 50px;
+            cursor: pointer; margin: 8px; font-weight: bold;
+            box-shadow: 0 4px 0 var(--theme-dark); transition: all 0.1s; width: 85%;
         }
-        button:active { 
-            transform: translateY(4px); 
-            box-shadow: none; 
-        }
-        button.secondary { 
-            background: #888; 
-            box-shadow: 0 4px 0 #666; 
-            font-size: 14px; 
-            padding: 10px 20px; 
-        }
+        button:active { transform: translateY(4px); box-shadow: none; }
+        button.secondary { background: #888; box-shadow: 0 4px 0 #666; font-size: 14px; padding: 10px 20px; }
 
-        .mode-select {
-            display: flex; 
-            flex-direction: column; 
-            gap: 12px; 
-            margin: 20px 0;
-        }
-        .mode-btn {
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            gap: 15px; 
-            padding: 18px;
-        }
+        .mode-select { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+        .mode-btn { display: flex; align-items: center; justify-content: center; gap: 15px; padding: 18px; }
         .mode-btn .icon { font-size: 28px; }
         .mode-btn .info { text-align: left; }
         .mode-btn .info h4 { margin: 0; font-size: 18px; }
         .mode-btn .info p { margin: 0; font-size: 12px; color: #666; }
 
-        .legend-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin: 15px 0;
-            text-align: left;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            padding: 8px;
-            background: #f8f8f8;
-            border-radius: 10px;
-            border-left: 4px solid;
-        }
+        .legend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; text-align: left; }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 8px; background: #f8f8f8; border-radius: 10px; border-left: 4px solid; }
         .legend-icon { font-size: 20px; }
 
-        .warning-box {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            border-radius: 10px;
-            padding: 10px;
-            margin: 10px 0;
-            font-size: 13px;
-            color: #856404;
-        }
+        .warning-box { background: #fff3cd; border: 2px solid #ffc107; border-radius: 10px; padding: 10px; margin: 10px 0; font-size: 13px; color: #856404; }
 
-        .result-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-            margin: 20px 0;
-        }
-        .result-card {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            background: white;
-            border-radius: 15px;
-            border: 3px solid;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        .result-card.eliminated {
-            background: #f0f0f0;
-            border-color: #999 !important;
-            opacity: 0.7;
-        }
-        .result-card.fallen {
-            background: #e8e8e8;
-            border-color: #666 !important;
-            opacity: 0.6;
-        }
-        .result-rank {
-            font-size: 36px;
-            margin-right: 15px;
-            width: 50px;
-        }
-        .result-info {
-            flex: 1;
-            text-align: left;
-        }
-        .result-name {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .result-detail {
-            font-size: 12px;
-            color: #666;
-        }
-        .result-score {
-            font-family: 'Courier New', monospace;
-            font-size: 24px;
-            font-weight: 900;
-        }
+        .result-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 20px 0; }
+        .result-card { display: flex; align-items: center; padding: 15px; background: white; border-radius: 15px; border: 3px solid; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .result-card.eliminated { background: #f0f0f0; border-color: #999 !important; opacity: 0.7; }
+        .result-card.fallen { background: #e8e8e8; border-color: #666 !important; opacity: 0.6; }
+        .result-rank { font-size: 36px; margin-right: 15px; width: 50px; }
+        .result-info { flex: 1; text-align: left; }
+        .result-name { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+        .result-detail { font-size: 12px; color: #666; }
+        .result-score { font-family: 'Courier New', monospace; font-size: 24px; font-weight: 900; }
 
-        .weight-unlimited {
-            color: #ff6b6b;
-            font-size: 12px;
-            margin-top: 5px;
-        }
+        .weight-unlimited { color: #ff6b6b; font-size: 12px; margin-top: 5px; }
 
-        .divider-line {
-            position: absolute;
-            background: #333;
-            z-index: 50;
-        }
-        .divider-v {
-            width: 3px;
-            height: 100%;
-            top: 0;
-        }
-        .divider-h {
-            height: 3px;
-            width: 100%;
-            left: 0;
-        }
+        .divider-line { position: absolute; background: #333; z-index: 50; }
+        .divider-v { width: 3px; height: 100%; top: 0; }
+        .divider-h { height: 3px; width: 100%; left: 0; }
     </style>
 </head>
 <body>
@@ -425,46 +290,16 @@
             </div>
 
             <div class="legend-grid">
-                <div class="legend-item" style="border-color:#FF6B9D">
-                    <span class="legend-icon">🍕</span>
-                    <span><b>梨安猪</b> A/D 控制<br><small>初始: 80.0kg</small></span>
-                </div>
-                <div class="legend-item" style="border-color:#9B59B6">
-                    <span class="legend-icon">🎵</span>
-                    <span><b>泽音猪</b> ←/→ 控制<br><small>初始: 75.0kg</small></span>
-                </div>
-                <div class="legend-item" style="border-color:#3498DB">
-                    <span class="legend-icon">🐸</span>
-                    <span><b>露米猪</b> J/L 控制<br><small>初始: 85.0kg</small></span>
-                </div>
-                <div class="legend-item" style="border-color:#E74C3C">
-                    <span class="legend-icon">👄</span>
-                    <span><b>纸猪</b> 4/6 控制<br><small>初始: 60.0kg</small></span>
-                </div>
+                <div class="legend-item" style="border-color:#FF6B9D"><span class="legend-icon">🍕</span><span><b>梨安猪</b> A/D 控制<br><small>初始: 80.0kg</small></span></div>
+                <div class="legend-item" style="border-color:#9B59B6"><span class="legend-icon">🎵</span><span><b>泽音猪</b> ←/→ 控制<br><small>初始: 75.0kg</small></span></div>
+                <div class="legend-item" style="border-color:#3498DB"><span class="legend-icon">🐸</span><span><b>露米猪</b> J/L 控制<br><small>初始: 85.0kg</small></span></div>
+                <div class="legend-item" style="border-color:#E74C3C"><span class="legend-icon">👄</span><span><b>纸猪</b> 4/6 控制<br><small>初始: 60.0kg</small></span></div>
             </div>
 
             <div class="mode-select">
-                <button class="mode-btn" onclick="startGame(1)">
-                    <span class="icon">👤</span>
-                    <div class="info">
-                        <h4>单猪喂养</h4>
-                        <p>梨安独自增重 (A/D)</p>
-                    </div>
-                </button>
-                <button class="mode-btn" onclick="startGame(2)">
-                    <span class="icon">👥</span>
-                    <div class="info">
-                        <h4>双猪抢食</h4>
-                        <p>左右分栏 | 梨安 vs 泽音</p>
-                    </div>
-                </button>
-                <button class="mode-btn" onclick="startGame(4)">
-                    <span class="icon">👨‍👩‍👧‍👦</span>
-                    <div class="info">
-                        <h4>四猪出栏</h4>
-                        <p>四宫格猪圈 | 全员抢食</p>
-                    </div>
-                </button>
+                <button class="mode-btn" onclick="startGame(1)"><span class="icon">👤</span><div class="info"><h4>单猪喂养</h4><p>梨安独自增重 (A/D)</p></div></button>
+                <button class="mode-btn" onclick="startGame(2)"><span class="icon">👥</span><div class="info"><h4>双猪抢食</h4><p>左右分栏 | 梨安 vs 泽音</p></div></button>
+                <button class="mode-btn" onclick="startGame(4)"><span class="icon">👨‍👩‍👧‍👦</span><div class="info"><h4>四猪出栏</h4><p>四宫格猪圈 | 全员抢食</p></div></button>
             </div>
         </div>
 
@@ -479,87 +314,43 @@
 </div>
 
 <script>
-// --- 🐷 噗噗音效系统 ---
+// --- 噗噗音效 (同前) ---
 const PUPU_SOUND = {
-    ctx: null,
-    isMuted: false,
-
+    ctx: null, isMuted: false,
     init: function() {
-        if (!this.ctx) {
-            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (this.ctx.state === 'suspended') {
-            this.ctx.resume();
-        }
+        if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
     },
-
     createPupuBuffer: function(duration, type = 'jump') {
         if (!this.ctx) return null;
-
         const sampleRate = this.ctx.sampleRate;
         const buffer = this.ctx.createBuffer(1, duration * sampleRate, sampleRate);
         const data = buffer.getChannelData(0);
-
         for (let i = 0; i < buffer.length; i++) {
             let noise = Math.random() * 2 - 1;
             let envelope;
-
-            if (type === 'jump') {
-                envelope = Math.exp(-i / (sampleRate * 0.08));
-            } else if (type === 'powerup') {
-                let progress = i / buffer.length;
-                envelope = Math.exp(-i / (sampleRate * 0.15)) * (1 + progress);
-            } else if (type === 'bomb') {
-                envelope = Math.exp(-i / (sampleRate * 0.3)) * (1 - i/buffer.length * 0.3);
-            } else if (type === 'finish') {
-                envelope = Math.exp(-i / (sampleRate * 0.5));
-            } else if (type === 'die') {
-                envelope = Math.exp(-i / (sampleRate * 0.4)) * (1 - i/buffer.length * 0.5);
-            }
-
-            if (i > 0) {
-                noise = noise * 0.5 + data[i-1] * 0.5;
-            }
-
+            if (type === 'jump') envelope = Math.exp(-i / (sampleRate * 0.08));
+            else if (type === 'powerup') envelope = Math.exp(-i / (sampleRate * 0.15)) * (1 + i/buffer.length);
+            else if (type === 'bomb') envelope = Math.exp(-i / (sampleRate * 0.3)) * (1 - i/buffer.length * 0.3);
+            else if (type === 'finish') envelope = Math.exp(-i / (sampleRate * 0.5));
+            else if (type === 'die') envelope = Math.exp(-i / (sampleRate * 0.4)) * (1 - i/buffer.length * 0.5);
+            if (i > 0) noise = noise * 0.5 + data[i-1] * 0.5;
             data[i] = noise * envelope * 0.3;
         }
-
         return buffer;
     },
-
     play: function(type) {
         if (this.isMuted || !this.ctx) return;
-
-        const durations = {
-            'jump': 0.1,
-            'powerup': 0.2,
-            'bomb': 0.4,
-            'finish': 0.6,
-            'die': 0.5
-        };
-
+        const durations = { 'jump':0.1, 'powerup':0.2, 'bomb':0.4, 'finish':0.6, 'die':0.5 };
         const buffer = this.createPupuBuffer(durations[type], type);
         if (!buffer) return;
-
         const source = this.ctx.createBufferSource();
         source.buffer = buffer;
-
-        const playbackRate = {
-            'jump': 1.0 + Math.random() * 0.3,
-            'powerup': 1.2 + Math.random() * 0.2,
-            'bomb': 0.8 + Math.random() * 0.2,
-            'finish': 1.0,
-            'die': 0.6
-        }[type];
-
+        const playbackRate = { 'jump':1.0+Math.random()*0.3, 'powerup':1.2+Math.random()*0.2, 'bomb':0.8+Math.random()*0.2, 'finish':1.0, 'die':0.6 }[type];
         source.playbackRate.value = playbackRate;
-
         const gain = this.ctx.createGain();
         gain.gain.value = type === 'bomb' ? 0.8 : 0.5;
-
-        source.connect(gain);
-        gain.connect(this.ctx.destination);
-        source.start();
+        source.connect(gain); gain.connect(this.ctx.destination); source.start();
     }
 };
 
@@ -569,113 +360,53 @@ const CONFIG = {
     baseJumpForce: -10,
     moveSpeed: 5.5,
     gameTime: 60,
-    // 危险体重线：超过此体重后跌落即淘汰
     DANGER_WEIGHT: 200.0,
-    // 体重增长系数（越小越难增重）
     WEIGHT_GAIN_RATE: 0.000008,
-    // 最大出栏体重（理论上无上限，但显示用）
     TARGET_WEIGHT: 500.0
 };
 
-// 角色配置 - 初始体重（kg）和品种特性
 const CHARACTERS = [
-    { 
-        id: 'lian', name: '梨安猪（杜洛克）', shortName: '梨安猪',
-        item: '🍕', bomb: '🍗',
-        color: '#FF6B9D', darkColor: '#e55a8a',
-        bgColor: '#ffe6ed',
-        left: 'KeyA', right: 'KeyD',
-        baseWeight: 80.0,  // 基础体重80kg
-        breed: '杜洛克',
-        trait: '肉质鲜美'
-    },
-    { 
-        id: 'zeyin', name: '泽音猪（约克夏）', shortName: '泽音猪',
-        item: '🎵', bomb: '📦',
-        color: '#9B59B6', darkColor: '#8e44ad',
-        bgColor: '#f0e6f5',
-        left: 'ArrowLeft', right: 'ArrowRight',
-        baseWeight: 75.0,  // 基础体重75kg
-        breed: '约克夏',
-        trait: '生长快速'
-    },
-    { 
-        id: 'lumi', name: '露米猪（伯克夏）', shortName: '露米猪',
-        color: '#3498DB', darkColor: '#2980b9',
-        bgColor: '#e6f0f5',
-        item: '🐸', bomb: '🐷',
-        left: 'KeyJ', right: 'KeyL',
-        baseWeight: 85.0,  // 基础体重85kg（最胖起点）
-        breed: '伯克夏',
-        trait: '体型壮硕'
-    },
-    { 
-        id: 'zhixiao', name: '纸猪（香猪）', shortName: '纸猪',
-        color: '#E74C3C', darkColor: '#c0392b',
-        bgColor: '#ffe6e6',
-        item: '👄', bomb: '⌚️',
-        left: 'Digit4', right: 'Digit6',
-        altLeft: 'Numpad4', altRight: 'Numpad6',
-        baseWeight: 60.0,  // 基础体重60kg（最轻，但增长潜力大）
-        breed: '香猪',
-        trait: '精致小巧'
-    }
+    { id:'lian', name:'梨安猪（杜洛克）', shortName:'梨安猪', item:'🍕', bomb:'🍗', color:'#FF6B9D', darkColor:'#e55a8a', bgColor:'#ffe6ed', left:'KeyA', right:'KeyD', baseWeight:80.0, breed:'杜洛克', trait:'肉质鲜美' },
+    { id:'zeyin', name:'泽音猪（约克夏）', shortName:'泽音猪', item:'🎵', bomb:'📦', color:'#9B59B6', darkColor:'#8e44ad', bgColor:'#f0e6f5', left:'ArrowLeft', right:'ArrowRight', baseWeight:75.0, breed:'约克夏', trait:'生长快速' },
+    { id:'lumi', name:'露米猪（伯克夏）', shortName:'露米猪', color:'#3498DB', darkColor:'#2980b9', bgColor:'#e6f0f5', item:'🐸', bomb:'🐷', left:'KeyJ', right:'KeyL', baseWeight:85.0, breed:'伯克夏', trait:'体型壮硕' },
+    { id:'zhixiao', name:'纸猪（香猪）', shortName:'纸猪', color:'#E74C3C', darkColor:'#c0392b', bgColor:'#ffe6e6', item:'👄', bomb:'⌚️', left:'Digit4', right:'Digit6', altLeft:'Numpad4', altRight:'Numpad6', baseWeight:60.0, breed:'香猪', trait:'精致小巧' }
 ];
 
-let game = {
-    status: 'MENU',
-    mode: 1,
-    timeLeft: 60,
-    players: [],
-    lastTime: 0,
-    eliminatedCount: 0
-};
-
+let game = { status:'MENU', mode:1, timeLeft:60, players:[], lastTime:0, eliminatedCount:0 };
 let currentMode = 1;
 let keys = {};
 
-// --- 玩家实例类 ---
+// --- 玩家实例 (核心修改：提高平台生成范围和清理阈值) ---
 class PlayerInstance {
     constructor(charData, index, totalPlayers, containerId) {
         this.charData = charData;
         this.index = index;
         this.container = document.getElementById(containerId);
         this.eliminated = false;
-        this.fallen = false;  // 新增：是否摔出画面
+        this.fallen = false;
         this.finalWeight = 0;
 
-        // 创建危险区域提示（超过200kg后显示）
         this.dangerZone = document.createElement('div');
         this.dangerZone.className = 'danger-zone';
         this.dangerZone.innerHTML = '<div class="danger-text">⚠️ 超重危险！跌落即出栏 ⚠️</div>';
         this.container.appendChild(this.dangerZone);
 
-        // 创建淘汰覆盖层（200kg以上跌落）
         this.eliminatedOverlay = document.createElement('div');
         this.eliminatedOverlay.className = 'eliminated-overlay';
-        this.eliminatedOverlay.innerHTML = `
-            <div class="eliminated-text">🥓 提前出栏</div>
-            <div class="eliminated-weight">最终体重: <span class="final-w">0</span>kg</div>
-        `;
+        this.eliminatedOverlay.innerHTML = '<div class="eliminated-text">🥓 提前出栏</div><div class="eliminated-weight">最终体重: <span class="final-w">0</span>kg</div>';
         this.container.appendChild(this.eliminatedOverlay);
 
-        // 创建摔出画面覆盖层
         this.fallenOverlay = document.createElement('div');
         this.fallenOverlay.className = 'fallen-overlay';
-        this.fallenOverlay.innerHTML = `
-            <div class="fallen-text">💨 摔出猪圈</div>
-            <div class="fallen-sub">已被抬走...</div>
-        `;
+        this.fallenOverlay.innerHTML = '<div class="fallen-text">💨 摔出猪圈</div><div class="fallen-sub">已被抬走...</div>';
         this.container.appendChild(this.fallenOverlay);
 
-        // 创建canvas
         this.canvas = document.createElement('canvas');
         this.canvas.width = this.container.clientWidth;
         this.canvas.height = this.container.clientHeight;
         this.container.querySelector('.canvas-wrapper').appendChild(this.canvas);
         this.ctx = this.canvas.getContext('2d');
 
-        // 核心：体重增长系统
         this.player = {
             x: Math.floor(this.canvas.width / 2 - 18),
             y: Math.floor(this.canvas.height - 100),
@@ -684,9 +415,7 @@ class PlayerInstance {
             facing: 1,
             isFlying: false,
             flyTimer: 0,
-            // scoreRaw: 累计攀爬距离（转换为体重增长）
             scoreRaw: 0,
-            // displayWeight: 当前显示体重（kg）
             displayWeight: charData.baseWeight,
             onPlatform: false,
             lastPlatformY: 0
@@ -698,20 +427,13 @@ class PlayerInstance {
 
     initWorld() {
         const groundY = Math.floor(this.canvas.height - 10);
-
         for (let i = 1; i <= 12; i++) {
             const y = groundY - Math.floor(i * 70);
             this.platforms.push(this.createPlatform(y));
         }
-
         this.platforms.push({
-            x: 0, y: groundY,
-            w: this.canvas.width, h: 10,
-            isBottom: true,
-            draw: (ctx) => {
-                ctx.fillStyle = '#555';
-                ctx.fillRect(0, this.canvas.height - 10, this.canvas.width, 10);
-            }
+            x: 0, y: groundY, w: this.canvas.width, h: 10, isBottom: true,
+            draw: (ctx) => { ctx.fillStyle = '#555'; ctx.fillRect(0, this.canvas.height - 10, this.canvas.width, 10); }
         });
     }
 
@@ -720,7 +442,6 @@ class PlayerInstance {
         const x = Math.floor(10 + Math.random() * (this.canvas.width - w - 20));
         const hasItem = Math.random() < 0.22;
         const isBomb = Math.random() < 0.3;
-
         return {
             x, y, w, h: 12,
             hasItem,
@@ -728,11 +449,8 @@ class PlayerInstance {
             itemCollected: false,
             draw: (ctx) => {
                 ctx.fillStyle = '#777';
-                ctx.beginPath();
-                ctx.roundRect(x, y, w, 12, 4);
-                ctx.fill();
-                ctx.fillStyle = '#999';
-                ctx.fillRect(x, y, w, 3);
+                ctx.beginPath(); ctx.roundRect(x, y, w, 12, 4); ctx.fill();
+                ctx.fillStyle = '#999'; ctx.fillRect(x, y, w, 3);
             }
         };
     }
@@ -744,142 +462,79 @@ class PlayerInstance {
         return false;
     }
 
-    // 计算显示体重（类似小沐的身高公式）
     calculateDisplayWeight() {
         const startW = this.charData.baseWeight;
         const targetW = CONFIG.TARGET_WEIGHT;
-        // 使用对数增长曲线，越重越难增重
         const progress = 1 - (1 / (1 + this.player.scoreRaw * CONFIG.WEIGHT_GAIN_RATE));
         return startW + (targetW - startW) * progress;
     }
 
-    // 提前出栏（200kg以上跌落）
     eliminate() {
         if (this.eliminated || this.fallen) return;
-
         this.eliminated = true;
         this.finalWeight = this.player.displayWeight;
         game.eliminatedCount++;
-
         PUPU_SOUND.play('die');
-
         this.eliminatedOverlay.querySelector('.final-w').textContent = this.finalWeight.toFixed(1);
         this.eliminatedOverlay.classList.add('active');
         this.container.classList.add('eliminated');
-
         const header = this.container.querySelector('.player-header');
         if (header) header.classList.add('eliminated');
-
-        if (game.eliminatedCount >= game.mode) {
-            setTimeout(() => gameOver(), 1000);
-        }
+        if (game.eliminatedCount >= game.mode) setTimeout(() => gameOver(), 1000);
     }
 
-    // 摔出画面（直接停止）
     fallOut() {
         if (this.fallen || this.eliminated) return;
-
         this.fallen = true;
         this.finalWeight = this.player.displayWeight;
         game.eliminatedCount++;
-
         PUPU_SOUND.play('die');
-
         this.fallenOverlay.classList.add('active');
         this.container.classList.add('fallen');
-
         const header = this.container.querySelector('.player-header');
         if (header) header.classList.add('eliminated');
-
-        // 冻结画面：保存当前帧作为静态背景
         this.freezeFrame = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-
-        if (game.eliminatedCount >= game.mode) {
-            setTimeout(() => gameOver(), 1000);
-        }
+        if (game.eliminatedCount >= game.mode) setTimeout(() => gameOver(), 1000);
     }
 
     update() {
-        // 如果已经摔出画面或被淘汰，完全停止更新
-        if (this.fallen) return;
-        if (this.eliminated) return;
+        if (this.fallen || this.eliminated) return;
 
         const p = this.player;
         const leftPressed = this.isKeyPressed(this.charData.left);
         const rightPressed = this.isKeyPressed(this.charData.right);
 
-        if (leftPressed) {
-            p.vx = -CONFIG.moveSpeed;
-            p.facing = -1;
-        } else if (rightPressed) {
-            p.vx = CONFIG.moveSpeed;
-            p.facing = 1;
-        } else {
-            p.vx *= 0.85;
-        }
+        if (leftPressed) { p.vx = -CONFIG.moveSpeed; p.facing = -1; }
+        else if (rightPressed) { p.vx = CONFIG.moveSpeed; p.facing = 1; }
+        else p.vx *= 0.85;
 
         if (p.isFlying) {
-            p.vy = -15;
-            p.flyTimer--;
-            if (p.flyTimer <= 0) {
-                p.isFlying = false;
-                p.vy = -5;
-            }
-        } else {
-            p.vy += CONFIG.gravity;
-        }
+            p.vy = -15; p.flyTimer--;
+            if (p.flyTimer <= 0) { p.isFlying = false; p.vy = -5; }
+        } else p.vy += CONFIG.gravity;
 
-        // 更新位置
         p.x = Math.floor(p.x + p.vx);
         p.y = Math.floor(p.y + p.vy);
 
-        // 边界循环（水平方向）
         if (p.x + p.size < 0) p.x = this.canvas.width;
         if (p.x > this.canvas.width) p.x = -p.size;
 
-        // 更新显示体重
         p.displayWeight = this.calculateDisplayWeight();
 
-        // ===== 关键修改：摔出画面直接停止 =====
-        if (p.y > this.canvas.height) {
-            // 猪猪掉出猪圈底部，被抬走，游戏停止
-            this.fallOut();
-            return;
-        }
+        if (p.y > this.canvas.height) { this.fallOut(); return; }
 
-        // 危险区域显示（超过200kg）
-        if (p.displayWeight >= CONFIG.DANGER_WEIGHT) {
-            this.dangerZone.classList.add('active');
-        }
+        if (p.displayWeight >= CONFIG.DANGER_WEIGHT) this.dangerZone.classList.add('active');
 
-        // 200kg以上跌落判定（被淘汰，但画面继续）
-        // 注意：这里判断的是p.y > canvas.height - 50，但上面已经判断了p.y > canvas.height
-        // 所以这里实际上不会触发，因为摔出画面会优先被fallOut处理
-        // 保留此逻辑以防修改边界判断
-        if (p.displayWeight >= CONFIG.DANGER_WEIGHT && 
-            p.y > this.canvas.height - 50 && 
-            !p.isFlying && 
-            p.y <= this.canvas.height) {
-            this.eliminate();
-            return;
-        }
-
-        // 平台碰撞检测
         p.onPlatform = false;
         if (p.vy > 0) {
             for (let platform of this.platforms) {
-                if (p.y + p.size >= platform.y &&
-                    p.y + p.size <= platform.y + platform.h + 15 &&
-                    p.x + p.size > platform.x &&
-                    p.x < platform.x + platform.w) {
-
+                if (p.y + p.size >= platform.y && p.y + p.size <= platform.y + platform.h + 15 &&
+                    p.x + p.size > platform.x && p.x < platform.x + platform.w) {
                     p.vy = CONFIG.baseJumpForce;
                     p.y = Math.floor(platform.y - p.size);
                     p.onPlatform = true;
                     p.lastPlatformY = platform.y;
-
                     PUPU_SOUND.play('jump');
-
                     if (platform.hasItem && !platform.itemCollected) {
                         platform.itemCollected = true;
                         this.collectItem(platform.itemType);
@@ -889,52 +544,39 @@ class PlayerInstance {
             }
         }
 
-        // 平台生成逻辑
+        // ⭐ 提高平台生成高度：generateAhead 从 300 → 600
         const screenTop = -50;
-        const generateAhead = 300;
-
+        const generateAhead = 600;   // 让平台生成得更高，飞行时上方也有平台
         let highestY = Infinity;
         for (let plat of this.platforms) {
-            if (!plat.isBottom && plat.y < highestY) {
-                highestY = plat.y;
-            }
+            if (!plat.isBottom && plat.y < highestY) highestY = plat.y;
         }
-
         while (highestY > screenTop - generateAhead) {
             const gap = Math.floor(65 + Math.random() * 25);
             const newY = highestY - gap;
-            const newPlat = this.createPlatform(newY);
-            this.platforms.push(newPlat);
+            this.platforms.push(this.createPlatform(newY));
             highestY = newY;
         }
 
-        // 相机跟随 + 累计scoreRaw（体重增长来源）
+        // 相机跟随
         const cameraTrigger = Math.floor(this.canvas.height * 0.35);
         if (p.y < cameraTrigger) {
             const diff = Math.floor(cameraTrigger - p.y);
-            
-            // 关键：相机上移距离累加到scoreRaw，转化为体重增长
             p.scoreRaw += diff;
-            
             p.y += diff;
-
-            for (let i = 0; i < this.platforms.length; i++) {
-                this.platforms[i].y += diff;
-            }
-
-            const cleanupThreshold = this.canvas.height + 300;
+            for (let i = 0; i < this.platforms.length; i++) this.platforms[i].y += diff;
+            // ⭐ 清理阈值大幅提高至 canvas.height + 5000，避免飞行中下方平台被过早清理
+            const cleanupThreshold = this.canvas.height + 5000;
             this.platforms = this.platforms.filter(plat => plat.y < cleanupThreshold);
         }
     }
 
     collectItem(type) {
         if (type === 'item') {
-            // 吃饲料：额外增重（直接增加scoreRaw）
             this.player.scoreRaw += 200;
             this.player.vy = -18;
             PUPU_SOUND.play('powerup');
         } else {
-            // 激素针：暴走模式（不减重，只是飞行）
             this.player.isFlying = true;
             this.player.flyTimer = 130;
             PUPU_SOUND.play('bomb');
@@ -942,150 +584,95 @@ class PlayerInstance {
     }
 
     draw() {
-        // 如果摔出画面，显示冻结的帧
-        if (this.fallen && this.freezeFrame) {
-            this.ctx.putImageData(this.freezeFrame, 0, 0);
-            return;
-        }
+        if (this.fallen && this.freezeFrame) { this.ctx.putImageData(this.freezeFrame, 0, 0); return; }
+        const ctx = this.ctx; const w = this.canvas.width; const h = this.canvas.height;
+        ctx.fillStyle = this.charData.bgColor; ctx.fillRect(0, 0, w, h);
 
-        const ctx = this.ctx;
-        const w = this.canvas.width;
-        const h = this.canvas.height;
-
-        // 背景
-        ctx.fillStyle = this.charData.bgColor;
-        ctx.fillRect(0, 0, w, h);
-
-        // 绘制危险线（200kg线）
         const currentW = this.player.displayWeight;
         if (currentW >= CONFIG.DANGER_WEIGHT - 50) {
-            // 计算200kg线在屏幕上的位置（根据当前体重映射）
             const progress = (CONFIG.DANGER_WEIGHT - currentW) / 50;
             const dangerScreenY = h * 0.5 + progress * h * 0.3;
-
             if (dangerScreenY > -50 && dangerScreenY < h + 50) {
-                ctx.strokeStyle = '#ff6b6b';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([10, 10]);
-                ctx.beginPath();
-                ctx.moveTo(0, dangerScreenY);
-                ctx.lineTo(w, dangerScreenY);
-                ctx.stroke();
-                ctx.setLineDash([]);
-
-                ctx.fillStyle = '#ff6b6b';
-                ctx.font = 'bold 12px Arial';
-                ctx.textAlign = 'right';
+                ctx.strokeStyle = '#ff6b6b'; ctx.lineWidth = 2; ctx.setLineDash([10,10]);
+                ctx.beginPath(); ctx.moveTo(0, dangerScreenY); ctx.lineTo(w, dangerScreenY); ctx.stroke(); ctx.setLineDash([]);
+                ctx.fillStyle = '#ff6b6b'; ctx.font = 'bold 12px Arial'; ctx.textAlign = 'right';
                 ctx.fillText('⚠️ 200kg危险线', w - 10, dangerScreenY - 5);
             }
         }
 
-        // 网格
-        ctx.strokeStyle = this.charData.color + '20';
-        ctx.lineWidth = 1;
-        for (let i = 0; i < w; i += 30) {
-            ctx.beginPath();
-            ctx.moveTo(i, 0);
-            ctx.lineTo(i, h);
-            ctx.stroke();
-        }
-        for (let i = 0; i < h; i += 30) {
-            ctx.beginPath();
-            ctx.moveTo(0, i);
-            ctx.lineTo(w, i);
-            ctx.stroke();
-        }
+        ctx.strokeStyle = this.charData.color + '20'; ctx.lineWidth = 1;
+        for (let i = 0; i < w; i += 30) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,h); ctx.stroke(); }
+        for (let i = 0; i < h; i += 30) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(w,i); ctx.stroke(); }
 
-        // 平台
-        const viewTop = -100;
-        const viewBottom = h + 100;
-
+        const viewTop = -100; const viewBottom = h + 100;
         for (let platform of this.platforms) {
             if (platform.y > viewTop && platform.y < viewBottom) {
                 platform.draw(ctx);
-
                 if (platform.hasItem && !platform.itemCollected) {
                     const icon = platform.itemType === 'item' ? this.charData.item : this.charData.bomb;
-                    ctx.font = '20px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-
+                    ctx.font = '20px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                     const bob = Math.sin(Date.now() / 200) * 3;
                     ctx.fillText(icon, platform.x + platform.w/2, platform.y - 16 + bob);
                 }
             }
         }
 
-        // 玩家（猪猪）- 根据体重改变大小
         const p = this.player;
-        // 根据体重调整大小（60kg->36px, 300kg->50px）
         const weightRatio = (p.displayWeight - 60) / 240;
         const sizeMultiplier = 1 + Math.min(weightRatio * 0.4, 0.4);
         const displaySize = p.size * sizeMultiplier;
-        
         ctx.fillStyle = this.charData.color;
-        ctx.beginPath();
-        ctx.roundRect(p.x, p.y, displaySize, displaySize, 8);
-        ctx.fill();
-
-        ctx.strokeStyle = this.charData.darkColor;
-        ctx.lineWidth = 3;
-        ctx.stroke();
-
-        ctx.font = '22px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+        ctx.beginPath(); ctx.roundRect(p.x, p.y, displaySize, displaySize, 8); ctx.fill();
+        ctx.strokeStyle = this.charData.darkColor; ctx.lineWidth = 3; ctx.stroke();
+        ctx.font = '22px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(p.isFlying ? '😤' : '🐷', p.x + displaySize/2, p.y + displaySize/2);
-
-        // 飞行特效
         if (p.isFlying) {
             ctx.fillStyle = this.charData.color + '60';
-            for (let i = 0; i < 5; i++) {
-                const px = p.x + displaySize/2 + (Math.random() - 0.5) * 40;
-                const py = p.y + displaySize + Math.random() * 30;
-                ctx.beginPath();
-                ctx.arc(px, py, 3 + Math.random() * 5, 0, Math.PI * 2);
-                ctx.fill();
+            for (let i=0; i<5; i++) {
+                const px = p.x + displaySize/2 + (Math.random()-0.5)*40;
+                const py = p.y + displaySize + Math.random()*30;
+                ctx.beginPath(); ctx.arc(px, py, 3+Math.random()*5, 0, Math.PI*2); ctx.fill();
             }
         }
     }
 
     updateUI(timeLeft) {
-        if (this.fallen) return;  // 摔出后不再更新UI
-        if (this.eliminated) return;
-
+        if (this.fallen || this.eliminated) return;
         const weightEl = this.container.querySelector('.player-weight');
-        if (weightEl) {
-            // 显示当前体重，保留1位小数
-            weightEl.textContent = this.player.displayWeight.toFixed(1) + 'kg';
-        }
-
+        if (weightEl) weightEl.textContent = this.player.displayWeight.toFixed(1) + 'kg';
         const timerEl = this.container.querySelector('.player-timer');
-        if (timerEl) {
-            timerEl.textContent = Math.ceil(timeLeft);
-        }
+        if (timerEl) timerEl.textContent = Math.ceil(timeLeft);
     }
 }
+
+CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    this.moveTo(x + r, y);
+    this.lineTo(x + w - r, y);
+    this.quadraticCurveTo(x + w, y, x + w, y + r);
+    this.lineTo(x + w, y + h - r);
+    this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    this.lineTo(x + r, y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - r);
+    this.lineTo(x, y + r);
+    this.quadraticCurveTo(x, y, x + r, y);
+    return this;
+};
 
 // --- 输入处理 ---
 window.addEventListener('keydown', (e) => {
     keys[e.code] = true;
-
     if (e.key === 'a' || e.key === 'A') keys['KeyA'] = true;
     if (e.key === 'd' || e.key === 'D') keys['KeyD'] = true;
     if (e.key === 'j' || e.key === 'J') keys['KeyJ'] = true;
     if (e.key === 'l' || e.key === 'L') keys['KeyL'] = true;
     if (e.key === '4') keys['Digit4'] = true;
     if (e.key === '6') keys['Digit6'] = true;
-
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
-        e.preventDefault();
-    }
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
 });
-
 window.addEventListener('keyup', (e) => {
     keys[e.code] = false;
-
     if (e.key === 'a' || e.key === 'A') keys['KeyA'] = false;
     if (e.key === 'd' || e.key === 'D') keys['KeyD'] = false;
     if (e.key === 'j' || e.key === 'J') keys['KeyJ'] = false;
@@ -1098,21 +685,17 @@ window.addEventListener('keyup', (e) => {
 function createPlayerScreens(mode) {
     const container = document.getElementById('screens-container');
     container.innerHTML = '';
-
     const layoutClass = mode === 1 ? 'single' : (mode === 2 ? 'dual' : 'quad');
-
     for (let i = 0; i < mode; i++) {
         const char = CHARACTERS[i];
         const screenDiv = document.createElement('div');
         screenDiv.className = `player-screen ${layoutClass}`;
         screenDiv.id = `player-screen-${i}`;
-
         let controlText = '';
         if (char.id === 'lian') controlText = 'A / D';
         else if (char.id === 'zeyin') controlText = '← / →';
         else if (char.id === 'lumi') controlText = 'J / L';
         else if (char.id === 'zhixiao') controlText = '4 / 6';
-
         screenDiv.innerHTML = `
             <div class="canvas-wrapper" style="width:100%;height:100%;"></div>
             <div class="screen-overlay">
@@ -1121,37 +704,22 @@ function createPlayerScreens(mode) {
                     <div class="player-weight" style="color:${char.color}">${char.baseWeight.toFixed(1)}kg</div>
                 </div>
                 <div class="player-timer">60</div>
-                <div class="controls-hint">
-                    ${controlText} 抢食 | ${char.item}饲料+重 ${char.bomb}激素暴走
-                </div>
+                <div class="controls-hint">${controlText} 抢食 | ${char.item}饲料+重 ${char.bomb}激素暴走</div>
             </div>
         `;
-
         container.appendChild(screenDiv);
     }
-
     if (mode === 4) {
-        const vLine = document.createElement('div');
-        vLine.className = 'divider-line divider-v';
-        vLine.style.left = '50%';
-        container.appendChild(vLine);
-
-        const hLine = document.createElement('div');
-        hLine.className = 'divider-line divider-h';
-        hLine.style.top = '50%';
-        container.appendChild(hLine);
+        const vLine = document.createElement('div'); vLine.className = 'divider-line divider-v'; vLine.style.left = '50%'; container.appendChild(vLine);
+        const hLine = document.createElement('div'); hLine.className = 'divider-line divider-h'; hLine.style.top = '50%'; container.appendChild(hLine);
     } else if (mode === 2) {
-        const line = document.createElement('div');
-        line.className = 'divider-line divider-v';
-        line.style.left = '50%';
-        container.appendChild(line);
+        const line = document.createElement('div'); line.className = 'divider-line divider-v'; line.style.left = '50%'; container.appendChild(line);
     }
 }
 
 function startGame(mode) {
     PUPU_SOUND.init();
     currentMode = mode;
-
     keys = {};
     game.eliminatedCount = 0;
 
@@ -1177,35 +745,22 @@ function startGame(mode) {
 
 function gameLoop(timestamp) {
     if (game.status !== 'PLAYING') return;
-
     const dt = timestamp - game.lastTime;
     game.lastTime = timestamp;
-
     game.timeLeft -= dt / 1000;
 
     const globalTimer = document.getElementById('global-timer');
     globalTimer.textContent = Math.ceil(game.timeLeft);
-    if (game.timeLeft <= 10) {
-        globalTimer.classList.add('warning');
-    }
+    if (game.timeLeft <= 10) globalTimer.classList.add('warning');
 
     let activePlayers = 0;
     for (let player of game.players) {
-        // 只有未摔出且未被淘汰的玩家才更新
-        if (!player.fallen && !player.eliminated) {
-            player.update();
-            activePlayers++;
-        }
-        // 所有玩家都绘制（摔出的显示冻结帧）
+        if (!player.fallen && !player.eliminated) { player.update(); activePlayers++; }
         player.draw();
         player.updateUI(game.timeLeft);
     }
 
-    if (game.timeLeft <= 0 || activePlayers === 0) {
-        gameOver();
-        return;
-    }
-
+    if (game.timeLeft <= 0 || activePlayers === 0) { gameOver(); return; }
     requestAnimationFrame(gameLoop);
 }
 
@@ -1218,57 +773,39 @@ function gameOver() {
     document.getElementById('main-ui').style.background = 'rgba(0,0,0,0.85)';
     document.getElementById('game-over-screen').classList.add('active');
 
-    // 按最终体重排序
     const results = [...game.players].sort((a, b) => {
-        const weightA = a.eliminated ? a.finalWeight : (a.fallen ? a.finalWeight : a.player.displayWeight);
-        const weightB = b.eliminated ? b.finalWeight : (b.fallen ? b.finalWeight : b.player.displayWeight);
-        return weightB - weightA;
+        const wA = a.eliminated ? a.finalWeight : (a.fallen ? a.finalWeight : a.player.displayWeight);
+        const wB = b.eliminated ? b.finalWeight : (b.fallen ? b.finalWeight : b.player.displayWeight);
+        return wB - wA;
     });
 
     const grid = document.getElementById('result-grid');
     grid.innerHTML = '';
-
     const medals = ['🥇', '🥈', '🥉', '4th'];
-
     results.forEach((p, i) => {
         const weight = p.eliminated ? p.finalWeight : (p.fallen ? p.finalWeight : p.player.displayWeight);
-        const isEliminated = p.eliminated;
-        const isFallen = p.fallen;
+        const isEliminated = p.eliminated; const isFallen = p.fallen;
         const gain = weight - p.charData.baseWeight;
-
         const card = document.createElement('div');
-        
-        if (isFallen) {
-            card.className = 'result-card fallen';
-        } else if (isEliminated) {
-            card.className = 'result-card eliminated';
-        } else {
-            card.className = 'result-card';
-        }
-        
+        if (isFallen) card.className = 'result-card fallen';
+        else if (isEliminated) card.className = 'result-card eliminated';
+        else card.className = 'result-card';
         card.style.borderColor = (isFallen || isEliminated) ? '#999' : p.charData.color;
-
         let statusText;
-        if (isFallen) {
-            statusText = '💨 摔出猪圈';
-        } else if (isEliminated) {
-            statusText = '🥓 提前出栏';
-        } else {
-            statusText = game.timeLeft <= 0 ? '⏰ 时间到' : '✅ 存活';
-        }
-
+        if (isFallen) statusText = '💨 摔出猪圈';
+        else if (isEliminated) statusText = '🥓 提前出栏';
+        else statusText = game.timeLeft <= 0 ? '⏰ 时间到' : '✅ 存活';
         const grade = weight >= 200 ? '特级肥猪' : (weight >= 150 ? '一级肥猪' : (weight >= 120 ? '二级肥猪' : '还需喂养'));
-
         card.innerHTML = `
             <div class="result-rank">${medals[i]}</div>
             <div class="result-info">
-                <div class="result-name" style="color:${(isFallen || isEliminated) ? '#666' : p.charData.darkColor}">
-                    ${p.charData.name} ${isFallen ? '(摔出)' : (isEliminated ? '(出栏)' : '')}
+                <div class="result-name" style="color:${(isFallen||isEliminated)?'#666':p.charData.darkColor}">
+                    ${p.charData.name} ${isFallen?'(摔出)':(isEliminated?'(出栏)':'')}
                 </div>
                 <div class="result-detail">${p.charData.breed} | ${statusText} | 增重: +${gain.toFixed(1)}kg</div>
                 <div class="result-detail" style="color:#888; font-size:10px;">${p.charData.trait}</div>
             </div>
-            <div class="result-score" style="color:${(isFallen || isEliminated) ? '#999' : p.charData.color}">
+            <div class="result-score" style="color:${(isFallen||isEliminated)?'#999':p.charData.color}">
                 ${weight.toFixed(1)}kg
                 <div style="font-size:10px; color:#666; font-weight:normal;">${grade}</div>
             </div>
@@ -1290,14 +827,7 @@ function restartSameMode() {
     startGame(currentMode);
 }
 
-window.addEventListener('resize', () => {
-    if (game.status === 'PLAYING') {
-        for (let player of game.players) {
-            player.canvas.width = player.container.clientWidth;
-            player.canvas.height = player.container.clientHeight;
-        }
-    }
-});
+// 无resize监听，保持固定尺寸
 </script>
 </body>
 </html>

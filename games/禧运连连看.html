@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>禧运连连看</title>
+    <!-- 引入图片列表数据（注意路径：上一级） -->
+    <script src="../filelist.js"></script>
+    <style>
+        /* 样式保持不变（可自行复制之前样式） */
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Microsoft YaHei',sans-serif; background:linear-gradient(135deg,#ffeaa7 0%,#fab1a0 100%); display:flex; flex-direction:column; align-items:center; min-height:100vh; padding:20px; }
+        h1 { color:#d63031; margin-bottom:20px; text-shadow:2px 2px 4px rgba(0,0,0,0.1); font-size:2.5em; }
+        .menu { background-color:rgba(255,255,255,0.95); padding:30px; border-radius:15px; box-shadow:0 8px 16px rgba(0,0,0,0.15); margin-bottom:20px; width:100%; max-width:600px; text-align:center; border:3px solid #fdcb6e; }
+        .menu h2 { color:#e17055; margin-bottom:20px; }
+        .menu button { font-size:18px; padding:15px 30px; margin:10px; border:none; border-radius:8px; cursor:pointer; transition:all 0.3s ease; font-weight:bold; width:80%; }
+        .btn-easy { background-color:#55efc4; color:#00b894; }
+        .btn-medium { background-color:#ffeaa7; color:#fdcb6e; }
+        .btn-hard { background-color:#ff7675; color:#d63031; }
+        .btn-hell { background-color:#a29bfe; color:#6c5ce7; }
+        .menu button:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+        .game-info { font-size:20px; color:#2d3436; margin-bottom:15px; width:100%; max-width:800px; text-align:center; background:rgba(255,255,255,0.9); padding:15px; border-radius:10px; }
+        #timer { font-weight:bold; color:#d63031; font-size:1.2em; }
+        #game-board { display:grid; gap:8px; justify-content:center; background:linear-gradient(135deg,#fdcb6e 0%,#e17055 100%); padding:15px; border-radius:10px; box-shadow:0 8px 16px rgba(0,0,0,0.2); }
+        .tile { width:80px; height:80px; object-fit:cover; border-radius:8px; cursor:pointer; transition:all 0.3s ease; border:3px solid transparent; background-color:#fff; }
+        .tile:hover { transform:scale(1.05); box-shadow:0 4px 8px rgba(0,0,0,0.2); }
+        .tile.selected { border:3px solid #0984e3; box-shadow:0 0 15px rgba(9,132,227,0.6); transform:scale(1.1); }
+        .tile.matched { visibility:hidden; opacity:0; transition:all 0.3s ease; }
+        .hidden { display:none; }
+        #message { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background-color:rgba(255,255,255,0.98); padding:40px 60px; border-radius:15px; box-shadow:0 8px 25px rgba(0,0,0,0.3); font-size:28px; text-align:center; z-index:100; border:4px solid; animation:popIn 0.3s ease; }
+        @keyframes popIn { 0% { transform:translate(-50%,-50%) scale(0.8); opacity:0; } 100% { transform:translate(-50%,-50%) scale(1); opacity:1; } }
+        .win { color:#00b894; border-color:#00b894; background:linear-gradient(135deg,#55efc4 0%,#00b894 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:bold; }
+        .lose { color:#d63031; border-color:#d63031; }
+        button[onclick="resetGame()"] { background-color:#74b9ff; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-size:16px; margin-top:10px; transition:all 0.3s; }
+        button[onclick="resetGame()"]:hover { background-color:#0984e3; }
+    </style>
+</head>
+<body>
+
+    <h1>🎊 禧运连连看 🎊</h1>
+
+    <div class="menu" id="start-menu">
+        <h2>请选择难度</h2>
+        <button class="btn-easy" onclick="startGame('easy')">初级 (50对, 5分钟)</button>
+        <button class="btn-medium" onclick="startGame('medium')">中级 (100对, 8分钟)</button>
+        <button class="btn-hard" onclick="startGame('hard')">高级 (150对, 10分钟)</button>
+        <button class="btn-hell" onclick="startGame('hell')">地狱级 (250对, 12分钟)</button>
+    </div>
+
+    <div class="game-info hidden" id="info-panel">
+        <p>⏰ 剩余时间: <span id="timer">00:00</span> | 🎯 剩余图片: <span id="count">0</span></p>
+        <button onclick="resetGame()">返回主菜单</button>
+    </div>
+
+    <div id="game-board" class="hidden"></div>
+
+    <script>
+        // 游戏配置
+        const config = {
+            easy: { pairs: 50, time: 5 * 60, cols: 10, tileSize: 80 },
+            medium: { pairs: 100, time: 8 * 60, cols: 10, tileSize: 70 },
+            hard: { pairs: 150, time: 10 * 60, cols: 15, tileSize: 65 },
+            hell: { pairs: 250, time: 12 * 60, cols: 20, tileSize: 60 }
+        };
+
+        let board = [];
+        let imagesInPlay = [];
+        let selectedTiles = [];
+        let timer;
+        let timeLeft;
+        let gameActive = false;
+        let processing = false; // 防止在动画期间点击
+
+        // ============================================
+        // 获取图片列表：优先使用 hdData，不足则从 clothesData 补充
+        // ============================================
+        function getImageSources() {
+            // 检查 filelist.js 是否加载成功
+            if (!window.hdData || !window.clothesData) {
+                console.error('❌ filelist.js 未正确加载！请检查路径。');
+                return { hdImages: [], clothesImages: [] };
+            }
+
+            // 构建 hdData 图片路径（角色表情包）
+            const hdImages = [];
+            for (const [role, filenames] of Object.entries(window.hdData)) {
+                for (const filename of filenames) {
+                    hdImages.push(`../HD/${role}/${filename}`);
+                }
+            }
+
+            // 构建 clothesData 图片路径（服装分类）
+            const clothesImages = [];
+            for (const [category, filenames] of Object.entries(window.clothesData)) {
+                for (const filename of filenames) {
+                    clothesImages.push(`../HD/clothes/${category}/${filename}`);
+                }
+            }
+
+            console.log(`📸 角色表情包数量: ${hdImages.length}`);
+            console.log(`👗 服装图片数量: ${clothesImages.length}`);
+            return { hdImages, clothesImages };
+        }
+
+        // 生成在线占位图（最后备选）
+        function generateDummyImages(n) {
+            const dummyPaths = [];
+            for (let i = 1; i <= n; i++) {
+                dummyPaths.push(`https://picsum.photos/seed/li${i}/200/200.jpg`);
+            }
+            return dummyPaths;
+        }
+
+        // 获取用于游戏的不同图片种类（优先 hd，不足从 clothes 随机补）
+        function getDistinctImagesForGame(requiredPairs) {
+            const { hdImages, clothesImages } = getImageSources();
+
+            // 如果 hd 足够，直接从 hd 中随机取 requiredPairs 张
+            if (hdImages.length >= requiredPairs) {
+                console.log(`✅ 角色表情包足够 (${hdImages.length} >= ${requiredPairs})，仅使用表情包。`);
+                return getRandomSubarray(hdImages, requiredPairs);
+            }
+
+            // hd 不足，全部保留，再从 clothes 中随机抽取缺少的数量
+            const neededFromClothes = requiredPairs - hdImages.length;
+            console.log(`⚠️ 角色表情包不足 (${hdImages.length}/${requiredPairs})，需要从服装中补充 ${neededFromClothes} 种。`);
+
+            if (clothesImages.length >= neededFromClothes) {
+                // 从 clothes 中随机取 neededFromClothes 种（不重复）
+                const clothesSelected = getRandomSubarray(clothesImages, neededFromClothes);
+                // 合并 hd 所有图片 + 选中的服装图片
+                const combined = [...hdImages, ...clothesSelected];
+                // 打乱顺序后返回
+                return shuffleArray(combined);
+            } else {
+                // clothes 也不足，全部取用，剩余用在线占位图
+                console.warn(`⚠️ 服装图片也不足 (${clothesImages.length}/${neededFromClothes})，将使用在线占位图补充。`);
+                const allLocal = [...hdImages, ...clothesImages];
+                const dummyNeeded = requiredPairs - allLocal.length;
+                const dummyImages = generateDummyImages(dummyNeeded);
+                return [...allLocal, ...dummyImages];
+            }
+        }
+
+        // 开始游戏
+        async function startGame(level) {
+            const settings = config[level];
+            if (!settings) return;
+
+            // 获取 requiredPairs 种不同的图片（每种后续会复制成一对）
+            const distinctImages = getDistinctImagesForGame(settings.pairs);
+            console.log(`🎯 选中的图片种类数: ${distinctImages.length} (应为 ${settings.pairs})`);
+
+            // 每种图片复制一份，生成成对数组
+            imagesInPlay = distinctImages.flatMap(img => [img, img]);
+            shuffleArray(imagesInPlay);
+
+            console.log(`🃏 游戏板图片总数: ${imagesInPlay.length} (应为 ${settings.pairs*2})`);
+
+            // 初始化游戏状态
+            board = imagesInPlay.map((src, index) => ({ 
+                src: src, 
+                matched: false,
+                id: index 
+            }));
+
+            timeLeft = settings.time;
+            selectedTiles = [];
+            gameActive = true;
+            processing = false;
+
+            // 更新UI
+            document.getElementById('start-menu').classList.add('hidden');
+            document.getElementById('info-panel').classList.remove('hidden');
+            document.getElementById('game-board').classList.remove('hidden');
+            document.getElementById('count').textContent = board.length;
+
+            const gameBoardElement = document.getElementById('game-board');
+            gameBoardElement.innerHTML = '';
+            gameBoardElement.style.gridTemplateColumns = `repeat(${settings.cols}, ${settings.tileSize}px)`;
+
+            // 渲染游戏板
+            for (let i = 0; i < board.length; i++) {
+                const tile = document.createElement('img');
+                tile.src = board[i].src;
+                tile.classList.add('tile');
+                tile.dataset.index = i;
+                tile.style.width = settings.tileSize + 'px';
+                tile.style.height = settings.tileSize + 'px';
+                
+                // 添加错误处理，如果图片加载失败使用占位图
+                tile.onerror = function() {
+                    if (!this.src.includes('picsum.photos')) {
+                        console.warn(`图片加载失败: ${this.src}`);
+                        this.src = `https://picsum.photos/seed/backup${i}/200/200.jpg`;
+                    }
+                };
+                
+                tile.addEventListener('click', () => selectTile(i));
+                gameBoardElement.appendChild(tile);
+            }
+
+            startTimer();
+        }
+
+        // 选择图片
+        function selectTile(index) {
+            if (!gameActive || board[index].matched || processing || selectedTiles.includes(index)) return;
+
+            const tileElement = document.querySelector(`.tile[data-index="${index}"]`);
+            tileElement.classList.add('selected');
+            selectedTiles.push(index);
+
+            if (selectedTiles.length === 2) {
+                checkMatch();
+            }
+        }
+
+        // 检查匹配
+        function checkMatch() {
+            processing = true;
+
+            const [firstIndex, secondIndex] = selectedTiles;
+            if (firstIndex === secondIndex) {
+                document.querySelectorAll('.tile.selected').forEach(el => el.classList.remove('selected'));
+                selectedTiles = [];
+                processing = false;
+                return;
+            }
+
+            const firstSrc = board[firstIndex].src;
+            const secondSrc = board[secondIndex].src;
+            
+            // 提取文件名进行比较
+            const isMatch = getFilename(firstSrc) === getFilename(secondSrc);
+
+            if (isMatch) {
+                board[firstIndex].matched = true;
+                board[secondIndex].matched = true;
+                
+                setTimeout(() => {
+                    document.querySelectorAll('.tile.selected').forEach(el => {
+                        el.classList.add('matched');
+                        el.classList.remove('selected');
+                    });
+                    document.getElementById('count').textContent = board.filter(t => !t.matched).length;
+                    
+                    if (checkWin()) {
+                        endGame(true);
+                    }
+                    processing = false;
+                }, 300);
+            } else {
+                setTimeout(() => {
+                    document.querySelectorAll('.tile.selected').forEach(el => {
+                        el.classList.remove('selected');
+                    });
+                    processing = false;
+                }, 800);
+            }
+            selectedTiles = [];
+        }
+
+        function getFilename(path) {
+            return path.split('/').pop().split('\\').pop();
+        }
+
+        function checkWin() {
+            return board.every(tile => tile.matched);
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            updateTimerDisplay();
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) {
+                    endGame(false);
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const seconds = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+            if (timeLeft < 30) {
+                document.getElementById('timer').style.animation = 'blink 1s infinite';
+            } else {
+                document.getElementById('timer').style.animation = '';
+            }
+        }
+
+        function endGame(isWin) {
+            gameActive = false;
+            processing = false;
+            clearInterval(timer);
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.id = "message";
+            
+            if (isWin) {
+                const usedTime = config[currentLevel].time - timeLeft;
+                const minutes = Math.floor(usedTime / 60);
+                const seconds = usedTime % 60;
+                messageDiv.className = "win";
+                messageDiv.innerHTML = `🎉 恭喜通关！<br><small>用时: ${minutes}分${seconds}秒</small>`;
+            } else {
+                messageDiv.className = "lose";
+                messageDiv.innerHTML = "😢 时间到！<br><small>游戏结束</small>";
+            }
+            
+            document.body.appendChild(messageDiv);
+            setTimeout(() => {
+                messageDiv.remove();
+                resetGame();
+            }, 3000);
+        }
+
+        function resetGame() {
+            clearInterval(timer);
+            gameActive = false;
+            processing = false;
+            document.getElementById('start-menu').classList.remove('hidden');
+            document.getElementById('info-panel').classList.add('hidden');
+            document.getElementById('game-board').classList.add('hidden');
+            document.getElementById('timer').style.animation = '';
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function getRandomSubarray(arr, size) {
+            if (size > arr.length) size = arr.length;
+            const shuffled = [...arr];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled.slice(0, size);
+        }
+
+        let currentLevel = 'easy';
+        const originalStartGame = startGame;
+        startGame = function(level) {
+            currentLevel = level;
+            return originalStartGame(level);
+        };
+    </script>
+</body>
+</html>
