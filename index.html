@@ -437,6 +437,24 @@
             gap: 25px;
             margin: 2rem 0;
         }
+        /* 游戏区和周边区强制每行四个 (覆盖 auto-fit) */
+        #games .game-grid,
+        #merch .game-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        @media (max-width: 900px) {
+            #games .game-grid,
+            #merch .game-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 500px) {
+            #games .game-grid,
+            #merch .game-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .game-card {
             background: #f5f7fa;
             border-radius: 28px;
@@ -445,9 +463,50 @@
             cursor: pointer;
             transition: 0.2s;
             border: 1px solid #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .game-card:hover { background: #ffffff; box-shadow: 0 15px 25px rgba(0,0,0,0.1); transform: translateY(-5px); }
-        .game-icon { width: 90px; height: 90px; border-radius: 30px; object-fit: cover; margin-bottom: 1rem; }
+        .game-icon { width: 120px; height: 120px; border-radius: 30px; object-fit: cover; margin-bottom: 1rem; }
+
+        /* 周边区下载按钮 */
+        .download-btn {
+            background: #d74177;
+            color: white;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 40px;
+            font-family: 'Fira Code', monospace;
+            font-weight: 500;
+            margin-top: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .download-btn:hover {
+            background: #ff7aa2;
+            transform: scale(1.05);
+        }
+
+        /* 游戏卡片内的介绍和标注样式 */
+        .game-desc {
+            font-size: 0.85rem;
+            color: #555;
+            margin: 4px 0 2px;
+            line-height: 1.4;
+        }
+        .game-label {
+            font-size: 0.75rem;
+            background: #f0eef3;
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin: 6px 0 4px;
+            color: #d74177;
+            font-weight: 500;
+            border: 1px solid #ffd4e0;
+        }
 
         /* 二创横向滚动 */
         .fanworks-scroll {
@@ -481,11 +540,46 @@
         }
         .social-avatars a img:hover { transform: scale(1.1); }
 
-        .question-buttons { display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; margin: 20px 0; }
-        .question-btn { background: #d74177; color: white; border: none; padding: 12px; border-radius: 50px; font-weight: 600; cursor: pointer; }
-        .answer-input { width: 100%; padding: 14px; border-radius: 60px; border: 1px solid #ccc; margin: 10px 0; font-family: inherit; }
-        .submit-btn { background: #27ae60; color: white; border: none; padding: 14px; border-radius: 60px; width: 100%; font-weight: bold; cursor: pointer; }
-        .error-message { color: red; display: none; }
+        /* 一级问题新样式：四个输入框 */
+        .primary-quiz-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 15px 10px;
+            align-items: center;
+            margin: 20px 0;
+            background: rgba(255,255,255,0.6);
+            padding: 25px;
+            border-radius: 40px;
+        }
+        .primary-quiz-grid label {
+            font-weight: 600;
+            color: #d74177;
+            text-align: right;
+        }
+        .primary-quiz-grid input {
+            padding: 12px 18px;
+            border-radius: 60px;
+            border: 1px solid #f0b0c0;
+            font-family: inherit;
+            width: 100%;
+        }
+        .primary-submit {
+            grid-column: 2 / 3;
+            background: #d74177;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 60px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+        .error-message {
+            grid-column: 1 / 3;
+            color: red;
+            display: none;
+            text-align: center;
+        }
 
         /* 弹窗 */
         .modal, .video-modal { display: none; position: fixed; z-index: 2000; left:0; top:0; width:100%; height:100%; background: rgba(0,0,0,0.7); }
@@ -532,6 +626,126 @@
             width: 100%;
         }
 
+        /* 二级问答及禧运宇宙卡片 */
+        .second-level-quiz {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255,240,245,0.7);
+            border-radius: 40px;
+        }
+        .birthday-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 60px;
+        }
+        .birthday-member {
+            font-weight: 700;
+            min-width: 80px;
+            color: #d74177;
+        }
+        .birthday-input {
+            flex: 2;
+            min-width: 150px;
+            padding: 10px 18px;
+            border-radius: 40px;
+            border: 1px solid #f0b0c0;
+            font-family: inherit;
+        }
+        .birthday-btn {
+            background: #d74177;
+            color: white;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .birthday-btn:hover { background: #ff7aa2; }
+        .birthday-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* 三级问题区域样式 - 粉丝牌输入 */
+        .fan-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 60px;
+        }
+        .fan-member {
+            font-weight: 700;
+            min-width: 80px;
+            color: #d74177;
+        }
+        .fan-input {
+            flex: 2;
+            min-width: 150px;
+            padding: 10px 18px;
+            border-radius: 40px;
+            border: 1px solid #f0b0c0;
+            font-family: inherit;
+        }
+
+        /* 老头卡片区域 */
+        .universe-elders {
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .elder-card {
+            background: #fff9fb;
+            border-radius: 30px;
+            padding: 20px 10px;
+            text-align: center;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+            border: 2px solid white;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .elder-card:hover { transform: scale(1.02); border-color: #d74177; }
+        .elder-card img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; }
+        .elder-name { font-weight: 700; color: #2c3e50; }
+        .elder-desc { font-size: 0.8rem; color: #7f8c8d; }
+
+        /* 特殊双人卡片行 —— 夜蝶紫调 */
+        .special-elder-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            margin: 30px 0 10px;
+        }
+        .special-elder-row .elder-card {
+            background: #5a189a;  /* 深紫色底 */
+            color: #f5b9ff;       /* 紫粉色文字 */
+            border: 2px solid #b57edc;
+            width: 200px;
+            flex: 0 0 auto;
+            transition: 0.2s;
+        }
+        .special-elder-row .elder-card:hover {
+            border-color: #ffb3c6;
+            background: #6a1fb1;
+        }
+        .special-elder-row .elder-card .elder-name,
+        .special-elder-row .elder-card .elder-desc {
+            color: inherit;  /* 继承紫粉色 */
+        }
+        .special-elder-row .elder-card img {
+            border-color: #f5b9ff;
+        }
+
         footer {
             text-align: center; padding: 2rem; background: rgba(255,255,255,0.8); backdrop-filter: blur(8px); border-radius: 60px 60px 0 0; margin-top: 3rem;
         }
@@ -550,7 +764,7 @@
     <!-- 固定背景层 -->
     <div class="background-layer"></div>
 
-    <!-- 导航 -->
+    <!-- 导航 (增加宇宙英雄) -->
     <nav>
         <h1><a href="#">四禧丸子 · 禧运楼</a></h1>
         <ul>
@@ -560,8 +774,10 @@
             <li><a href="#work">音乐作品</a></li>
             <li><a href="#others">荣誉里程碑</a></li>
             <li><a href="#games">游戏区</a></li>
+            <li><a href="#merch">周边区</a></li>
             <li><a href="#hd">HD画册</a></li>
             <li><a href="#clothes">服饰展示</a></li>
+            <li><a href="#universe-heroes">宇宙英雄</a></li>
             <li><a href="#contact">社交平台</a></li>
         </ul>
     </nav>
@@ -579,7 +795,7 @@
 
     <!-- 主内容 -->
     <main>
-        <!-- 成员介绍 -->
+        <!-- 成员介绍 (完整保留) -->
         <section id="about">
             <h2>✨ 成员介绍</h2>
             <div class="member-grid">
@@ -638,7 +854,7 @@
             </div>
         </section>
 
-        <!-- 核心能力 -->
+        <!-- 核心能力 (保持不变) -->
         <section id="skills" class="skills-section">
             <h2>⚡ 核心能力</h2>
             <div class="card">
@@ -689,7 +905,7 @@
             </div>
         </section>
 
-        <!-- 入坑必刷 -->
+        <!-- 入坑必刷 (保持不变) -->
         <section id="portfolio">
             <h2>🎬 入坑必刷</h2>
             <div class="portfolio-container">
@@ -701,10 +917,14 @@
                 <div class="card" onclick="openVideo('BV15X5nzBEcK')"><img src="images/现代医学奇迹！.jpg"><div class="card-body"><h5>复播3D</h5><p>2025.4.18</p></div></div>
                 <div class="card" onclick="openVideo('BV125MXzAEyH')"><img src="images/丸全随机事件.jpg"><div class="card-body"><h5>BW神人事件</h5><p>2025.7.12</p></div></div>
                 <div class="card" onclick="openVideo('BV1KCS7BDEAf')"><img src="images/谁是丸子王.jpg"><div class="card-body"><h5>智斗巅峰</h5><p>2025.11.28</p></div></div>
+                <div class="card" onclick="openVideo('BV1qnMczTERm')"><img src="images/哈雪大冒险.jpg"><div class="card-body"><h5>又一成名作</h5><p>哈吉米啊</p></div></div>
+                <div class="card" onclick="openVideo('BV1pmWDzdEw9')"><img src="images/日灶.jpg"><div class="card-body"><h5>梨安代表作</h5><p>没噗噗啊</p></div></div>
+                <div class="card" onclick="openVideo('BV14a4y1c7Po')"><img src="images/欺负我.jpg"><div class="card-body"><h5>恬豆包杰作</h5><p>发面团啊</p></div></div>
+                <div class="card" onclick="openVideo('BV1oC4y157CE')"><img src="images/牛魔.jpg"><div class="card-body"><h5>123412</h5><p>11,233</p></div></div>
             </div>
         </section>
 
-        <!-- 音乐作品 -->
+        <!-- 音乐作品 (保持不变) -->
         <section id="work">
             <h2>🎵 音乐作品</h2>
             <div class="tabs">
@@ -741,7 +961,7 @@
                         <div class="member-name">🐷梨安</div>
                         <div class="song-card" onclick="openVideo('BV18G4y1c7pQ')"><img class="song-cover" src="images/危险界限.jpg"><div class="song-info"><div class="song-title">危险界限</div></div></div>
                         <div class="song-card" onclick="openVideo('BV1wK411v7mb')"><img class="song-cover" src="images/恋爱单日券.jpg"><div class="song-info"><div class="song-title">恋爱单日券</div></div></div>
-                        <div class="song-card" onclick="openVideo('BV1E3PizxEwU')"><img class="song-cover" src="images/暗里生花.jpg"><div class="song-info"><div class="song-title">暗里生花(试听版)</div></div></div>
+                        <div class="song-card" onclick="openVideo('BV1n7P9zLEhM')"><img class="song-cover" src="images/暗里生花.jpg"><div class="song-info"><div class="song-title">暗里生花</div></div></div>
                     </div>
                     <!-- 沐霂 -->
                     <div class="member-section">
@@ -762,7 +982,7 @@
             </div>
         </section>
 
-        <!-- 荣誉里程碑 -->
+        <!-- 荣誉里程碑 (保持不变) -->
         <section id="others">
             <h2>🏆 荣誉里程碑</h2>
             <div class="timeline">
@@ -785,36 +1005,118 @@
             </div>
         </section>
 
-        <!-- 游戏区 + 二创 -->
+        <!-- 游戏区 (每行四个卡片) + 二创 -->
         <section id="games">
             <h2>🎮 游戏区</h2>
             <div class="game-grid">
-                <div class="game-card" onclick="openGame('games/小豆剪刘海威力加强版.html')"><img class="game-icon" src="images/小豆剪刘海.jpg"><div class="game-name">小豆剪刘海</div></div>
-                <div class="game-card" onclick="openGame('games/小梨爱做饭.html')"><img class="game-icon" src="images/小梨爱做饭.jpg"><div class="game-name">小梨爱做饭</div></div>
-                <div class="game-card" onclick="openGame('games/小沐要长高V1.0.html')"><img class="game-icon" src="images/小沐要长高.jpg"><div class="game-name">小沐要长高</div></div>
-                <div class="game-card" onclick="openGame('games/小又致富经.html')"><img class="game-icon" src="images/小又致富经.jpg"><div class="game-name">小又致富经</div></div>
-                <div class="game-card" onclick="openGame('games/四区姐妹/四区姐妹.html')"><img class="game-icon" src="images/四区姐妹.png"><div class="game-name">四区姐妹</div></div> 
-                <div class="game-card" onclick="openGame('games/猪猪出栏争霸赛.html')"><img class="game-icon" src="images/猪猪出栏争霸赛.png"><div class="game-name">猪猪出栏争霸赛</div></div>          
+                <!-- 小豆剪刘海 -->
+                <div class="game-card" onclick="openGame('games/小豆剪刘海威力加强版.html')">
+                    <img class="game-icon" src="images/小豆剪刘海.jpg" alt="小豆剪刘海">
+                    <div class="game-name">小豆剪刘海</div>
+                    <div class="game-name">我陈恬豆聪明绝顶</div>
+                    <div class="game-desc">✨ 小豆的刘海可真厉害~</div>
+                    <div class="game-label">#满30-12 #会当凌绝顶</div>
+                </div>
+                <!-- 小梨爱做饭 -->
+                <div class="game-card" onclick="openGame('games/小梨爱做饭.html')">
+                    <img class="game-icon" src="images/小梨爱做饭.jpg" alt="小梨爱做饭">
+                    <div class="game-name">小梨爱做饭</div>
+                    <div class="game-name">测测你是不是又一是P</div>
+                    <div class="game-desc">🍐 小梨大厨上任咯~</div>
+                    <div class="game-label">#禧运楼特供 #盲盒料理🐷🍐</div>
+                </div>
+                <!-- 小沐要长高 -->
+                <div class="game-card" onclick="openGame('games/小沐要长高V1.0.html')">
+                    <img class="game-icon" src="images/小沐要长高.jpg" alt="小沐要长高">
+                    <div class="game-name">小沐要长高</div>
+                    <div class="game-name">我牛沐霂顶天立地</div>
+                    <div class="game-desc">🐮 小沐再也不想看到身高笑话了~</div>
+                    <div class="game-label">#167！！！ #👊👊👊👊👊</div>
+                </div>
+                <!-- 小又致富经 -->
+                <div class="game-card" onclick="openGame('games/小又致富经.html')">
+                    <img class="game-icon" src="images/小又致富经.jpg" alt="小又致富经">
+                    <div class="game-name">小又致富经</div>
+                    <div class="game-name">测测你是不是又一是P</div>
+                    <div class="game-desc">🐒 看小又如何靠捡纸壳子致富~</div>
+                    <div class="game-label">#邦邦邦 #来点米吧</div>
+                </div>
+                <!-- 四区姐妹 -->
+                <div class="game-card" onclick="openGame('games/四区姐妹/四区姐妹.html')">
+                    <img class="game-icon" src="images/四区姐妹.png" alt="四区姐妹">
+                    <div class="game-name">四区姐妹</div>
+                </div>
+                <!-- 猪猪出栏争霸赛 -->
+                <div class="game-card" onclick="openGame('games/猪猪出栏争霸赛.html')">
+                    <img class="game-icon" src="images/猪猪出栏争霸赛.jpg" alt="猪猪出栏争霸赛">
+                    <div class="game-name">猪猪出栏争霸赛</div>
+                </div>
+                <div class="game-card" onclick="openGame('games/禧运连连看.html')">
+                    <img class="game-icon" src="images/禧运连连看.jpg" alt="禧运连连看">
+                    <div class="game-name">禧运连连看</div>
+                </div>
+                <div class="game-card" onclick="openGame('games/禧运拼豆.html')">
+                    <img class="game-icon" src="images/禧运拼豆.jpg" alt="禧运拼豆">
+                    <div class="game-name">禧运拼豆</div>
+                </div>
             </div>
+
             <h3>优秀二创</h3>
             <div class="fanworks-scroll">
                 <div class="fan-item"><a href="https://www.bilibili.com/video/BV1uVzzBsEkH" target="_blank"><img src="images/禧運小剧场.jpg">禧运小剧场</a></div>
                 <div class="fan-item"><a href="https://www.bilibili.com/video/BV1MuffBtEf4" target="_blank"><img src="images/禧運樓小剧糖.jpg">禧运楼大饭堂</a></div>
                 <div class="fan-item"><a href="https://www.bilibili.com/video/BV1tdzDBsE9a" target="_blank"><img src="images/MMD.png">3D二创</a></div>
-                <div class="fan-item"><a href="https://www.bilibili.com/video/BV1J3BuBnEkb" target="_blank"><img src="images/ai剧场.png">CP手书</a></div>
+                <div class="fan-item"><a href="https://www.bilibili.com/video/BV1J3BuBnEkb" target="_blank"><img src="images/ai剧场.jpg">CP手书</a></div>
                 <div class="fan-item"><a href="https://www.bilibili.com/video/BV18g6wBREzp" target="_blank"><img src="images/丸和贵物二创.jpg">丸和贵物</a></div>
                 <div class="fan-item"><a href="https://www.bilibili.com/video/BV1EC411h7ZB" target="_blank"><img src="images/烟店的监守自盗.jpg">烟店的监守自盗</a></div>
+                <div class="fan-item"><a href="https://www.bilibili.com/video/BV1q1ZBBEEy1" target="_blank"><img src="images/虚环英雄传.jpg">虚环英雄传</a></div>
+                <div class="fan-item"><a href="https://www.bilibili.com/video/BV1726KB2EXn" target="_blank"><img src="images/《爱_又_阵_线_联_盟》.jpg">爱又阵线联盟</a></div>
+                <div class="fan-item"><a href="https://www.bilibili.com/video/BV1DQZWYBEs5" target="_blank"><img src="images/禧运宇宙.jpeg">平行宇宙</a></div>
+                <div class="fan-item"><a href="https://www.bilibili.com/video/BV1aDSqBmExa" target="_blank"><img src="images/《胃袋》.jpg">胃袋</a></div>
             </div>
         </section>
 
-        <!-- ========== HD 画册（两级浏览，数据由 filelist.js 提供） ========== -->
+        <!-- 周边区：鼠标指针下载 -->
+        <section id="merch">
+            <h2>🖱️鼠标指针@Dream41</h2>
+            <div class="game-grid">
+                <!-- 恬豆指针 -->
+                <div class="game-card">
+                    <i class="fas fa-mouse-pointer" style="font-size: 48px; margin-bottom: 10px; color: #A7C9D3;"></i>
+                    <div class="game-name">恬豆 · 发面之力</div>
+                    <div class="game-desc">发面栗子 & 发际线之力</div>
+                    <button class="download-btn" onclick="downloadPointer('tiandou')">下载 .zip</button>
+                </div>
+                <!-- 又一指针 -->
+                <div class="game-card">
+                    <i class="fas fa-mouse-pointer" style="font-size: 48px; margin-bottom: 10px; color: #E3BA09;"></i>
+                    <div class="game-name">又一 · 哈吉米</div>
+                    <div class="game-desc">大果村风格 / 小恶魔尾巴</div>
+                    <button class="download-btn" onclick="downloadPointer('youyi')">下载 .zip</button>
+                </div>
+                <!-- 沐霂指针 -->
+                <div class="game-card">
+                    <i class="fas fa-mouse-pointer" style="font-size: 48px; margin-bottom: 10px; color: #A1D29A;"></i>
+                    <div class="game-name">沐霂 · 159守护</div>
+                    <div class="game-desc">身高能量 / 拳力出击</div>
+                    <button class="download-btn" onclick="downloadPointer('mumu')">下载 .zip</button>
+                </div>
+                <!-- 梨安指针 -->
+                <div class="game-card">
+                    <i class="fas fa-mouse-pointer" style="font-size: 48px; margin-bottom: 10px; color: #E38691;"></i>
+                    <div class="game-name">梨安 · 胃袋力量</div>
+                    <div class="game-desc">手枪腿 / 干饭魂</div>
+                    <button class="download-btn" onclick="downloadPointer('lian')">下载 .zip</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- HD 画册（两级浏览） -->
         <section id="hd">
             <h2>📷 HD 画册</h2>
-            <!-- 文件夹列表视图（初始显示） -->
             <div id="hd-root" class="folder-view">
                 <div class="folder-grid game-grid" id="hd-folders"></div>
             </div>
-            <!-- 文件夹内图片视图（初始隐藏） -->
             <div id="hd-folder-view" class="folder-view" style="display: none;">
                 <div class="back-bar">
                     <button class="back-btn" onclick="showHDRoot()">← 返回上级</button>
@@ -824,7 +1126,7 @@
             </div>
         </section>
 
-        <!-- ========== 服饰展示（两级浏览，数据由 filelist.js 提供） ========== -->
+        <!-- 服饰展示（两级浏览） -->
         <section id="clothes">
             <h2>👗 服饰展示</h2>
             <div id="clothes-root" class="folder-view">
@@ -839,30 +1141,105 @@
             </div>
         </section>
 
-        <!-- 社交平台 -->
+        <!-- ========== 新增：禧运宇宙英雄 (动态生成) ========== -->
+        <section id="universe-heroes">
+            <h2>🌌 禧运宇宙英雄</h2>
+            <div class="game-grid" id="heroes-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));"></div>
+            <p style="text-align:center; color:#555;">✨ 更多联动英雄持续解锁中 ✨</p>
+        </section>
+
+        <!-- 社交平台 (三层谜题) -->
         <section id="contact">
-            <h2>📱 社交平台</h2>
+            <h2>📱 社交平台 & 禧运谜题</h2>
+            <!-- 原有社交头像 -->
             <div class="social-avatars">
                 <a href="https://space.bilibili.com/1660392980" target="_blank"><img src="images/四.png" alt="恬豆"></a>
                 <a href="https://space.bilibili.com/1217754423" target="_blank"><img src="images/禧.png" alt="又一"></a>
                 <a href="https://space.bilibili.com/1878154667" target="_blank"><img src="images/丸.png" alt="沐霂"></a>
                 <a href="https://space.bilibili.com/1900141897" target="_blank"><img src="images/子字举牌.png" alt="梨安"></a>
             </div>
-             <h2>切片员</h2>
-             <div class="social-avatars">
+            <h2>切片员</h2>
+            <div class="social-avatars">
                 <a href="https://space.bilibili.com/1113769832" target="_blank"><img src="images/安子.jpg" alt="秩序丶安"></a>
                 <a href="https://space.bilibili.com/1497560529" target="_blank"><img src="images/录播机.jpg" alt="录播机"></a>
                 <a href="https://space.bilibili.com/3546873990219945" target="_blank"><img src="images/耿鬼.jpg" alt="愉光Omega"></a>
                 <a href="https://space.bilibili.com/13193691" target="_blank"><img src="images/栝豆发芽了.jpg" alt="栝豆发芽了"></a>
             </div>
             <h2>粉丝团伙</h2>
-             <div class="social-avatars">
+            <div class="social-avatars">
                 <a href="https://space.bilibili.com/3546384907110734" target="_blank"><img src="images/牛博士.jpg" alt="沐霂博士学社"></a>
                 <a href="https://space.bilibili.com/3493266391566784" target="_blank"><img src="images/包子铺.jpg" alt="恬豆包子铺"></a>
                 <a href="https://space.bilibili.com/3546380643601223" target="_blank"><img src="images/充电站.jpg" alt="酥酥又充电站"></a>
                 <a href="https://space.bilibili.com/357839454" target="_blank"><img src="images/美食屋.jpg" alt="向心梨美食屋"></a>
             </div>
-            <!-- 石油工部分（初始隐藏，答对问题后显示） -->
+
+            <!-- ========== 一级问题区域 (四个全部答对) ========== -->
+            <div id="primaryQuiz">
+                <p>禧运楼秘密需要全部答对以下四个问题才能解锁：</p>
+                <div class="primary-quiz-grid">
+                    <label>恬豆最喜欢听什么歌？</label>
+                    <input type="text" id="ans1" placeholder="例如 zmyyq">
+                    <label>沐霂身高多少？</label>
+                    <input type="text" id="ans2" placeholder="标准答案167">
+                    <label>又爸又妈在哪认识的又一？</label>
+                    <input type="text" id="ans3" placeholder="湘北雨姐最带派">
+                    <label>梨安几个手枪腿吃不饱？</label>
+                    <input type="text" id="ans4" placeholder="大胃袋这一块">
+                    <button class="primary-submit" onclick="verifyAllAnswers()">全部验证</button>
+                    <div id="errorMessage" class="error-message">答案错误，请重新输入</div>
+                </div>
+            </div>
+
+            <!-- ========== 一级解锁：四个B站直播间 ========== -->
+            <div id="bilibiliRooms" style="display: none; margin: 30px 0;">
+                <h3>🎥 恭喜解锁！点击进入DLC1</h3>
+                <div class="game-grid" style="grid-template-columns: repeat(4,1fr);">
+                    <div class="game-card" onclick="window.open('https://space.bilibili.com/1930621936', '_blank')">
+                        <img class="game-icon" src="characters/DM_20260313201021_004.jpg" alt="南瓜瓜" onerror="this.src='https://i0.hdslb.com/bfs/face/member/noface.jpg'">
+                        <div class="game-name">南瓜瓜_kana</div>
+                    </div>
+                    <div class="game-card" onclick="window.open('https://space.bilibili.com/1174043340', '_blank')">
+                        <img class="game-icon" src="characters/DM_20260313201021_003.jpg" alt="佑晞喵喵" onerror="this.src='https://i0.hdslb.com/bfs/face/member/noface.jpg'">
+                        <div class="game-name">佑晞喵喵</div>
+                    </div>
+                    <div class="game-card" onclick="window.open('https://space.bilibili.com/1931074737', '_blank')">
+                        <img class="game-icon" src="characters/DM_20260313201021_001.jpg" alt="丸丸" onerror="this.src='https://i0.hdslb.com/bfs/face/member/noface.jpg'">
+                        <div class="game-name">丸丸_maruko</div>
+                    </div>
+                    <div class="game-card" onclick="window.open('https://space.bilibili.com/1478352293', '_blank')">
+                        <img class="game-icon" src="characters/DM_20260313201021_002.JPEG" alt="小灯" onerror="this.src='https://i0.hdslb.com/bfs/face/member/noface.jpg'">
+                        <div class="game-name">小灯_Hotaru_</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== 二级问题区域：生日谜题（解锁石油工和社交媒体） ========== -->
+            <div id="secondLevelQuiz" class="second-level-quiz" style="display: none;">
+                <h3 style="color:#d74177;">🎂 输入成员生日，解锁DLC2</h3>
+                <div class="birthday-row">
+                    <span class="birthday-member">恬豆</span>
+                    <input type="text" class="birthday-input" id="bdayTiandou" placeholder="例如 0614">
+                    <button class="birthday-btn" id="btnTiandou" onclick="verifyBirthday('tiandou')">验证</button>
+                </div>
+                <div class="birthday-row">
+                    <span class="birthday-member">又一</span>
+                    <input type="text" class="birthday-input" id="bdayYouyi" placeholder="例如 0128">
+                    <button class="birthday-btn" id="btnYouyi" onclick="verifyBirthday('youyi')">验证</button>
+                </div>
+                <div class="birthday-row">
+                    <span class="birthday-member">沐霂</span>
+                    <input type="text" class="birthday-input" id="bdayMumu" placeholder="例如 1017">
+                    <button class="birthday-btn" id="btnMumu" onclick="verifyBirthday('mumu')">验证</button>
+                </div>
+                <div class="birthday-row">
+                    <span class="birthday-member">梨安</span>
+                    <input type="text" class="birthday-input" id="bdayLian" placeholder="例如 1203">
+                    <button class="birthday-btn" id="btnLian" onclick="verifyBirthday('lian')">验证</button>
+                </div>
+                <p id="birthdayHint" style="color: #27ae60; font-weight: 500;"></p>
+            </div>
+
+            <!-- 石油工区块 (二级解锁后显示) -->
             <div id="oil-workers-block" style="display: none;">
                 <h2>石油工</h2>
                 <div class="social-avatars">
@@ -872,22 +1249,105 @@
                     <a href="https://space.bilibili.com/1519588" target="_blank"><img src="images/虎落平阳变北7.jpg" alt="虎落平阳变北7"></a>
                 </div>
             </div>
-            <p>如果您想知道禧运楼更多秘密，请选择下面任意一个问题回答：</p>
-            <div class="question-buttons">
-                <button class="question-btn" onclick="selectQuestion('favorite_song')">恬豆最喜欢听什么歌</button>
-                <button class="question-btn" onclick="selectQuestion('height')">沐霂身高多少</button>
-                <button class="question-btn" onclick="selectQuestion('favorite_food')">又爸又妈在哪认识的又一</button>
-                <button class="question-btn" onclick="selectQuestion('chicken_legs')">梨安几个手枪腿吃不饱</button>
-            </div>
-            <input type="text" id="selectedQuestion" class="answer-input" placeholder="请选择一个问题" readonly>
-            <input type="text" id="answerInput" class="answer-input" placeholder="请输入答案">
-            <div id="errorMessage" class="error-message">答案错误，请重新输入</div>
-            <button class="submit-btn" onclick="verifyAnswer()">提交验证</button>
+            <!-- 社交链接 (二级解锁后显示，包含所有问题对应的微博/小红书) -->
             <div id="social-actions" style="display: none; margin-top:30px;">
-                <h3>请选择要执行的操作：</h3>
-                <ul id="social-links-list"></ul>
+                <h3>社交媒体账号 (点击跳转)</h3>
+                <ul id="social-links-list" style="display: flex; flex-wrap: wrap; gap: 20px; list-style: none; justify-content: center;"></ul>
             </div>
-            <div id="social-rules" style="display:none; margin-top:30px;"></div>
+
+            <!-- ========== 三级问题区域：粉丝牌名字验证 ========== -->
+            <div id="thirdLevelQuiz" style="display: none; margin: 30px 0; padding: 20px; background: #ffe9f0; border-radius: 40px;">
+                <h3 style="color:#d74177;">🏷️ 终极问题：输入每位成员的粉丝牌名字解锁DLC3</h3>
+                <div class="fan-row">
+                    <span class="fan-member">恬豆</span>
+                    <input type="text" class="fan-input" id="fanTiandou" placeholder="粉丝牌名字">
+                </div>
+                <div class="fan-row">
+                    <span class="fan-member">沐霂</span>
+                    <input type="text" class="fan-input" id="fanMumu" placeholder="粉丝牌名字">
+                </div>
+                <div class="fan-row">
+                    <span class="fan-member">又一</span>
+                    <input type="text" class="fan-input" id="fanYouyi" placeholder="粉丝牌名字">
+                </div>
+                <div class="fan-row">
+                    <span class="fan-member">梨安</span>
+                    <input type="text" class="fan-input" id="fanLian" placeholder="粉丝牌名字">
+                </div>
+                <button class="submit-btn" onclick="verifyThirdLevel()">提交验证</button>
+                <div id="thirdError" class="error-message" style="display: none;">答案错误，请重新输入</div>
+            </div>
+
+            <!-- ========== 禧运宇宙老头卡片 (三级解锁后显示) ========== -->
+            <div id="universeElders" style="display: none; margin-top: 40px;">
+                <h3>🧓 禧运宇宙老头们 (点击头像跳转微博)</h3>
+                <!-- 普通网格：前六个老头 -->
+                <div class="universe-elders">
+                    <!-- 螃蟹老头 林思意 -->
+                    <div class="elder-card" onclick="window.open('https://weibo.com/u/3675865547', '_blank')">
+                        <img src="characters/041.png" alt="林思意" onerror="this.src='https://via.placeholder.com/100?text=🦀'">
+                        <div class="elder-name">🦀 螃蟹老头 · 林思意</div>
+                        <div class="elder-desc">字节不给的，我给你</div>
+                    </div>
+                    <!-- 酸汤老头 赵粤 -->
+                    <div class="elder-card" onclick="window.open('https://weibo.com/u/3668829440', '_blank')">
+                        <img src="characters/赵粤.jpg" alt="赵粤" onerror="this.src='https://via.placeholder.com/100?text=🍲'">
+                        <div class="elder-name">🍲 酸汤老头 · 赵粤</div>
+                        <div class="elder-desc">一饭之恩</div>
+                    </div>
+                    <!-- 奶龙老头 孙芮-->
+                    <div class="elder-card" onclick="window.open('https://weibo.com/u/3669091483', '_blank')">
+                        <img src="characters/three.jpg" alt="孙芮" onerror="this.src='https://via.placeholder.com/100?text=🐉🥛'">
+                        <div class="elder-name">🐉 奶龙老头 · 孙芮</div>
+                        <div class="elder-desc">初代目父母爱情</div>
+                    </div>
+                    <!-- 锅 刘增艳 -->
+                    <div class="elder-card" onclick="window.open('https://weibo.com/u/2099189351', '_blank')">
+                        <img src="characters/刘增艳.jpg" alt="刘增艳" onerror="this.src='https://via.placeholder.com/100?text=🍳'">
+                        <div class="elder-name">🍳 锅 · 刘增艳</div>
+                        <div class="elder-desc">AD钙奶UPUPUP</div>
+                    </div>
+                    <!-- 姜杉 -->
+                    <div class="elder-card" onclick="window.open('https://weibo.com/u/5690264778', '_blank')">
+                        <img src="characters/姜杉.jpg" alt="姜杉" onerror="this.src='https://via.placeholder.com/100?text=🍍'">
+                        <div class="elder-name">🍍 菠萝 · 姜杉</div>
+                        <div class="elder-desc">我们仨过好日子比啥都重要</div>
+                    </div>
+                    <!-- 颜沁 -->
+                    <div class="elder-card" onclick="window.open('https://weibo.com/u/6812190117', '_blank')">
+                        <img src="characters/颜沁.jpg" alt="颜沁" onerror="this.src='https://via.placeholder.com/100?text=🐱'">
+                        <div class="elder-name">🐱 猫咪 · 颜沁</div>
+                        <div class="elder-desc">我们仨过好日子比啥都重要</div>
+                    </div>
+                        <div class="elder-card" onclick="window.open('https://weibo.com/u/6853391869', '_blank')">
+                        <img src="characters/1+2.jpg" alt="易嘉爱" onerror="this.src='https://via.placeholder.com/100?text=🐱'">
+                        <div class="elder-name">🎤 年糕老头 · 易嘉爱</div>
+                        <div class="elder-desc">1+2=6</div>
+                    </div>
+                        <div class="elder-card" onclick="window.open('https://weibo.com/u/6201382716', '_blank')">
+                        <img src="characters/邹佳佳.jpg" alt="邹佳佳" onerror="this.src='https://via.placeholder.com/100?text=🐱'">
+                        <div class="elder-name">🐻 小猪熊· 佳佳子</div>
+                        <div class="elder-desc">一麦克风开启禧运宇宙</div>
+                    </div>
+                </div>
+
+                <!-- 特殊双人卡片行：黄婷婷 & 那位大人 （紫色背景 紫粉字） -->
+                <div class="special-elder-row">
+                    <!-- 黄婷婷 -->
+                    <div class="elder-card" onclick="window.open('https://weibo.com/u/7735668873', '_blank')">
+                        <img src="characters/黄婷婷.jpg" alt="黄婷婷" onerror="this.src='https://via.placeholder.com/100?text=🚥'">
+                        <div class="elder-name">🚥 红绿灯 · 黄婷婷</div>
+                        <div class="elder-desc">悄悄的今晚相遇这里</div>
+                    </div>
+                    <!-- 那位大人 -->
+                    <div class="elder-card" onclick="window.open('https://weibo.com/u/3700233717', '_blank')">
+                        <img src="characters/夜王莉莉丝Channel.jpg" alt="那位大人" onerror="this.src='https://via.placeholder.com/100?text=🦋'">
+                        <div class="elder-name">🧛‍♀️ · 那位大人</div>
+                        <div class="elder-desc">若能化身成人拥抱你</div>
+                    </div>
+                </div>
+                <p style="color: #888; font-size:0.8rem; text-align:center;">※ 微博链接为示例，请自行核对替换</p>
+            </div>
         </section>
 
         <footer>
@@ -899,8 +1359,7 @@
     <div id="videoModal" class="video-modal"><div class="video-modal-content"><span class="close-video">&times;</span><div class="video-container"><iframe id="videoFrame" frameborder="0" allowfullscreen></iframe></div></div></div>
 
     <script>
-        // ---------- 原有功能 ----------
-        // 滚动进度条
+        // ---------- 原有功能 (进度条、头像点击、tab切换等) ----------
         window.addEventListener('scroll', function() {
             let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             let docHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -908,7 +1367,6 @@
             document.getElementById('progressBar').style.width = percent + '%';
         });
 
-        // 平滑滚动
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -916,7 +1374,7 @@
             });
         });
 
-        // 头像点击四次跳转百度百科 + 计数
+        // 头像点击四次跳转 + 计数
         document.querySelectorAll('.member-avatar').forEach(avatar => {
             let clickCount = 0;
             const memberCard = avatar.closest('.member-card');
@@ -936,7 +1394,6 @@
                 }
             });
         });
-        // 卡片点击重置计数
         document.querySelectorAll('.member-card').forEach(card => {
             card.addEventListener('click', function(e) {
                 if (!e.target.closest('.member-avatar')) {
@@ -978,11 +1435,9 @@
             event.target.classList.add('active');
         };
 
-        // 打开视频/游戏
         window.openVideo = function(bvid) { window.open(`https://www.bilibili.com/video/${bvid}`, '_blank'); };
         window.openGame = function(path) { window.open(path, '_blank'); };
 
-        // 里程碑点击切换
         window.toggleMilestone = function(el) {
             let h4 = el.querySelector('.timeline-date');
             let p = el.querySelector('span:last-child');
@@ -995,69 +1450,147 @@
             }
         };
 
-        // 额外信息显示
         window.toggleExtraInfo = function(id) {
             let el = document.getElementById(id);
             if (el) el.style.display = el.style.display === 'block' ? 'none' : 'block';
         };
 
-        // 社交平台验证逻辑 + 石油工解锁
-        let currentQuestion = null;
-        const answers = { favorite_song: "aytdd", height: "159", favorite_food: "大果村", chicken_legs: "5" };
-        window.selectQuestion = function(key) {
-            currentQuestion = key;
-            let texts = { favorite_song:"恬豆最喜欢听什么歌", height:"沐霂身高多少", favorite_food:"又爸又妈在哪认识的又一", chicken_legs:"梨安几个手枪腿吃不饱" };
-            document.getElementById('selectedQuestion').value = texts[key];
+        // 周边区下载
+        window.downloadPointer = function(type) {
+            let path = '';
+            switch (type) {
+                case 'tiandou': path = 'mouse/tiandou.zip'; break;
+                case 'youyi': path = 'mouse/Youyi.zip'; break;
+                case 'mumu': path = 'mouse/mumu.zip'; break;
+                case 'lian': path = 'mouse/lian_v1.0.zip'; break;
+                default: alert('未知指针类型'); return;
+            }
+            window.open(path, '_blank');
         };
-        window.verifyAnswer = function() {
-            let ans = document.getElementById('answerInput').value.trim();
-            let err = document.getElementById('errorMessage');
-            if (!currentQuestion) { err.textContent = "请先选择问题"; err.style.display = 'block'; return; }
-            if (!ans) { err.textContent = "请输入答案"; err.style.display = 'block'; return; }
-            if (answers[currentQuestion] && ans === answers[currentQuestion]) {
-                err.style.display = 'none';
-                // 带@账号名的链接映射
-                let map = {
-                    favorite_song: {
-                        weibo: { text: '微博@开朗小栗', url: 'https://weibo.com/u/7569110245' },
-                        xhs: { text: '小红书@普通小栗', url: 'https://www.xiaohongshu.com/explore/普通小栗' }
-                    },
-                    height: {
-                        weibo: { text: '微博@小孩子少吃糖', url: 'https://weibo.com/u/5482136589' },
-                        xhs: { text: '小红书@小孩子少吃糖', url: 'https://www.xiaohongshu.com/explore/小孩子少吃糖' }
-                    },
-                    favorite_food: {
-                        weibo: { text: '微博@不是你俊的俊', url: 'https://weibo.com/u/7440469872' },
-                        xhs: { text: '小红书@不是你俊的俊', url: 'https://www.xiaohongshu.com/explore/不是你俊的俊' }
-                    },
-                    chicken_legs: {
-                        weibo: { text: '微博@士多啤梨挖掘机', url: 'https://weibo.com/u/8010499842' },
-                        xhs: { text: '小红书@士多啤梨挖掘机', url: 'https://www.xiaohongshu.com/explore/士多啤梨挖掘机' }
-                    }
-                };
-                let info = map[currentQuestion];
-                let linksHtml = `<li><a href="${info.weibo.url}" target="_blank">${info.weibo.text}</a></li><li><a href="${info.xhs.url}" target="_blank">${info.xhs.text}</a></li>`;
-                document.getElementById('social-links-list').innerHTML = linksHtml;
-                document.getElementById('social-actions').style.display = 'block';
-                // 解锁石油工
-                document.getElementById('oil-workers-block').style.display = 'block';
-                alert("验证成功！");
+
+        // ---------- 构建禧运宇宙英雄 (characters 文件夹) ----------
+        const heroes = [
+            { name: "七海Nana7mi", file: "七海Nana7mi.jpg", uid: "434334701", desc: "VR大前辈 · 一头脆脆鲨" },
+            { name: "安可anko_Official", file: "安可anko_Official.jpg", uid: "440738032", desc: "已休眠 · 最好的🍅🥚" },
+            { name: "宣小纸不怕火", file: "宣小纸不怕火.jpg", uid: "3461582034045213", desc: "烈焰红唇 · 初代工伤" },
+            { name: "小可学妹", file: "小可学妹.jpg", uid: "14387072", desc: "东北老妹 · 就爱这口" },
+            { name: "明前奶绿", file: "明前奶绿.png", uid: "2132180406", desc: "懒狗一条 · 文静姐姐" },
+            { name: "星瞳_Official", file: "星瞳_Official.jpg", uid: "401315430", desc: "虚环求带 · 大厂人脉" },
+            { name: "泽音melody", file: "泽音melody.jpg", uid: "1203217682", desc: "错过青春期别错过更年期" },
+            { name: "阿梓从小就很可爱", file: "阿梓从小就很可爱.jpg", uid: "7706705", desc: "这一拜 · 游戏回" },
+            { name: "雫るる_Official", file: "雫るる_Official.jpg", uid: "387636363", desc: "可爱るる · 天选国V" },
+            { name: "露米Lumi_Official", file: "露米Lumi_Official.jpg", uid: "2000609327", desc: "天籁之音 · 二代工伤" }
+        ];
+
+        function buildUniverseHeroes() {
+            const grid = document.getElementById('heroes-grid');
+            if (!grid) return;
+            let html = '';
+            heroes.forEach(h => {
+                html += `
+                    <div class="game-card" onclick="window.open('https://space.bilibili.com/${h.uid}', '_blank')">
+                        <img class="game-icon" src="characters/${encodeURIComponent(h.file)}" alt="${h.name}" onerror="this.src='images/placeholder.jpg';">
+                        <div class="game-name">${h.name}</div>
+                        <div class="game-desc">${h.desc}</div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        // ---------- 一级问题：全部答对才解锁二级 ----------
+        const correctAnswers = {
+            ans1: "aytdd",
+            ans2: "159",
+            ans3: "大果村",
+            ans4: "5"
+        };
+
+        window.verifyAllAnswers = function() {
+            const a1 = document.getElementById('ans1').value.trim().toLowerCase();
+            const a2 = document.getElementById('ans2').value.trim();
+            const a3 = document.getElementById('ans3').value.trim();
+            const a4 = document.getElementById('ans4').value.trim();
+
+            if (a1 === correctAnswers.ans1 && a2 === correctAnswers.ans2 && a3 === correctAnswers.ans3 && a4 === correctAnswers.ans4) {
+                document.getElementById('errorMessage').style.display = 'none';
+                document.getElementById('primaryQuiz').style.display = 'none';
+                document.getElementById('bilibiliRooms').style.display = 'block';
+                document.getElementById('secondLevelQuiz').style.display = 'block';
             } else {
-                err.style.display = 'block';
-                document.getElementById('answerInput').value = '';
+                document.getElementById('errorMessage').style.display = 'block';
             }
         };
 
-        // 弹窗关闭
-        const modal = document.getElementById('videoModal');
-        const closeBtn = document.querySelector('.close-video');
-        if (closeBtn) {
-            closeBtn.onclick = () => { modal.style.display = 'none'; document.getElementById('videoFrame').src = ''; };
-        }
-        window.onclick = (e) => { if (e.target === modal) { modal.style.display = 'none'; document.getElementById('videoFrame').src = ''; } };
+        // ---------- 二级生日验证 ----------
+        let birthdayStatus = { tiandou: false, youyi: false, mumu: false, lian: false };
+        const birthdayMap = { tiandou: '0622', youyi: '0110', mumu: '1002', lian: '0315' };
 
-        // ---------- HD 和 clothes 两级浏览（数据来自全局 hdData / clothesData，由 filelist.js 提供） ----------
-         function renderHDFolders() {
+        function normalizeBirthday(input) {
+            const digits = input.replace(/\D/g, '');
+            if (digits.length === 8) return digits.slice(4);
+            if (digits.length === 4) return digits;
+            if (digits.length === 3) return '0' + digits;
+            return null;
+        }
+
+        const socialMap = {
+            favorite_song: { weibo: { text: '微博@开朗小栗', url: 'https://weibo.com/u/7569110245' }, xhs: { text: '小红书@普通小栗', url: 'https://www.xiaohongshu.com/explore/普通小栗' } },
+            height: { weibo: { text: '微博@小孩子少吃糖', url: 'https://weibo.com/u/5482136589' }, xhs: { text: '小红书@小孩子少吃糖', url: 'https://www.xiaohongshu.com/explore/小孩子少吃糖' } },
+            favorite_food: { weibo: { text: '微博@不是你俊的俊', url: 'https://weibo.com/u/7440469872' }, xhs: { text: '小红书@不是你俊的俊', url: 'https://www.xiaohongshu.com/explore/不是你俊的俊' } },
+            chicken_legs: { weibo: { text: '微博@士多啤梨挖掘机', url: 'https://weibo.com/u/8010499842' }, xhs: { text: '小红书@士多啤梨挖掘机', url: 'https://www.xiaohongshu.com/explore/士多啤梨挖掘机' } }
+        };
+
+        window.verifyBirthday = function(member) {
+            if (birthdayStatus[member]) {
+                alert('该成员生日已验证过了');
+                return;
+            }
+            const inputId = 'bday' + member.charAt(0).toUpperCase() + member.slice(1);
+            const input = document.getElementById(inputId).value.trim();
+            const normalized = normalizeBirthday(input);
+            const correct = birthdayMap[member];
+            if (normalized === correct) {
+                birthdayStatus[member] = true;
+                document.getElementById(inputId).disabled = true;
+                document.getElementById('btn' + member.charAt(0).toUpperCase() + member.slice(1)).disabled = true;
+                if (birthdayStatus.tiandou && birthdayStatus.youyi && birthdayStatus.mumu && birthdayStatus.lian) {
+                    document.getElementById('oil-workers-block').style.display = 'block';
+                    // 显示所有社交账号 (8个链接)
+                    let linksHtml = '';
+                    for (let key in socialMap) {
+                        linksHtml += `<li><a href="${socialMap[key].weibo.url}" target="_blank">${socialMap[key].weibo.text}</a></li>`;
+                        linksHtml += `<li><a href="${socialMap[key].xhs.url}" target="_blank">${socialMap[key].xhs.text}</a></li>`;
+                    }
+                    document.getElementById('social-links-list').innerHTML = linksHtml;
+                    document.getElementById('social-actions').style.display = 'block';
+                    document.getElementById('thirdLevelQuiz').style.display = 'block';
+                    document.getElementById('birthdayHint').innerText = '🎉 所有生日正确！石油工和社交媒体已解锁，继续挑战终极问题！';
+                } else {
+                    document.getElementById('birthdayHint').innerText = `已验证 ${Object.values(birthdayStatus).filter(v=>v).length}/4 个生日`;
+                }
+            } else {
+                alert('❌ 生日不对，请重试');
+            }
+        };
+
+        // 三级粉丝牌验证
+        window.verifyThirdLevel = function() {
+            const fanTiandou = document.getElementById('fanTiandou').value.trim().replace(/\s+/g, '');
+            const fanMumu = document.getElementById('fanMumu').value.trim().replace(/\s+/g, '');
+            const fanYouyi = document.getElementById('fanYouyi').value.trim().replace(/\s+/g, '');
+            const fanLian = document.getElementById('fanLian').value.trim().replace(/\s+/g, '');
+            if (fanTiandou === '爱栗丝' && fanMumu === '汽水糖' && fanYouyi === '小雨点' && fanLian === '温度计') {
+                document.getElementById('thirdError').style.display = 'none';
+                document.getElementById('thirdLevelQuiz').style.display = 'none';
+                document.getElementById('universeElders').style.display = 'block';
+            } else {
+                document.getElementById('thirdError').style.display = 'block';
+            }
+        };
+
+        // HD 和 clothes 浏览 (保留原有)
+        function renderHDFolders() {
             const container = document.getElementById('hd-folders');
             if (!container) return;
             const folders = Object.keys(window.hdData || {});
@@ -1177,10 +1710,19 @@
             document.getElementById('clothes-images').innerHTML = '';
         };
 
-        // 页面加载后初始化
+        // 弹窗关闭
+        const modal = document.getElementById('videoModal');
+        const closeBtn = document.querySelector('.close-video');
+        if (closeBtn) {
+            closeBtn.onclick = () => { modal.style.display = 'none'; document.getElementById('videoFrame').src = ''; };
+        }
+        window.onclick = (e) => { if (e.target === modal) { modal.style.display = 'none'; document.getElementById('videoFrame').src = ''; } };
+
+        // 页面加载初始化
         window.addEventListener('DOMContentLoaded', function() {
             renderHDFolders();
             renderClothesFolders();
+            buildUniverseHeroes();   // 构建宇宙英雄
         });
     </script>
 </body>
