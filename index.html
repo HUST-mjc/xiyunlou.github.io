@@ -2097,8 +2097,141 @@
             color: #555;
         }
 
-        /* 移除原错误覆盖背景的规则，保留背景图片 */
-        /* 动态渐变时间层注释保留，不再干扰背景图 */
+        /* ========== 电子木鱼 & 抽签筒样式 ========== */
+        .zen-section {
+            scroll-margin-top: 80px;
+            margin-bottom: 4rem;
+        }
+
+        .zen-double {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+        }
+
+        .zen-card {
+            flex: 1;
+            min-width: 260px;
+            background: rgba(255, 248, 235, 0.75);
+            backdrop-filter: blur(10px);
+            border-radius: 48px;
+            padding: 1.8rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 215, 180, 0.6);
+        }
+
+        .zen-card:hover {
+            transform: translateY(-6px);
+            border-color: #d74177;
+        }
+
+        .merit-counter {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #d74177, #f39c12);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 0.5rem 0;
+        }
+
+        .fish-icon {
+            font-size: 6rem;
+            cursor: pointer;
+            display: inline-block;
+            filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.2));
+            margin: 1rem 0;
+            transition: 0.05s linear;
+        }
+
+        .fish-icon:active {
+            transform: scale(0.92);
+        }
+
+        .hit-effect {
+            animation: hitShake 0.1s ease-in-out 0s 2;
+        }
+
+        @keyframes hitShake {
+            0% {
+                transform: rotate(0deg) scale(1);
+            }
+
+            50% {
+                transform: rotate(8deg) scale(1.12);
+            }
+
+            100% {
+                transform: rotate(0deg) scale(1);
+            }
+        }
+
+        .float-number {
+            position: fixed;
+            pointer-events: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff8c42;
+            text-shadow: 0 0 5px white;
+            z-index: 9999;
+            animation: floatUp 0.8s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0px) scale(0.8);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-70px) scale(1.2);
+            }
+        }
+
+        .lottery-display {
+            background: #fff9ef;
+            border-radius: 60px;
+            padding: 1rem 1.2rem;
+            margin: 1.2rem 0;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #b34e3a;
+            border-left: 6px solid #d74177;
+            text-align: center;
+        }
+
+        .lottery-btn {
+            background: #d74177;
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .lottery-btn:hover {
+            background: #ff7aa2;
+            transform: scale(1.02);
+        }
+
+        .draw-count {
+            font-size: 0.8rem;
+            margin-top: 12px;
+            color: #8b6b4d;
+        }
+
+        @media (max-width: 800px) {
+            .fish-icon {
+                font-size: 5rem;
+            }
+        }
     </style>
 </head>
 <!-- ========== 上海实时天气氛围效果（基于 Open-Meteo） ========== -->
@@ -3081,7 +3214,42 @@
                 <div id="clothes-accordion-wrapper"></div>
             </div>
         </section>
-
+        <!-- 电子木鱼 + 禧运灵签 -->
+        <section id="zen-section" class="zen-section">
+            <h2>🙏 禅心阁 · 敲木鱼 积福缘</h2>
+            <div class="zen-double">
+                <!-- 木鱼功德组件 -->
+                <div
+                    style="background: rgba(255,248,235,0.6); border-radius: 48px; padding: 0.5rem; backdrop-filter: blur(4px);">
+                    <iframe src="./muyu/index.html"
+                        style="width: 150%; height: 520px; border: none; border-radius: 32px;" scrolling="auto">
+                    </iframe>
+                </div>
+            </div>
+            <!-- 抽签筒 -->
+            <div class="zen-card">
+                <div class="zen-icon"><i class="fas fa-cube"></i></div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">🎋 禧运灵签</h3>
+                <div class="lottery-display" id="lotteryResultDisplay">
+                    轻点签筒，抽取今日福运
+                </div>
+                <button class="lottery-btn" id="drawLotteryBtn">
+                    <i class="fas fa-hand-peace"></i> 摇一摇 · 抽灵签
+                </button>
+                <div class="draw-count" id="drawCountDisplay">✨ 已抽签 0 次</div>
+                <p style="font-size:0.7rem; margin-top: 12px;">每次抽签功德+1，且灵签蕴含禧运祝福</p>
+            </div>
+            </div>
+        </section>
+        <section id="zhouyi" style="margin-top: 4rem;">
+            <h2>🪷 周易金钱卦 · 自动占卜</h2>
+            <div
+                style="background: rgba(255,248,235,0.6); border-radius: 48px; padding: 1rem; backdrop-filter: blur(4px);">
+                <iframe src="./zhouyi/index.html"
+                    style="width: 100%; min-height: 800px; border: none; border-radius: 32px;" title="周易金钱卦占卜">
+                </iframe>
+            </div>
+        </section>
         <!-- ========== 新增：禧运宇宙英雄 (动态生成) ========== -->
         <section id="universe-heroes">
             <h2>🌌 禧运宇宙英雄</h2>
@@ -3288,7 +3456,7 @@
                         <div class="elder-desc">初代目父母爱情</div>
                     </div>
                     <!-- 锅 刘增艳 -->
-                    <div class="elder-card" onclick="window.open('https://weibo.com/u/2099189351', '_blank')">
+                    <div class="elder-card" onclick="window.open('https://weibo.com/u/5681431767', '_blank')">
                         <img src="characters/刘增艳.jpg" alt="刘增艳"
                             onerror="this.src='https://via.placeholder.com/100?text=🍳'">
                         <div class="elder-name">🍳 锅 · 刘增艳</div>
@@ -4545,7 +4713,170 @@
             });
 
             // ----- 13. HD画册和服饰展示的标题已经通过 h2 更新，无需额外处理 -----
+            // ========== 电子木鱼 + 禧运塔罗 (牌号从1开始，图片 card_01.jpg ~ card_22.jpg) ==========
+            (function () {
+                let totalMerit = 0;
+                let totalDraws = 0;
+                const STORAGE_KEY = 'sixi_zen_merit';
+                const DRAWS_KEY = 'sixi_zen_draws';
 
+                // 塔罗牌数据 (索引0→愚者(1号), 索引1→魔术师(2号), ..., 索引21→世界(22号))
+                const TAROT_CARDS = [
+                    { name: "愚者", meaning: "新的开始，充满无限可能。前路崎岖，但从不孤单。" },
+                    { name: "魔术师", meaning: "创造力与潜能，禧运楼将迎来新的精彩企划。" },
+                    { name: "女祭司", meaning: "直觉与智慧，相信自己的第一感觉。" },
+                    { name: "女皇", meaning: "丰饶与滋养，努力终将开花结果。" },
+                    { name: "皇帝", meaning: "技术与秩序，稳定的力量正在成长。" },
+                    { name: "教皇", meaning: "精神与信仰，偶像的光芒将指引方向。" },
+                    { name: "恋人", meaning: "选择与羁绊，与重要之人共同前行。" },
+                    { name: "战车", meaning: "意志与胜利，一切阻碍终将被克服。" },
+                    { name: "力量", meaning: "温柔与勇气，用内在的力量引导美好。" },
+                    { name: "隐士", meaning: "自省与智慧，沉淀过后将更加强大。" },
+                    { name: "命运之轮", meaning: "变动与循环，新的际遇即将到来。" },
+                    { name: "正义", meaning: "平衡与公正，付出终有回报。" },
+                    { name: "倒吊人", meaning: "换位与奉献，换个角度看问题。" },
+                    { name: "死神", meaning: "转变与新生，旧的事物离去，迎接崭新篇章。" },
+                    { name: "节制", meaning: "和谐与调和，一切都在往好的方向发展。" },
+                    { name: "恶魔", meaning: "束缚与执念，是时候放下不必要的负担。" },
+                    { name: "高塔", meaning: "突发与剧变，真相终将浮出水面。" },
+                    { name: "星星", meaning: "希望与灵感，前方充满治愈的指引。" },
+                    { name: "月亮", meaning: "朦胧与未知，两种态度决定不同结局。" },
+                    { name: "太阳", meaning: "喜悦与成功，光明驱散所有阴霾。" },
+                    { name: "审判", meaning: "觉醒与召唤，迎接全新的开始。" },
+                    { name: "世界", meaning: "完成与圆满，四禧丸子的故事有你才完整。" }
+                ];
+
+                // 根据索引获取图片路径 (索引0→card_01.jpg, 索引1→card_02.jpg, ..., 索引21→card_22.jpg)
+                function getTarotImagePath(index) {
+                    const cardNumber = (index + 1).toString().padStart(2, '');   // 1~22 补零为两位
+                    return `taluo/card_${cardNumber}.jpg`;
+                }
+
+                // ---------- 挂载到全局方便调试 ----------
+                window.debugTarot = {
+                    getImagePath: getTarotImagePath,
+                    getCardByIndex: (idx) => TAROT_CARDS[idx],
+                    getAllCards: () => TAROT_CARDS
+                };
+
+                // ---------- UI 更新函数 ----------
+                function updateMeritUI() {
+                    const meritSpan = document.getElementById('meritTotalDisplay');
+                    if (meritSpan) meritSpan.innerText = totalMerit;
+                    localStorage.setItem(STORAGE_KEY, totalMerit);
+                }
+
+                function updateDrawUI() {
+                    const drawSpan = document.getElementById('drawCountDisplay');
+                    if (drawSpan) drawSpan.innerHTML = `✨ 已占卜 ${totalDraws} 次`;
+                    localStorage.setItem(DRAWS_KEY, totalDraws);
+                }
+
+                function refreshUI() {
+                    updateMeritUI();
+                    updateDrawUI();
+                }
+
+                // 浮动数字特效
+                function showFloatingNumber(x, y, text) {
+                    const floatDiv = document.createElement('div');
+                    floatDiv.className = 'float-number';
+                    floatDiv.innerText = text;
+                    floatDiv.style.left = (x - 25) + 'px';
+                    floatDiv.style.top = (y - 30) + 'px';
+                    document.body.appendChild(floatDiv);
+                    setTimeout(() => floatDiv.remove(), 800);
+                }
+
+                // 增加功德
+                function addMerit(amount, event) {
+                    totalMerit += amount;
+                    updateMeritUI();
+
+                    let clientX = event.clientX, clientY = event.clientY;
+                    if (!clientX && event.touches) {
+                        clientX = event.touches[0].clientX;
+                        clientY = event.touches[0].clientY;
+                    }
+                    if (clientX && clientY) showFloatingNumber(clientX, clientY, `功德 +${amount}`);
+
+                    const fish = document.getElementById('woodenFishBtn');
+                    if (fish) {
+                        fish.classList.add('hit-effect');
+                        setTimeout(() => fish.classList.remove('hit-effect'), 150);
+                    }
+                    if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(30);
+                }
+
+                // 敲木鱼
+                function onFishClick(e) {
+                    addMerit(1, e);
+                }
+
+                function drawTarot(event) {
+                    totalDraws++;
+                    updateDrawUI();
+
+                    const randomIndex = Math.floor(Math.random() * TAROT_CARDS.length);
+                    const card = TAROT_CARDS[randomIndex];
+                    const cardNumber = randomIndex + 1;               // 🔥 关键修正：牌号从1开始
+                    const imgPath = getTarotImagePath(randomIndex);
+
+                    const resultDiv = document.getElementById('lotteryResultDisplay');
+                    if (resultDiv) {
+                        resultDiv.innerHTML = `
+            🃏 你抽到了：<strong style="color:#d74177;">【${card.name}】 (${cardNumber - 1}号牌)</strong>
+            <br><span style="font-size:0.9rem;">✨ ${card.meaning}</span>
+            <div style="margin-top: 12px;">
+                <img src="${imgPath}" 
+                     style="max-width: 130px; border-radius: 20px; box-shadow: 0 6px 14px rgba(0,0,0,0.2); cursor: pointer;"
+                     onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"
+                     onclick="window.open(this.src, '_blank')">
+                <span style="display: none; font-size: 0.7rem; color: #aaa;">🃟 ${card.name}</span>
+            </div>
+            <div style="margin-top: 8px; font-size: 0.7rem;">💡 点击图片可放大查看</div>
+        `;
+                    }
+
+                    const btn = document.getElementById('drawLotteryBtn');
+                    if (btn) {
+                        btn.style.transform = 'scale(0.96)';
+                        setTimeout(() => btn.style.transform = '', 120);
+                    }
+                    if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
+                }
+                // 加载存储数据
+                function loadData() {
+                    const savedMerit = localStorage.getItem(STORAGE_KEY);
+                    if (savedMerit !== null) totalMerit = parseInt(savedMerit);
+                    const savedDraws = localStorage.getItem(DRAWS_KEY);
+                    if (savedDraws !== null) totalDraws = parseInt(savedDraws);
+                    refreshUI();
+                }
+
+                // 绑定事件
+                function bindEvents() {
+                    const fishBtn = document.getElementById('woodenFishBtn');
+                    if (fishBtn) {
+                        fishBtn.addEventListener('click', onFishClick);
+                        fishBtn.addEventListener('touchstart', onFishClick, { passive: false });
+                    }
+                    const drawBtn = document.getElementById('drawLotteryBtn');
+                    if (drawBtn) {
+                        drawBtn.removeEventListener('click', drawTarot);
+                        drawBtn.removeEventListener('touchstart', drawTarot);
+                        drawBtn.addEventListener('click', drawTarot);
+                        drawBtn.addEventListener('touchstart', drawTarot, { passive: false });
+                    }
+                }
+
+                // 初始化
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', () => { loadData(); bindEvents(); });
+                } else {
+                    loadData(); bindEvents();
+                }
+            })();
             // ----- 14. 宇宙英雄区域（动态生成的英雄卡片描述）-----
             const heroDescs = document.querySelectorAll('#universe-heroes .hero-desc');
             heroDescs.forEach((desc, idx) => {
