@@ -744,6 +744,491 @@
             transform: scale(1.1);
         }
 
+        /* ===== 秩序丶安 单独栏目 ===== */
+        .anzi-showcase {
+            display: flex;
+            justify-content: center;
+        }
+
+        .anzi-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 40px;
+            max-width: 1080px;
+            width: 100%;
+            padding: 42px 46px;
+            background: linear-gradient(145deg, #f8faff, #eef2f7);
+            border-radius: 40px;
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.09);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+
+        /* 封面图 + 表格 横向并排容器 */
+        .anzi-content-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin-top: 18px;
+            align-items: flex-start;
+        }
+
+        /* 左侧封面图 */
+        .anzi-content-row .anzi-tutorial-cover {
+            flex: 0 0 auto;
+            width: 240px;
+            margin-top: 0;
+            align-self: stretch;
+            display: flex;
+        }
+
+        .anzi-content-row .anzi-tutorial-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 16px;
+        }
+
+        /* 右侧下载区块 */
+        .anzi-content-row .anzi-download-block {
+            flex: 1 1 320px;
+            margin-top: 0;
+            min-width: 0;
+        }
+
+        /* 小屏幕下自动堆叠 */
+        @media (max-width: 720px) {
+            .anzi-content-row .anzi-tutorial-cover {
+                width: 100%;
+                flex: 1 1 100%;
+            }
+
+            .anzi-content-row .anzi-tutorial-cover img {
+                height: auto;
+            }
+
+            .anzi-content-row .anzi-download-block {
+                flex: 1 1 100%;
+            }
+        }
+
+        /* 教程封面图 */
+        .anzi-tutorial-cover {
+            display: block;
+            margin-top: 16px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .anzi-tutorial-cover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 22px rgba(0, 0, 0, 0.18);
+        }
+
+        .anzi-tutorial-cover img {
+            display: block;
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+
+        /* 顶部横向链接区：切片工具 + 切片教程 + B站空间 */
+        .anzi-top-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .anzi-top-link {
+            flex: 1 1 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            padding: 14px 10px;
+            border-radius: 18px;
+            text-decoration: none;
+            color: white;
+            text-align: center;
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+            min-width: 0;
+        }
+
+        .anzi-top-link:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 22px rgba(0, 0, 0, 0.18);
+        }
+
+        .anzi-top-tool {
+            background: linear-gradient(135deg, #2b7a4b, #4caf7a);
+        }
+
+        .anzi-top-tutorial {
+            background: linear-gradient(135deg, #1a6db5, #4a9fe0);
+        }
+
+        .anzi-top-space {
+            background: linear-gradient(135deg, #d74177, #ff7aa2);
+        }
+
+        .anzi-top-icon {
+            font-size: 1.4rem;
+            line-height: 1;
+        }
+
+        .anzi-top-label {
+            font-size: 0.92rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .anzi-top-sub {
+            font-size: 0.72rem;
+            opacity: 0.85;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 520px) {
+            .anzi-top-link {
+                flex: 1 1 100px;
+                padding: 12px 6px;
+            }
+
+            .anzi-top-label {
+                font-size: 0.82rem;
+            }
+
+            .anzi-top-sub {
+                font-size: 0.66rem;
+            }
+        }
+
+        /* 软件下载区块 */
+        /* 折叠下载面板 */
+        .anzi-download-block {
+            flex: 1 1 320px;
+            margin-top: 0;
+            min-width: 0;
+            background: #fff;
+            border: 1px solid #f0eef3;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        /* 标题栏（点击切换） */
+        .anzi-download-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px 20px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #d74177, #f39c12);
+            color: #fff;
+            user-select: none;
+            transition: filter 0.2s;
+        }
+
+        .anzi-download-header:hover {
+            filter: brightness(1.06);
+        }
+
+        .anzi-download-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0;
+        }
+
+        .anzi-download-arrow {
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+
+        /* 展开时箭头旋转 */
+        .anzi-download-block.open .anzi-download-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* 内容区（默认收起） */
+        .anzi-download-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, padding 0.35s ease;
+            padding: 0 16px;
+        }
+
+        .anzi-download-block.open .anzi-download-body {
+            max-height: 520px;
+            padding: 14px 16px 18px;
+            overflow-y: auto;
+        }
+
+        /* 平台列表 */
+        .anzi-platform-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .anzi-platform-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 14px;
+            background: #fafafa;
+            border: 1px solid #f0eef3;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .anzi-platform-item:hover {
+            background: #fff3f5;
+            border-color: #ffd4e0;
+        }
+
+        .anzi-platform-name {
+            flex: 1;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #2c3e50;
+            white-space: nowrap;
+        }
+
+        .anzi-platform-btn {
+            flex-shrink: 0;
+            background: #d74177;
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 30px;
+            text-decoration: none;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        .anzi-platform-btn:hover {
+            background: #ff7aa2;
+            transform: translateY(-1px);
+        }
+
+        .anzi-platform-code {
+            flex-shrink: 0;
+            background: #ffe9f0;
+            border: 1px solid #ffd4e0;
+            color: #d74177;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.78rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* 小屏幕适配 */
+        @media (max-width: 720px) {
+            .anzi-download-block {
+                flex: 1 1 100%;
+            }
+
+            .anzi-platform-item {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .anzi-platform-name {
+                font-size: 0.82rem;
+            }
+
+            .anzi-platform-btn {
+                font-size: 0.74rem;
+                padding: 5px 12px;
+            }
+
+            .anzi-platform-code {
+                font-size: 0.72rem;
+                padding: 2px 8px;
+            }
+        }
+
+        .anzi-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .anzi-avatar {
+            width: 132px;
+            height: 132px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 10px 18px rgba(0, 0, 0, 0.15);
+            flex-shrink: 0;
+        }
+
+        .anzi-body {
+            text-align: left;
+        }
+
+        .anzi-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 6px;
+        }
+
+        .anzi-role {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #d74177;
+            background: #ffe9f0;
+            border: 1px solid #ffd4e0;
+            padding: 3px 14px;
+            border-radius: 30px;
+            margin-bottom: 12px;
+        }
+
+        .anzi-desc {
+            font-size: 0.92rem;
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .anzi-btn {
+            display: inline-block;
+            background: #d74177;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 9px 24px;
+            border-radius: 40px;
+            transition: 0.2s;
+        }
+
+        .anzi-card:hover .anzi-btn {
+            background: #ff7aa2;
+        }
+
+        @media (max-width: 620px) {
+            .anzi-card {
+                flex-direction: column;
+                text-align: center;
+                padding: 26px 20px;
+                gap: 18px;
+            }
+
+            .anzi-body {
+                text-align: center;
+            }
+
+            .anzi-avatar {
+                width: 110px;
+                height: 110px;
+            }
+
+            /* 头像可点击包裹 */
+            .anzi-avatar-link {
+                display: inline-block;
+                flex-shrink: 0;
+                border-radius: 50%;
+                transition: transform 0.25s ease, box-shadow 0.25s ease;
+                box-shadow: 0 10px 18px rgba(0, 0, 0, 0.15);
+            }
+
+            .anzi-avatar-link:hover {
+                transform: translateY(-4px) scale(1.03);
+                box-shadow: 0 16px 26px rgba(215, 65, 119, 0.35);
+            }
+
+            /* 头像本身去掉重复阴影，由外层链接控制 */
+            .anzi-avatar-link .anzi-avatar {
+                display: block;
+                box-shadow: none;
+            }
+
+            /* 顶部横向链接区：切片工具 + 切片教程 */
+            .anzi-top-links {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+                margin-top: 16px;
+            }
+
+            .anzi-top-link {
+                flex: 1 1 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 2px;
+                padding: 16px 10px;
+                border-radius: 18px;
+                text-decoration: none;
+                color: white;
+                text-align: center;
+                transition: transform 0.22s ease, box-shadow 0.22s ease;
+                box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+                min-width: 0;
+            }
+
+            .anzi-top-link:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 22px rgba(0, 0, 0, 0.18);
+            }
+
+            .anzi-top-tool {
+                background: linear-gradient(135deg, #2b7a4b, #4caf7a);
+            }
+
+            .anzi-top-tutorial {
+                background: linear-gradient(135deg, #1a6db5, #4a9fe0);
+            }
+
+            .anzi-top-icon {
+                font-size: 1.5rem;
+                line-height: 1;
+            }
+
+            .anzi-top-label {
+                font-size: 1rem;
+                font-weight: 700;
+                white-space: nowrap;
+            }
+
+            .anzi-top-sub {
+                font-size: 0.75rem;
+                opacity: 0.85;
+                white-space: nowrap;
+            }
+
+            @media (max-width: 520px) {
+                .anzi-top-link {
+                    padding: 12px 6px;
+                }
+
+                .anzi-top-label {
+                    font-size: 0.88rem;
+                }
+
+                .anzi-top-sub {
+                    font-size: 0.68rem;
+                }
+            }
+
+            .anzi-name {
+                font-size: 1.5rem;
+            }
+        }
+
         /* 一级问题新样式：四个输入框 */
         .primary-quiz-grid {
             display: grid;
@@ -2096,142 +2581,6 @@
             align-self: center;
             color: #555;
         }
-
-        /* ========== 电子木鱼 & 抽签筒样式 ========== */
-        .zen-section {
-            scroll-margin-top: 80px;
-            margin-bottom: 4rem;
-        }
-
-        .zen-double {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2rem;
-            justify-content: center;
-        }
-
-        .zen-card {
-            flex: 1;
-            min-width: 260px;
-            background: rgba(255, 248, 235, 0.75);
-            backdrop-filter: blur(10px);
-            border-radius: 48px;
-            padding: 1.8rem 1.5rem;
-            text-align: center;
-            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 215, 180, 0.6);
-        }
-
-        .zen-card:hover {
-            transform: translateY(-6px);
-            border-color: #d74177;
-        }
-
-        .merit-counter {
-            font-size: 2.2rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #d74177, #f39c12);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin: 0.5rem 0;
-        }
-
-        .fish-icon {
-            font-size: 6rem;
-            cursor: pointer;
-            display: inline-block;
-            filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.2));
-            margin: 1rem 0;
-            transition: 0.05s linear;
-        }
-
-        .fish-icon:active {
-            transform: scale(0.92);
-        }
-
-        .hit-effect {
-            animation: hitShake 0.1s ease-in-out 0s 2;
-        }
-
-        @keyframes hitShake {
-            0% {
-                transform: rotate(0deg) scale(1);
-            }
-
-            50% {
-                transform: rotate(8deg) scale(1.12);
-            }
-
-            100% {
-                transform: rotate(0deg) scale(1);
-            }
-        }
-
-        .float-number {
-            position: fixed;
-            pointer-events: none;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #ff8c42;
-            text-shadow: 0 0 5px white;
-            z-index: 9999;
-            animation: floatUp 0.8s ease-out forwards;
-        }
-
-        @keyframes floatUp {
-            0% {
-                opacity: 1;
-                transform: translateY(0px) scale(0.8);
-            }
-
-            100% {
-                opacity: 0;
-                transform: translateY(-70px) scale(1.2);
-            }
-        }
-
-        .lottery-display {
-            background: #fff9ef;
-            border-radius: 60px;
-            padding: 1rem 1.2rem;
-            margin: 1.2rem 0;
-            font-size: 1rem;
-            font-weight: 500;
-            color: #b34e3a;
-            border-left: 6px solid #d74177;
-            text-align: center;
-        }
-
-        .lottery-btn {
-            background: #d74177;
-            border: none;
-            color: white;
-            padding: 12px 24px;
-            font-size: 1.1rem;
-            border-radius: 60px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .lottery-btn:hover {
-            background: #ff7aa2;
-            transform: scale(1.02);
-        }
-
-        .draw-count {
-            font-size: 0.8rem;
-            margin-top: 12px;
-            color: #8b6b4d;
-        }
-
-        @media (max-width: 800px) {
-            .fish-icon {
-                font-size: 5rem;
-            }
-        }
     </style>
 </head>
 <!-- ========== 上海实时天气氛围效果（基于 Open-Meteo） ========== -->
@@ -2440,6 +2789,7 @@
             <li><a href="#hd">HD画册</a></li>
             <li><a href="#clothes">服饰展示</a></li>
             <li><a href="#universe-heroes">宇宙英雄</a></li>
+            <li><a href="#anzi">秩序丶安</a></li>
             <li><a href="#contact">社交平台</a></li>
             <div class="nav-right">
                 <div class="lang-switcher">
@@ -2470,6 +2820,7 @@
 
     <!-- 主内容 -->
     <main>
+
         <!-- 成员介绍 (完整保留) -->
         <section id="about">
             <h2>✨ 成员介绍</h2>
@@ -2993,7 +3344,7 @@
                                 <div class="song-title">恋爱单日券</div>
                             </div>
                         </div>
-                        <div class="song-card" onclick="openVideo('BV1n7P9zLEhM')"><img class="song-cover"
+                        <div class="song-card" onclick="openVideo('BV1kshm6JEDz')"><img class="song-cover"
                                 src="images/暗里生花.jpg">
                             <div class="song-info">
                                 <div class="song-title">暗里生花</div>
@@ -3214,42 +3565,7 @@
                 <div id="clothes-accordion-wrapper"></div>
             </div>
         </section>
-        <!-- 电子木鱼 + 禧运灵签 -->
-        <section id="zen-section" class="zen-section">
-            <h2>🙏 禅心阁 · 敲木鱼 积福缘</h2>
-            <div class="zen-double">
-                <!-- 木鱼功德组件 -->
-                <div
-                    style="background: rgba(255,248,235,0.6); border-radius: 48px; padding: 0.5rem; backdrop-filter: blur(4px);">
-                    <iframe src="./muyu/index.html"
-                        style="width: 150%; height: 520px; border: none; border-radius: 32px;" scrolling="auto">
-                    </iframe>
-                </div>
-            </div>
-            <!-- 抽签筒 -->
-            <div class="zen-card">
-                <div class="zen-icon"><i class="fas fa-cube"></i></div>
-                <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">🎋 禧运灵签</h3>
-                <div class="lottery-display" id="lotteryResultDisplay">
-                    轻点签筒，抽取今日福运
-                </div>
-                <button class="lottery-btn" id="drawLotteryBtn">
-                    <i class="fas fa-hand-peace"></i> 摇一摇 · 抽灵签
-                </button>
-                <div class="draw-count" id="drawCountDisplay">✨ 已抽签 0 次</div>
-                <p style="font-size:0.7rem; margin-top: 12px;">每次抽签功德+1，且灵签蕴含禧运祝福</p>
-            </div>
-            </div>
-        </section>
-        <section id="zhouyi" style="margin-top: 4rem;">
-            <h2>🪷 周易金钱卦 · 自动占卜</h2>
-            <div
-                style="background: rgba(255,248,235,0.6); border-radius: 48px; padding: 1rem; backdrop-filter: blur(4px);">
-                <iframe src="./zhouyi/index.html"
-                    style="width: 100%; min-height: 800px; border: none; border-radius: 32px;" title="周易金钱卦占卜">
-                </iframe>
-            </div>
-        </section>
+
         <!-- ========== 新增：禧运宇宙英雄 (动态生成) ========== -->
         <section id="universe-heroes">
             <h2>🌌 禧运宇宙英雄</h2>
@@ -3282,7 +3598,100 @@
             </div>
             <p style="text-align:center; color:#555; margin-top: 20px;">✨ 更多联动英雄持续解锁中 ✨</p>
         </section>
+        <!-- ========== 秩序丶安 单独栏目 ========== -->
+        <section id="anzi">
+            <h2>🎬 四禧丸子永远的切片员</h2>
+            <div class="anzi-showcase">
+                <div class="anzi-card">
+                    <!-- 点击头像跳转B站空间 -->
+                    <a href="https://space.bilibili.com/1113769832" target="_blank" rel="noopener"
+                        class="anzi-avatar-link" title="进入秩序丶安的B站空间">
+                        <img class="anzi-avatar" src="images/安子.jpg" alt="秩序丶安"
+                            onerror="this.src='https://i0.hdslb.com/bfs/face/member/noface.jpg'">
+                    </a>
+                    <div class="anzi-body">
+                        <div class="anzi-name">秩序丶安(休眠中)</div>
+                        <div class="anzi-role">四禧丸子切片员中最高的山，最长的河</div>
+                        <div class="anzi-desc">记录禧运楼的高光与快乐，把每一份精彩剪成回忆。</div>
 
+                        <!-- 顶部横向：切片工具 + 切片教程 -->
+                        <div class="anzi-top-links">
+                            <a href="https://www.bilibili.com/video/BV1braL6GENA" target="_blank" rel="noopener"
+                                class="anzi-tutorial-cover">
+                                <img src="images/切片教程封面.jpg" alt="切片教程封面"
+                                    onerror="this.src='https://i0.hdslb.com/bfs/archive/placeholder.jpg'">
+                            </a>
+
+                        </div>
+
+                        <!-- 封面图 + 折叠下载面板：横向并排 -->
+                        <div class="anzi-content-row">
+                            <!-- 左：教程封面图，点击跳转教程视频 -->
+                            <a href="https://pan.quark.cn/s/17ae4ef1cfc0?pwd=dwtT" target="_blank" rel="noopener"
+                                class="anzi-top-link anzi-top-tool">
+                                <span class="anzi-top-icon">🔧</span>
+                                <span class="anzi-top-label">切片工具</span>
+                                <span class="anzi-top-sub">夸克网盘</span>
+                            </a>
+                            <a href="https://pan.baidu.com/s/10lHuAQ1QBtFLoejcFtf5VA?pwd=sxwz" target="_blank"
+                                rel="noopener" class="anzi-top-link anzi-top-tutorial">
+                                <span class="anzi-top-icon">🔧</span>
+                                <span class="anzi-top-label">切片工具</span>
+                                <span class="anzi-top-sub">百度网盘</span>
+                            </a>
+
+                            <!-- 右：折叠式软件下载面板 -->
+                            <div class="anzi-download-block">
+                                <div class="anzi-download-header" onclick="this.parentElement.classList.toggle('open')">
+                                    <span class="anzi-download-title">📦 相关软件下载 · 48tool</span>
+                                    <span class="anzi-download-arrow">▼</span>
+                                </div>
+                                <div class="anzi-download-body">
+                                    <div class="anzi-platform-list">
+                                        <div class="anzi-platform-item">
+                                            <span class="anzi-platform-name">mac</span>
+                                            <a href="https://pan.baidu.com/s/1yWjxFR1-s1u9dHKWtnLlzw?pwd=ifhj"
+                                                target="_blank" rel="noopener" class="anzi-platform-btn">点击下载</a>
+                                            <code class="anzi-platform-code">ifhj</code>
+                                        </div>
+                                        <div class="anzi-platform-item">
+                                            <span class="anzi-platform-name">mac arm64</span>
+                                            <a href="https://pan.baidu.com/s/1xIgzFGaKWl7TzlIV9a0ASg?pwd=v7tm"
+                                                target="_blank" rel="noopener" class="anzi-platform-btn">点击下载</a>
+                                            <code class="anzi-platform-code">v7tm</code>
+                                        </div>
+                                        <div class="anzi-platform-item">
+                                            <span class="anzi-platform-name">win x64</span>
+                                            <a href="https://pan.baidu.com/s/1PQEJG-aFtjLnoth1sxUmPA?pwd=nqtv"
+                                                target="_blank" rel="noopener" class="anzi-platform-btn">点击下载</a>
+                                            <code class="anzi-platform-code">nqtv</code>
+                                        </div>
+                                        <div class="anzi-platform-item">
+                                            <span class="anzi-platform-name">win arm64</span>
+                                            <a href="https://pan.baidu.com/s/1-Oot5D0V92UcMrj4RQSDgA?pwd=7ky5"
+                                                target="_blank" rel="noopener" class="anzi-platform-btn">点击下载</a>
+                                            <code class="anzi-platform-code">7ky5</code>
+                                        </div>
+                                        <div class="anzi-platform-item">
+                                            <span class="anzi-platform-name">win x32</span>
+                                            <a href="https://pan.baidu.com/s/1UmLB3XtLWK5v0iRbEFbQHw?pwd=ejnc"
+                                                target="_blank" rel="noopener" class="anzi-platform-btn">点击下载</a>
+                                            <code class="anzi-platform-code">ejnc</code>
+                                        </div>
+                                        <div class="anzi-platform-item">
+                                            <span class="anzi-platform-name">linux x64</span>
+                                            <a href="https://pan.baidu.com/s/1CG2RHI-JXo6ylwP52QWIzA?pwd=8bjk"
+                                                target="_blank" rel="noopener" class="anzi-platform-btn">点击下载</a>
+                                            <code class="anzi-platform-code">8bjk</code>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
         <!-- 社交平台 (三层谜题) -->
         <section id="contact">
             <h2>📱 社交平台 & 禧运谜题</h2>
@@ -3293,13 +3702,17 @@
                 <a href="https://space.bilibili.com/1878154667" target="_blank"><img src="images/丸.png" alt="沐霂"></a>
                 <a href="https://space.bilibili.com/1900141897" target="_blank"><img src="images/子字举牌.png" alt="梨安"></a>
             </div>
+
             <h2>切片员</h2>
             <div class="social-avatars">
-                <a href="https://space.bilibili.com/1113769832" target="_blank"><img src="images/安子.jpg" alt="秩序丶安"></a>
                 <a href="https://space.bilibili.com/1497560529" target="_blank"><img src="images/录播机.jpg" alt="录播机"></a>
                 <a href="https://space.bilibili.com/3546873990219945" target="_blank"><img src="images/耿鬼.jpg"
                         alt="愉光Omega"></a>
                 <a href="https://space.bilibili.com/13193691" target="_blank"><img src="images/栝豆发芽了.jpg"
+                        alt="栝豆发芽了"></a>
+                <a href="https://space.bilibili.com/3546638039648527" target="_blank"><img src="images/天才美少女豆神.jpg"
+                        alt="栝豆发芽了"></a>
+                <a href="https://space.bilibili.com/13897262" target="_blank"><img src="images/黑白毛兔.jpg"
                         alt="栝豆发芽了"></a>
             </div>
             <h2>粉丝团伙</h2>
@@ -3510,6 +3923,8 @@
                 <p style="color: #888; font-size:0.8rem; text-align:center;">※ 微博链接为示例，请自行核对替换</p>
             </div>
         </section>
+
+
 
         <footer>
             <!-- 流光留言板 · 粉丝牌应援版 -->
@@ -3788,8 +4203,7 @@
             { name: "阿梓从小就很可爱", file: "阿梓从小就很可爱.jpg", uid: "7706705", desc: "这一拜 · 游戏回" },
             { name: "雫るる_Official", file: "雫るる_Official.jpg", uid: "387636363", desc: "可爱るる · 天选国V" },
             { name: "露米Lumi_Official", file: "露米Lumi_Official.jpg", uid: "2000609327", desc: "天籁之音 · 二代工伤" },
-            { name: "栞栞Shiori", file: "栞栞Shiori.jpg", uid: "1609526545", desc: "海獭冲击 · GN硕士" },
-            { name: "露早GOGO", file: "露早GOGO.jpg", uid: "1669777785", desc: "略早区 · GOGO队" },
+            { name: "栞栞Shiori", file: "栞栞Shiori.jpg", uid: "1609526545", desc: "海獭冲击 · GN硕士" }, ,
             { name: "黎歌Neeko", file: "黎歌Neeko.jpg", uid: "671538942", desc: "榜一大姐 · 送上新衣" }
         ];
 
@@ -3939,7 +4353,7 @@
                 navAbout: "成员介绍", navSkills: "核心能力", navPortfolio: "入坑必刷",
                 navWork: "音乐作品", navOthers: "荣誉里程碑", navGames: "游戏区",
                 navMerch: "周边区", navHd: "HD画册", navClothes: "服饰展示",
-                navUniverse: "宇宙英雄", navContact: "社交平台",
+                navUniverse: "宇宙英雄", navAnzi: "秩序丶安", navContact: "社交平台",
                 // 头部 Hero
                 heroName: "四禧丸子", heroMotto: "老字号新传承，国风虚拟偶像",
                 heroIntro: "四禧丸子是由四位虚拟偶像组成的国风虚拟偶像组合，恬豆、又一、沐霂、梨安四位成员传承百年老字号「禧运楼」，以Bilibili为主阵地，用音乐和直播传递快乐",
@@ -4081,7 +4495,7 @@
                 navAbout: "Members", navSkills: "Core Skills", navPortfolio: "Must Watch",
                 navWork: "Music", navOthers: "Milestones", navGames: "Games",
                 navMerch: "Merch", navHd: "HD Gallery", navClothes: "Costumes",
-                navUniverse: "Universe Heroes", navContact: "Social",
+                navUniverse: "Universe Heroes", navAnzi: "Anzi", navContact: "Social",
                 heroName: "Sixi Wanzi", heroMotto: "Time-honored heritage, Chinese-style virtual idols",
                 heroIntro: "Sixi Wanzi is a Chinese-style virtual idol group consisting of Bekki, Yoyi, Queenie, and Lian. They inherit the century-old brand 'Xiyun Lou' and spread joy through music and live streaming on Bilibili.",
                 heroBtn: "Follow Us",
@@ -4212,7 +4626,7 @@
                 navAbout: "メンバー紹介", navSkills: "コアスキル", navPortfolio: "おすすめ動画",
                 navWork: "音楽作品", navOthers: "功績", navGames: "ゲーム",
                 navMerch: "グッズ", navHd: "HDギャラリー", navClothes: "衣装",
-                navUniverse: "ユニバースヒーロー", navContact: "SNS",
+                navUniverse: "ユニバースヒーロー", navAnzi: "秩序丶安", navContact: "SNS",
                 heroName: "四禧丸子（スーシーワンズ）", heroMotto: "老舗の新たな継承、中華風バーチャルアイドル",
                 heroIntro: "四禧丸子は、恬豆、又一、沐霂、梨安の4人からなる中華風バーチャルアイドルグループです。百年の歴史を持つ「禧運楼」を継承し、Bilibiliで音楽と配信を通じて楽しさを届けます。",
                 heroBtn: "フォローする",
@@ -4340,7 +4754,7 @@
                 navAbout: "멤버 소개", navSkills: "핵심 능력", navPortfolio: "추천 영상",
                 navWork: "음악 작품", navOthers: "업적", navGames: "게임",
                 navMerch: "굿즈", navHd: "HD 화보", navClothes: "의상",
-                navUniverse: "유니버스 히어로", navContact: "소셜",
+                navUniverse: "유니버스 히어로", navAnzi: "안지", navContact: "소셜",
                 heroName: "쓰시완즈", heroMotto: "오랜 전통의 계승, 중국풍 버추얼 아이돌",
                 heroIntro: "쓰시완즈는 톈더우, 요이, 무무, 리안 네 명의 버추얼 아이돌로 구성된 중국풍 그룹입니다. 백년 역사의 '시윈러우'를 계승하여 Bilibili에서 음악과 라이브 방송으로 기쁨을 전합니다.",
                 heroBtn: "팔로우",
@@ -4463,7 +4877,7 @@
 
             // ----- 1. 导航栏 -----
             const navLinks = document.querySelectorAll('nav ul li a');
-            const navTexts = [t.navAbout, t.navSkills, t.navPortfolio, t.navWork, t.navOthers, t.navGames, t.navMerch, t.navHd, t.navClothes, t.navUniverse, t.navContact];
+            const navTexts = [t.navAbout, t.navSkills, t.navPortfolio, t.navWork, t.navOthers, t.navGames, t.navMerch, t.navHd, t.navClothes, t.navUniverse, t.navAnzi, t.navContact];
             navLinks.forEach((link, idx) => { if (navTexts[idx]) link.innerText = navTexts[idx]; });
 
             // ----- 2. Hero 区域 -----
@@ -4713,170 +5127,7 @@
             });
 
             // ----- 13. HD画册和服饰展示的标题已经通过 h2 更新，无需额外处理 -----
-            // ========== 电子木鱼 + 禧运塔罗 (牌号从1开始，图片 card_01.jpg ~ card_22.jpg) ==========
-            (function () {
-                let totalMerit = 0;
-                let totalDraws = 0;
-                const STORAGE_KEY = 'sixi_zen_merit';
-                const DRAWS_KEY = 'sixi_zen_draws';
 
-                // 塔罗牌数据 (索引0→愚者(1号), 索引1→魔术师(2号), ..., 索引21→世界(22号))
-                const TAROT_CARDS = [
-                    { name: "愚者", meaning: "新的开始，充满无限可能。前路崎岖，但从不孤单。" },
-                    { name: "魔术师", meaning: "创造力与潜能，禧运楼将迎来新的精彩企划。" },
-                    { name: "女祭司", meaning: "直觉与智慧，相信自己的第一感觉。" },
-                    { name: "女皇", meaning: "丰饶与滋养，努力终将开花结果。" },
-                    { name: "皇帝", meaning: "技术与秩序，稳定的力量正在成长。" },
-                    { name: "教皇", meaning: "精神与信仰，偶像的光芒将指引方向。" },
-                    { name: "恋人", meaning: "选择与羁绊，与重要之人共同前行。" },
-                    { name: "战车", meaning: "意志与胜利，一切阻碍终将被克服。" },
-                    { name: "力量", meaning: "温柔与勇气，用内在的力量引导美好。" },
-                    { name: "隐士", meaning: "自省与智慧，沉淀过后将更加强大。" },
-                    { name: "命运之轮", meaning: "变动与循环，新的际遇即将到来。" },
-                    { name: "正义", meaning: "平衡与公正，付出终有回报。" },
-                    { name: "倒吊人", meaning: "换位与奉献，换个角度看问题。" },
-                    { name: "死神", meaning: "转变与新生，旧的事物离去，迎接崭新篇章。" },
-                    { name: "节制", meaning: "和谐与调和，一切都在往好的方向发展。" },
-                    { name: "恶魔", meaning: "束缚与执念，是时候放下不必要的负担。" },
-                    { name: "高塔", meaning: "突发与剧变，真相终将浮出水面。" },
-                    { name: "星星", meaning: "希望与灵感，前方充满治愈的指引。" },
-                    { name: "月亮", meaning: "朦胧与未知，两种态度决定不同结局。" },
-                    { name: "太阳", meaning: "喜悦与成功，光明驱散所有阴霾。" },
-                    { name: "审判", meaning: "觉醒与召唤，迎接全新的开始。" },
-                    { name: "世界", meaning: "完成与圆满，四禧丸子的故事有你才完整。" }
-                ];
-
-                // 根据索引获取图片路径 (索引0→card_01.jpg, 索引1→card_02.jpg, ..., 索引21→card_22.jpg)
-                function getTarotImagePath(index) {
-                    const cardNumber = (index + 1).toString().padStart(2, '');   // 1~22 补零为两位
-                    return `taluo/card_${cardNumber}.jpg`;
-                }
-
-                // ---------- 挂载到全局方便调试 ----------
-                window.debugTarot = {
-                    getImagePath: getTarotImagePath,
-                    getCardByIndex: (idx) => TAROT_CARDS[idx],
-                    getAllCards: () => TAROT_CARDS
-                };
-
-                // ---------- UI 更新函数 ----------
-                function updateMeritUI() {
-                    const meritSpan = document.getElementById('meritTotalDisplay');
-                    if (meritSpan) meritSpan.innerText = totalMerit;
-                    localStorage.setItem(STORAGE_KEY, totalMerit);
-                }
-
-                function updateDrawUI() {
-                    const drawSpan = document.getElementById('drawCountDisplay');
-                    if (drawSpan) drawSpan.innerHTML = `✨ 已占卜 ${totalDraws} 次`;
-                    localStorage.setItem(DRAWS_KEY, totalDraws);
-                }
-
-                function refreshUI() {
-                    updateMeritUI();
-                    updateDrawUI();
-                }
-
-                // 浮动数字特效
-                function showFloatingNumber(x, y, text) {
-                    const floatDiv = document.createElement('div');
-                    floatDiv.className = 'float-number';
-                    floatDiv.innerText = text;
-                    floatDiv.style.left = (x - 25) + 'px';
-                    floatDiv.style.top = (y - 30) + 'px';
-                    document.body.appendChild(floatDiv);
-                    setTimeout(() => floatDiv.remove(), 800);
-                }
-
-                // 增加功德
-                function addMerit(amount, event) {
-                    totalMerit += amount;
-                    updateMeritUI();
-
-                    let clientX = event.clientX, clientY = event.clientY;
-                    if (!clientX && event.touches) {
-                        clientX = event.touches[0].clientX;
-                        clientY = event.touches[0].clientY;
-                    }
-                    if (clientX && clientY) showFloatingNumber(clientX, clientY, `功德 +${amount}`);
-
-                    const fish = document.getElementById('woodenFishBtn');
-                    if (fish) {
-                        fish.classList.add('hit-effect');
-                        setTimeout(() => fish.classList.remove('hit-effect'), 150);
-                    }
-                    if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(30);
-                }
-
-                // 敲木鱼
-                function onFishClick(e) {
-                    addMerit(1, e);
-                }
-
-                function drawTarot(event) {
-                    totalDraws++;
-                    updateDrawUI();
-
-                    const randomIndex = Math.floor(Math.random() * TAROT_CARDS.length);
-                    const card = TAROT_CARDS[randomIndex];
-                    const cardNumber = randomIndex + 1;               // 🔥 关键修正：牌号从1开始
-                    const imgPath = getTarotImagePath(randomIndex);
-
-                    const resultDiv = document.getElementById('lotteryResultDisplay');
-                    if (resultDiv) {
-                        resultDiv.innerHTML = `
-            🃏 你抽到了：<strong style="color:#d74177;">【${card.name}】 (${cardNumber - 1}号牌)</strong>
-            <br><span style="font-size:0.9rem;">✨ ${card.meaning}</span>
-            <div style="margin-top: 12px;">
-                <img src="${imgPath}" 
-                     style="max-width: 130px; border-radius: 20px; box-shadow: 0 6px 14px rgba(0,0,0,0.2); cursor: pointer;"
-                     onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-block';"
-                     onclick="window.open(this.src, '_blank')">
-                <span style="display: none; font-size: 0.7rem; color: #aaa;">🃟 ${card.name}</span>
-            </div>
-            <div style="margin-top: 8px; font-size: 0.7rem;">💡 点击图片可放大查看</div>
-        `;
-                    }
-
-                    const btn = document.getElementById('drawLotteryBtn');
-                    if (btn) {
-                        btn.style.transform = 'scale(0.96)';
-                        setTimeout(() => btn.style.transform = '', 120);
-                    }
-                    if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
-                }
-                // 加载存储数据
-                function loadData() {
-                    const savedMerit = localStorage.getItem(STORAGE_KEY);
-                    if (savedMerit !== null) totalMerit = parseInt(savedMerit);
-                    const savedDraws = localStorage.getItem(DRAWS_KEY);
-                    if (savedDraws !== null) totalDraws = parseInt(savedDraws);
-                    refreshUI();
-                }
-
-                // 绑定事件
-                function bindEvents() {
-                    const fishBtn = document.getElementById('woodenFishBtn');
-                    if (fishBtn) {
-                        fishBtn.addEventListener('click', onFishClick);
-                        fishBtn.addEventListener('touchstart', onFishClick, { passive: false });
-                    }
-                    const drawBtn = document.getElementById('drawLotteryBtn');
-                    if (drawBtn) {
-                        drawBtn.removeEventListener('click', drawTarot);
-                        drawBtn.removeEventListener('touchstart', drawTarot);
-                        drawBtn.addEventListener('click', drawTarot);
-                        drawBtn.addEventListener('touchstart', drawTarot, { passive: false });
-                    }
-                }
-
-                // 初始化
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', () => { loadData(); bindEvents(); });
-                } else {
-                    loadData(); bindEvents();
-                }
-            })();
             // ----- 14. 宇宙英雄区域（动态生成的英雄卡片描述）-----
             const heroDescs = document.querySelectorAll('#universe-heroes .hero-desc');
             heroDescs.forEach((desc, idx) => {
