@@ -1,0 +1,196 @@
+<!-- 社交平台 & 禧运谜题 -->
+<section id="contact">
+    <h2>📱 社交平台 & 禧运谜题</h2>
+
+    <!-- 社交头像 -->
+    <div class="social-avatars">
+        <a href="https://space.bilibili.com/1660392980" target="_blank"><img src="images/四.png" alt="恬豆"></a>
+        <a href="https://space.bilibili.com/1217754423" target="_blank"><img src="images/禧.png" alt="又一"></a>
+        <a href="https://space.bilibili.com/1878154667" target="_blank"><img src="images/丸.png" alt="沐霂"></a>
+        <a href="https://space.bilibili.com/1900141897" target="_blank"><img src="images/子字举牌.png" alt="梨安"></a>
+    </div>
+
+    <h2>切片员</h2>
+    <div class="social-avatars">
+        <a href="https://space.bilibili.com/1497560529" target="_blank"><img src="images/录播机.jpg" alt="录播机"></a>
+        <a href="https://space.bilibili.com/3546873990219945" target="_blank"><img src="images/耿鬼.jpg" alt="愉光Omega"></a>
+        <a href="https://space.bilibili.com/13193691" target="_blank"><img src="images/栝豆发芽了.jpg" alt="栝豆发芽了"></a>
+        <a href="https://space.bilibili.com/3546638039648527" target="_blank"><img src="images/天才美少女豆神.jpg" alt="天才美少女豆神"></a>
+        <a href="https://space.bilibili.com/13897262" target="_blank"><img src="images/黑白毛兔.jpg" alt="黑白毛兔"></a>
+    </div>
+
+    <h2>粉丝团伙</h2>
+    <div class="social-avatars">
+        <a href="https://space.bilibili.com/3546384907110734" target="_blank"><img src="images/牛博士.jpg" alt="沐霂博士学社"></a>
+        <a href="https://space.bilibili.com/3493266391566784" target="_blank"><img src="images/包子铺.jpg" alt="恬豆包子铺"></a>
+        <a href="https://space.bilibili.com/3546380643601223" target="_blank"><img src="images/充电站.jpg" alt="酥酥又充电站"></a>
+        <a href="https://space.bilibili.com/357839454" target="_blank"><img src="images/美食屋.jpg" alt="向心梨美食屋"></a>
+    </div>
+
+    <!-- 一级问题区域 -->
+    <div id="primaryQuiz">
+        <p>禧运楼秘密需要全部答对以下四个问题才能解锁：</p>
+        <div class="primary-quiz-grid">
+            <label>恬豆最喜欢听什么歌？</label>
+            <input type="text" id="ans1" placeholder="例如 zmyyq">
+            <label>沐霂身高多少？</label>
+            <input type="text" id="ans2" placeholder="标准答案167">
+            <label>又爸又妈在哪认识的又一？</label>
+            <input type="text" id="ans3" placeholder="湘北雨姐最带派">
+            <label>梨安几个手枪腿吃不饱？</label>
+            <input type="text" id="ans4" placeholder="大胃袋这一块">
+            <button class="primary-submit" onclick="verifyAllAnswers()">全部验证</button>
+            <div id="errorMessage" class="error-message">答案错误，请重新输入</div>
+        </div>
+    </div>
+
+    <!-- 一级解锁：四个B站直播间 -->
+    <div id="bilibiliRooms" style="display: none; margin: 30px 0;">
+        <h3>🎥 恭喜解锁！点击进入DLC1</h3>
+        <div class="game-grid" style="grid-template-columns: repeat(4,1fr);">
+            <div class="game-card" onclick="window.open('https://space.bilibili.com/1930621936', '_blank')">
+                <img class="game-icon" src="characters/DM_20260313201021_004.jpg" alt="南瓜瓜" onerror="this.src='https://i0.hdslb.com/bfs/face/member/noface.jpg'">
+                <div class="game-name">南瓜瓜_kana</div>
+            </div>
+            <div class="game-card" onclick="window.open('https://space.bilibili.com/1174043340', '_blank')">
+                <img class="game-icon" src="characters/DM_20260313201021_003.jpg" alt="佑晞喵喵" onerror="this.src='https://i0.hdslb.com/bfs/face/member/noface.jpg'">
+                <div class="game-name">佑晞喵喵</div>
+            </div>
+            <div class="game-card" onclick="window.open('https://space.bilibili.com/1931074737', '_blank')">
+                <img class="game-icon" src="characters/DM_20260313201021_001.jpg" alt="丸丸" onerror="this.src='https://i0.hdslb.com/bfs/face/member/noface.jpg'">
+                <div class="game-name">丸丸_maruko</div>
+            </div>
+            <div class="game-card" onclick="window.open('https://space.bilibili.com/1478352293', '_blank')">
+                <img class="game-icon" src="characters/DM_20260313201021_002.JPEG" alt="小灯" onerror="this.src='https://i0.hdslb.com/bfs/face/member/noface.jpg'">
+                <div class="game-name">小灯_Hotaru_</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 二级问题区域：生日谜题 -->
+    <div id="secondLevelQuiz" class="second-level-quiz" style="display: none;">
+        <h3 style="color:#d74177;">🎂 输入成员生日，解锁DLC2</h3>
+        <div class="birthday-row">
+            <span class="birthday-member">恬豆</span>
+            <input type="text" class="birthday-input" id="bdayTiandou" placeholder="例如 0614">
+            <button class="birthday-btn" id="btnTiandou" onclick="verifyBirthday('tiandou')">验证</button>
+        </div>
+        <div class="birthday-row">
+            <span class="birthday-member">又一</span>
+            <input type="text" class="birthday-input" id="bdayYouyi" placeholder="例如 0128">
+            <button class="birthday-btn" id="btnYouyi" onclick="verifyBirthday('youyi')">验证</button>
+        </div>
+        <div class="birthday-row">
+            <span class="birthday-member">沐霂</span>
+            <input type="text" class="birthday-input" id="bdayMumu" placeholder="例如 1017">
+            <button class="birthday-btn" id="btnMumu" onclick="verifyBirthday('mumu')">验证</button>
+        </div>
+        <div class="birthday-row">
+            <span class="birthday-member">梨安</span>
+            <input type="text" class="birthday-input" id="bdayLian" placeholder="例如 1203">
+            <button class="birthday-btn" id="btnLian" onclick="verifyBirthday('lian')">验证</button>
+        </div>
+        <p id="birthdayHint" style="color: #27ae60; font-weight: 500;"></p>
+    </div>
+
+    <!-- 石油工区块 -->
+    <div id="oil-workers-block" style="display: none;">
+        <h2>石油工</h2>
+        <div class="social-avatars">
+            <a href="https://space.bilibili.com/5921775" target="_blank"><img src="images/翻桌树.jpg" alt="翻桌树"></a>
+            <a href="https://space.bilibili.com/11283581" target="_blank"><img src="images/赵伦宇.jpg" alt="赵伦宇"></a>
+            <a href="https://space.bilibili.com/34983598" target="_blank"><img src="images/好栗嗨.jpg" alt="普通小豆好栗嗨呀"></a>
+            <a href="https://space.bilibili.com/1519588" target="_blank"><img src="images/虎落平阳变北7.jpg" alt="虎落平阳变北7"></a>
+        </div>
+    </div>
+
+    <!-- 社交链接 -->
+    <div id="social-actions" style="display: none; margin-top:30px;">
+        <h3>社交媒体账号 (点击跳转)</h3>
+        <ul id="social-links-list" style="display: flex; flex-wrap: wrap; gap: 20px; list-style: none; justify-content: center;"></ul>
+    </div>
+
+    <!-- 三级问题区域：粉丝牌 -->
+    <div id="thirdLevelQuiz" style="display: none; margin: 30px 0; padding: 20px; background: #ffe9f0; border-radius: 40px;">
+        <h3 style="color:#d74177;">🏷️ 终极问题：输入每位成员的粉丝牌名字解锁DLC3</h3>
+        <div class="fan-row">
+            <span class="fan-member">恬豆</span>
+            <input type="text" class="fan-input" id="fanTiandou" placeholder="粉丝牌名字">
+        </div>
+        <div class="fan-row">
+            <span class="fan-member">沐霂</span>
+            <input type="text" class="fan-input" id="fanMumu" placeholder="粉丝牌名字">
+        </div>
+        <div class="fan-row">
+            <span class="fan-member">又一</span>
+            <input type="text" class="fan-input" id="fanYouyi" placeholder="粉丝牌名字">
+        </div>
+        <div class="fan-row">
+            <span class="fan-member">梨安</span>
+            <input type="text" class="fan-input" id="fanLian" placeholder="粉丝牌名字">
+        </div>
+        <button class="submit-btn" onclick="verifyThirdLevel()">提交验证</button>
+        <div id="thirdError" class="error-message" style="display: none;">答案错误，请重新输入</div>
+    </div>
+
+    <!-- 禧运宇宙老头卡片 -->
+    <div id="universeElders" style="display: none; margin-top: 40px;">
+        <h3>🧓 禧运宇宙老头们 (点击头像跳转微博)</h3>
+        <div class="universe-elders">
+            <div class="elder-card" onclick="window.open('https://weibo.com/u/3675865547', '_blank')">
+                <img src="characters/041.png" alt="林思意" onerror="this.src='https://via.placeholder.com/100?text=🦀'">
+                <div class="elder-name">🦀 螃蟹老头 · 林思意</div>
+                <div class="elder-desc">字节不给的，我给你</div>
+            </div>
+            <div class="elder-card" onclick="window.open('https://weibo.com/u/3668829440', '_blank')">
+                <img src="characters/赵粤.jpg" alt="赵粤" onerror="this.src='https://via.placeholder.com/100?text=🍲'">
+                <div class="elder-name">🍲 酸汤老头 · 赵粤</div>
+                <div class="elder-desc">一饭之恩</div>
+            </div>
+            <div class="elder-card" onclick="window.open('https://weibo.com/u/3669091483', '_blank')">
+                <img src="characters/three.jpg" alt="孙芮" onerror="this.src='https://via.placeholder.com/100?text=🐉🥛'">
+                <div class="elder-name">🐉 奶龙老头 · 孙芮</div>
+                <div class="elder-desc">初代目父母爱情</div>
+            </div>
+            <div class="elder-card" onclick="window.open('https://weibo.com/u/5681431767', '_blank')">
+                <img src="characters/刘增艳.jpg" alt="刘增艳" onerror="this.src='https://via.placeholder.com/100?text=🍳'">
+                <div class="elder-name">🍳 锅 · 刘增艳</div>
+                <div class="elder-desc">AD钙奶UPUPUP</div>
+            </div>
+            <div class="elder-card" onclick="window.open('https://weibo.com/u/5690264778', '_blank')">
+                <img src="characters/姜杉.jpg" alt="姜杉" onerror="this.src='https://via.placeholder.com/100?text=🍍'">
+                <div class="elder-name">🍍 菠萝 · 姜杉</div>
+                <div class="elder-desc">我们仨过好日子比啥都重要</div>
+            </div>
+            <div class="elder-card" onclick="window.open('https://weibo.com/u/6812190117', '_blank')">
+                <img src="characters/颜沁.jpg" alt="颜沁" onerror="this.src='https://via.placeholder.com/100?text=🐱'">
+                <div class="elder-name">🐱 猫咪 · 颜沁</div>
+                <div class="elder-desc">我们仨过好日子比啥都重要</div>
+            </div>
+            <div class="elder-card" onclick="window.open('https://weibo.com/u/6853391869', '_blank')">
+                <img src="characters/1+2.jpg" alt="易嘉爱" onerror="this.src='https://via.placeholder.com/100?text=🐱'">
+                <div class="elder-name">🎤 年糕老头 · 易嘉爱</div>
+                <div class="elder-desc">1+2=6</div>
+            </div>
+            <div class="elder-card" onclick="window.open('https://weibo.com/u/6201382716', '_blank')">
+                <img src="characters/邹佳佳.jpg" alt="邹佳佳" onerror="this.src='https://via.placeholder.com/100?text=🐱'">
+                <div class="elder-name">🐻 小猪熊· 佳佳子</div>
+                <div class="elder-desc">一麦克风开启禧运宇宙</div>
+            </div>
+        </div>
+
+        <div class="special-elder-row">
+            <div class="elder-card" onclick="window.open('https://weibo.com/u/7735668873', '_blank')">
+                <img src="characters/黄婷婷.jpg" alt="黄婷婷" onerror="this.src='https://via.placeholder.com/100?text=🚥'">
+                <div class="elder-name">🚥 红绿灯 · 黄婷婷</div>
+                <div class="elder-desc">悄悄的今晚相遇这里</div>
+            </div>
+            <div class="elder-card" onclick="window.open('https://weibo.com/u/3700233717', '_blank')">
+                <img src="characters/夜王莉莉丝Channel.jpg" alt="那位大人" onerror="this.src='https://via.placeholder.com/100?text=🦋'">
+                <div class="elder-name">🧛‍♀️ · 那位大人</div>
+                <div class="elder-desc">若能化身成人拥抱你</div>
+            </div>
+        </div>
+        <p style="color: #888; font-size:0.8rem; text-align:center;">※ 微博链接为示例，请自行核对替换</p>
+    </div>
+</section>

@@ -1,0 +1,24 @@
+<!-- 页脚：留言板 + 版权 -->
+<footer>
+    <!-- 流光留言板 · 粉丝牌应援版 -->
+    <div class="guestbook" id="flowGuestbook">
+        <h3>✨ 粉丝牌寄语 · 流光留言板 ✨</h3>
+
+        <div class="fan-selector">
+            <button class="fan-btn active" data-fan="onlywan" onclick="setFanTheme('onlywan')">only丸</button>
+            <button class="fan-btn" data-fan="tiandou" onclick="setFanTheme('tiandou')">恬豆包</button>
+            <button class="fan-btn" data-fan="yoyi" onclick="setFanTheme('yoyi')">酥酥又</button>
+            <button class="fan-btn" data-fan="mumu" onclick="setFanTheme('mumu')">小沐标</button>
+            <button class="fan-btn" data-fan="lian" onclick="setFanTheme('lian')">向心梨</button>
+        </div>
+
+        <div class="message-input-area">
+            <input type="text" id="visitorName" placeholder="你的昵称 (禧运客官)">
+            <input type="text" id="visitorMsg" placeholder="写下你想对这位粉丝牌主人说的话...">
+            <button onclick="addMessage()">流光寄语</button>
+        </div>
+        <div class="message-board" id="messageList"></div>
+        <div class="pagination"></div>
+    </div>
+    <p>四禧丸子（SIXIWANZI）官方介绍站 | 资料来源：萌娘百科 | Copyright © 2025 SIXIWANZI All Rights Reserved</p>
+</footer>

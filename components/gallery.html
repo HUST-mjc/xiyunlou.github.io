@@ -1,0 +1,29 @@
+<!-- HD 画册（两级浏览） -->
+<section id="hd">
+    <h2>📷 HD 画册</h2>
+    <div id="hd-root" class="folder-view">
+        <div class="folder-grid game-grid" id="hd-folders"></div>
+    </div>
+    <div id="hd-folder-view" class="folder-view" style="display: none;">
+        <div class="back-bar">
+            <button class="back-btn" onclick="showHDRoot()">← 返回上级</button>
+            <span class="current-folder" id="hd-current-folder"></span>
+        </div>
+        <div class="image-grid game-grid" id="hd-images"></div>
+    </div>
+</section>
+
+<!-- 服饰展示（两级浏览） -->
+<section id="clothes">
+    <h2>👗 服饰展示</h2>
+    <div id="clothes-root" class="folder-view">
+        <div class="folder-grid game-grid" id="clothes-folders"></div>
+    </div>
+    <div id="clothes-folder-view" class="folder-view" style="display: none;">
+        <div class="back-bar">
+            <button class="back-btn" onclick="showClothesRoot()">← 返回上级</button>
+            <span class="current-folder" id="clothes-current-folder"></span>
+        </div>
+        <div id="clothes-accordion-wrapper"></div>
+    </div>
+</section>
