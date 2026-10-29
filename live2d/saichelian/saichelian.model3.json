@@ -1,0 +1,11 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "saichelian.moc3",
+		"Textures": [
+			"saichelian.4096/texture_00.png"
+		],
+		"Physics": "saichelian.physics3.json",
+		"DisplayInfo": "saichelian.cdi3.json"
+	}
+}

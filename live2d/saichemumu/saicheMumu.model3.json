@@ -1,0 +1,50 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "saicheMumu.moc3",
+		"Textures": [
+			"saicheMumu.4096/texture_00.png"
+		],
+		"Physics": "saicheMumu.physics3.json",
+		"DisplayInfo": "saicheMumu.cdi3.json",
+		"Motions": {
+			"Idle": [
+				{
+					"File": "saicheMumu.idle.motion3.json"
+				}
+			],
+			"Blink": [
+				{
+					"File": "saicheMumu.blink.motion3.json"
+				}
+			],
+			"Nod": [
+				{
+					"File": "saicheMumu.nod.motion3.json"
+				}
+			],
+			"Shake": [
+				{
+					"File": "saicheMumu.shake.motion3.json"
+				}
+			]
+		}
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": [
+				"ParamEyeLOpen",
+				"ParamEyeROpen"
+			]
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": [
+				"ParamMouthOpenY"
+			]
+		}
+	]
+}

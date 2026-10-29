@@ -1,0 +1,11 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "saicheyoyi.moc3",
+		"Textures": [
+			"saicheyoyi.4096/texture_00.png"
+		],
+		"Physics": "saicheyoyi.physics3.json",
+		"DisplayInfo": "saicheyoyi.cdi3.json"
+	}
+}
